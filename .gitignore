@@ -1,0 +1,5 @@
+# Build Artifacts
+**/__pycache__/**
+
+# IDE Related
+/.idea/
