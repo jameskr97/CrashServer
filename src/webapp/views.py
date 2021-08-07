@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request
 from werkzeug.utils import secure_filename
 from flask import current_app
 from pathlib import Path
+import magic
 
 views = Blueprint("views", __name__)
 
@@ -47,6 +48,11 @@ def upload_api():
         return {"error": "Missing minidump"}, 400
     minidump = request.files["upload_file_minidump"]
     minidump_fname = secure_filename(minidump.filename)
+
+    # Validate magic number
+    magic_number = magic.from_buffer(minidump.stream.read(2048), mime=True)
+    if magic_number != "application/x-dmp":
+        return {"error": "Bad Minidump"}, 400
 
     metadata = {
         "guid": annotations["guid"] if annotations["guid"] else None,
