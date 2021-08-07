@@ -1,4 +1,7 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
+from werkzeug.utils import secure_filename
+from flask import current_app
+from pathlib import Path
 
 views = Blueprint("views", __name__)
 
@@ -21,3 +24,38 @@ def symbols():
 @views.route('/upload')
 def upload():
     return render_template("upload.html")
+
+
+@views.route('/api/upload', methods=["POST"])
+def upload_api():
+    """
+    A crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
+    argument, and it will save and prepare the file for processing
+    :return:
+    """
+    # Error out if encoding is gzip. TODO(james): Handle gzip
+    if request.content_encoding == "gzip":
+        return {"error": "Cannot accept gzip"}, 400
+
+    # Ensure required annotations have been uploaded
+    annotations = dict(request.values)
+    if not all([x in annotations.keys() for x in ["version", "git_hash"]]):
+        return {"error": "Parameters are missing"}, 400
+
+    # Ensure minidump file was uploaded
+    if "upload_file_minidump" not in request.files.keys():
+        return {"error": "Missing minidump"}, 400
+    minidump = request.files["upload_file_minidump"]
+    minidump_fname = secure_filename(minidump.filename)
+
+    metadata = {
+        "guid": annotations["guid"] if annotations["guid"] else None,
+        "minidump_filename": minidump_fname,
+        "game_version": annotations["version"],
+        "git_hash": annotations["git_hash"],
+    }
+
+    # Save the minidump
+    minidump_file = Path(current_app.config["MINIDUMP_STORE"]) / minidump_fname
+    minidump.save(minidump_file.absolute())
+    return "Received", 200
