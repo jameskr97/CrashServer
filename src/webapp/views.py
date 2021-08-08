@@ -15,7 +15,8 @@ def home():
 
 @views.route('/crash-reports')
 def crash():
-    return render_template("crash.html")
+    res = Minidump.query.order_by(Minidump.date_created.desc()).limit(5).all()
+    return render_template("crash.html", dumps=res)
 
 
 @views.route('/symbols')

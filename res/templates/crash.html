@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h1>Crash Reports</h1>
+	<h1 class="text-center">Crash Reports</h1>
+	<hr>
+	<ul class="list-group">
+		{% for dump in dumps %}
+			<li class="list-group-item">
+				<a href="/crash-reports/{{ dump.id }}">MiniDump</a> {{ dump.id }}
+			</li>
+		{% endfor %}
+	</ul>
 {% endblock %}
