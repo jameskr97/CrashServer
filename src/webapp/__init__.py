@@ -20,7 +20,9 @@ def create_app() -> Flask:
 
     # Import and register views
     from .views import views
+    from .api import api
     app.register_blueprint(views)
+    app.register_blueprint(api)
 
     # Create config directories
     Path(app.config["MINIDUMP_STORE"]).absolute().mkdir(exist_ok=True)
