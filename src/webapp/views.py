@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request
-from werkzeug.utils import secure_filename
-from flask import current_app
+from . import db
+from .models import Minidump
 from pathlib import Path
+from flask import Blueprint, render_template, request, current_app
+from werkzeug.utils import secure_filename
 import magic
 
 views = Blueprint("views", __name__)
@@ -55,8 +56,6 @@ def upload_api():
         return {"error": "Bad Minidump"}, 400
 
     metadata = {
-        "guid": annotations["guid"] if annotations["guid"] else None,
-        "minidump_filename": minidump_fname,
         "game_version": annotations["version"],
         "git_hash": annotations["git_hash"],
     }
@@ -64,4 +63,12 @@ def upload_api():
     # Save the minidump
     minidump_file = Path(current_app.config["MINIDUMP_STORE"]) / minidump_fname
     minidump.save(minidump_file.absolute())
+
+    # Add entry to database
+    new_dump = Minidump()
+    new_dump.filename = minidump_fname
+    new_dump.client_guid = annotations["guid"] if annotations["guid"] else None
+    db.session.add(new_dump)
+    db.session.commit()
+
     return "Received", 200

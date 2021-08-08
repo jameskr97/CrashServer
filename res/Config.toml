@@ -1,1 +1,5 @@
 MINIDUMP_STORE = "data/minidumps"
+HOST = ""
+USER = ""
+PASS = ""
+DB_NAME = ""
