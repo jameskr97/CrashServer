@@ -1,5 +1,5 @@
 from . import db
-from .models import Minidump
+from .models import Minidump, Annotation
 from pathlib import Path
 from flask import Blueprint, render_template, request, current_app
 from werkzeug.utils import secure_filename
@@ -39,11 +39,6 @@ def upload_api():
     if request.content_encoding == "gzip":
         return {"error": "Cannot accept gzip"}, 400
 
-    # Ensure required annotations have been uploaded
-    annotations = dict(request.values)
-    if not all([x in annotations.keys() for x in ["version", "git_hash"]]):
-        return {"error": "Parameters are missing"}, 400
-
     # Ensure minidump file was uploaded
     if "upload_file_minidump" not in request.files.keys():
         return {"error": "Missing minidump"}, 400
@@ -55,20 +50,25 @@ def upload_api():
     if magic_number != "application/x-dmp":
         return {"error": "Bad Minidump"}, 400
 
-    metadata = {
-        "game_version": annotations["version"],
-        "git_hash": annotations["git_hash"],
-    }
+    # At this point, we have received a minidump validated to be the correct type.
+    # Save the file, insert annotations, and insert minidump records.
 
     # Save the minidump
     minidump_file = Path(current_app.config["MINIDUMP_STORE"]) / minidump_fname
     minidump.save(minidump_file.absolute())
 
-    # Add entry to database
-    new_dump = Minidump()
-    new_dump.filename = minidump_fname
-    new_dump.client_guid = annotations["guid"] if annotations["guid"] else None
+    # Add minidump to database
+    new_dump = Minidump(filename=minidump_fname, client_guid=request.args.get("guid", default=None))
     db.session.add(new_dump)
+    db.session.flush()
+
+    # Add annotations to database
+    annotation = dict(request.values)
+    annotation.pop("guid", None)  # Remove GUID value from annotations
+    for key, value in annotation.items():
+        new_annotation = Annotation(minidump_id=new_dump.id, key=key, value=value)
+        db.session.add(new_annotation)
+
     db.session.commit()
 
     return "Received", 200
