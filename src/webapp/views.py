@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template
-from .models import Minidump
+from .models import Minidump, Annotation
 
 views = Blueprint("views", __name__)
 
@@ -14,6 +14,11 @@ def crash():
     res = Minidump.query.order_by(Minidump.date_created.desc()).limit(5).all()
     return render_template("crash.html", dumps=res)
 
+@views.route('/crash-reports/<crash_id>')
+def crash_detail(crash_id):
+    dump = Minidump.query.filter_by(id=crash_id).first()
+    annotations = Annotation.query.filter_by(minidump_id=dump.id)
+    return render_template("crash_detail.html", dump=dump, annotations=annotations)
 
 @views.route('/symbols')
 def symbols():

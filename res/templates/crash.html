@@ -6,7 +6,7 @@
 	<ul class="list-group">
 		{% for dump in dumps %}
 			<li class="list-group-item">
-				<a href="/crash-reports/{{ dump.id }}">MiniDump</a> {{ dump.id }}
+				<a href="/crash-reports/{{ dump.id }}">MiniDump</a> {{ dump.filename }}
 			</li>
 		{% endfor %}
 	</ul>
