@@ -15,7 +15,7 @@ def create_app() -> Flask:
     templates = resources_root / "templates"
     static = resources_root / "static"
 
-    app = Flask("CrashServer", static_folder=static.name, template_folder=templates.name)
+    app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))
     app.config.from_file(resources_root / "Config.toml", load=toml.load)
 
     # Import and register views
