@@ -10,6 +10,8 @@ body {
     display: grid;
     grid-auto-rows: 100px;
     grid-row-gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-column-gap: 30px;
 }
 
 . h2 {
