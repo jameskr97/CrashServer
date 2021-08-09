@@ -1,7 +1,21 @@
 {% extends "base.html" %}
 
+{% macro test_row() %}
+<div class="home-row">
+	<img src="https://via.placeholder.com/100" alt="">
+	<span class="home-app-title">Application</span>
+	<button type="button" class="home-app-button btn btn-outline-dark">View</button>
+</div>
+	
+{% endmacro %}
 {% block content %}
 	<h1 class="text-center">Symbol Storage and Minidump Decode</h1>
 	<hr>
+	<div class="grid">
+		{{ test_row() }}
+		{{ test_row() }}
+		{{ test_row() }}
+		{{ test_row() }}
+	</div>
 
 {% endblock %}

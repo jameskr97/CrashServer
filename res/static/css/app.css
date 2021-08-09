@@ -5,3 +5,38 @@ body {
 .container {
     padding-top: 15px;
 }
+
+.grid {
+    display: grid;
+    grid-auto-rows: 100px;
+    grid-row-gap: 10px;
+}
+
+. h2 {
+    display: inline;
+}
+
+.home-row {
+    display: flex;
+    flex-basis: 0;
+    border: 2px solid rgba(33, 37, 41, 0.14);
+    border-radius: 10px;
+}
+
+.home-row img {
+    border-radius: 10%;
+    width: 90px;
+}
+
+.home-app-title {
+    font-size: 26px;
+    vertical-align: center;
+    margin-top: 5px;
+    margin-left: 10px
+}
+
+.home-app-button {
+    margin-left: auto;
+    margin-right: 25px;
+    align-self: center;
+}
