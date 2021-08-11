@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_utils import create_database, database_exists
@@ -15,8 +16,11 @@ def create_app() -> Flask:
     templates = resources_root / "templates"
     static = resources_root / "static"
 
+    config_file = os.environ.get("CONFIG_FILE", default=resources_root / "Config.toml")
+    config_data = toml.load(config_file)
+
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))
-    app.config.from_file(resources_root / "Config.toml", load=toml.load)
+    app.config["SECRET_KEY"] = config_data["flask"]["secret_key"]
 
     # Import and register views
     from .views import views
@@ -25,15 +29,16 @@ def create_app() -> Flask:
     app.register_blueprint(api)
 
     # Create config directories
-    Path(app.config["MINIDUMP_STORE"]).absolute().mkdir(parents=True, exist_ok=True)
-    init_database(app)
+    Path(config_data["storage"]["minidump_location"]).absolute().mkdir(parents=True, exist_ok=True)
+    Path(config_data["storage"]["symbol_location"]).absolute().mkdir(parents=True, exist_ok=True)
+    init_database(app, config_data["postgres"])
 
     return app
 
-def init_database(app):
+def init_database(app: Flask, sql_params: dict):
     # Get config values
-    dbu, dbp = app.config["USER"], app.config["PASS"]
-    dbh, dbn = app.config["HOST"], app.config["DB_NAME"]
+    dbu, dbp = sql_params["username"], sql_params["password"]
+    dbh, dbn = sql_params["hostname"], sql_params["database"]
     db_url = f"postgresql://{dbu}:{dbp}@{dbh}:5432/{dbn}"
 
     # Configure app parameters

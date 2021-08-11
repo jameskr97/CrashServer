@@ -1,5 +1,14 @@
-MINIDUMP_STORE = "data/minidumps"
-HOST = ""
-USER = ""
-PASS = ""
-DB_NAME = ""
+# CrashServer Configuration File
+
+[flask]
+secret_key = "changeme"
+
+[postgres]
+hostname = ""
+username = ""
+password = ""
+database = ""
+
+[storage]
+minidump_location = "data/minidumps"
+symbol_location = "data/symbols"
