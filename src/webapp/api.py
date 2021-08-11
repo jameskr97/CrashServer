@@ -1,5 +1,5 @@
 from . import db
-from .models import Minidump, Annotation
+from .models import Minidump, Annotation, Application
 from pathlib import Path
 from flask import Blueprint, request, current_app
 from werkzeug.utils import secure_filename
@@ -11,13 +11,24 @@ api = Blueprint("api", __name__)
 @api.route('/api/upload', methods=["POST"])
 def upload_api():
     """
-    A crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
+    A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
     argument, and it will save and prepare the file for processing
     :return:
     """
     # Error out if encoding is gzip. TODO(james): Handle gzip
     if request.content_encoding == "gzip":
         return {"error": "Cannot accept gzip"}, 400
+
+    # Ensure endpoint was called with API key, and that the key exists
+    if "api-key" not in request.args.keys():
+        return {"error": "Missing api key"}, 400
+
+    app = Application.query\
+        .with_entities(Application.id)\
+        .filter_by(api_key=request.args["api-key"])\
+        .first()
+    if app is None:
+        return {"error": "Bad api key"}, 400
 
     # Ensure minidump file was uploaded
     if "upload_file_minidump" not in request.files.keys():
@@ -38,7 +49,10 @@ def upload_api():
     minidump.save(minidump_file.absolute())
 
     # Add minidump to database
-    new_dump = Minidump(filename=minidump_fname, client_guid=request.args.get("guid", default=None))
+    new_dump = Minidump(
+        filename=minidump_fname,
+        app_id=app.id,
+        client_guid=request.args.get("guid", default=None))
     db.session.add(new_dump)
     db.session.flush()
 

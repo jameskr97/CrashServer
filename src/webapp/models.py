@@ -3,6 +3,18 @@ from sqlalchemy.sql import func
 from . import db
 import uuid
 
+
+class Application(db.Model):
+    """
+    Crash Server is capable of storing symbols for, and decoding minidumps for multiple applications.
+    Each row in the applications table is the logical separation for each application
+    """
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    app_name = db.Column(db.Text(), nullable=False)
+    api_key = db.Column(db.String(length=32), nullable=False)
+
+
 class Annotation(db.Model):
     """
     A crashpad_handler may be configured to upload an arbitrary number of annotations alongside
@@ -18,6 +30,7 @@ class Annotation(db.Model):
     key = db.Column(db.Text(), nullable=False)
     value = db.Column(db.Text(), nullable=False)
 
+
 class Minidump(db.Model):
     """
     Each minidump uploaded will get a file reference. The file won't always exist on system,
@@ -31,6 +44,7 @@ class Minidump(db.Model):
     machine_stacktrace: Stacktrace decoded with `./minidump_stackwalk -m <dmp> <symbols>`
     """
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    app_id = db.Column(UUID(as_uuid=True), db.ForeignKey('application.id'), nullable=False)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     filename = db.Column(db.Text(), nullable=False)
     client_guid = db.Column(UUID(as_uuid=True), nullable=True)

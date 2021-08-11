@@ -42,3 +42,8 @@ body {
     margin-right: 25px;
     align-self: center;
 }
+
+.app-create-grid {
+  display: flex;
+  justify-content: center;
+}

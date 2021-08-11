@@ -25,7 +25,7 @@ def create_app() -> Flask:
     app.register_blueprint(api)
 
     # Create config directories
-    Path(app.config["MINIDUMP_STORE"]).absolute().mkdir(exist_ok=True)
+    Path(app.config["MINIDUMP_STORE"]).absolute().mkdir(parents=True, exist_ok=True)
     init_database(app)
 
     return app
@@ -42,6 +42,8 @@ def init_database(app):
     db.init_app(app)
 
     # Import database tables for flask to generate
+    from .models import Application
+    from .models import Annotation
     from .models import Minidump
 
     # Ensure database exists

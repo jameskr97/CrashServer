@@ -1,21 +1,23 @@
 {% extends "base.html" %}
 
-{% macro test_row() %}
+{% macro app_entry(title, url, button_title) %}
 <div class="home-row">
 	<img src="https://via.placeholder.com/100" alt="">
-	<span class="home-app-title">Application</span>
-	<button type="button" class="home-app-button btn btn-outline-dark">View</button>
+	<span class="home-app-title">{{ title }}</span>
+	<a class="home-app-button" href="{{ url }}">
+		<button type="button" class="btn btn-outline-dark">{{ button_title }}</button>
+	</a>
 </div>
-	
 {% endmacro %}
+
 {% block content %}
 	<h1 class="text-center">Symbol Storage and Minidump Decode</h1>
 	<hr>
 	<div class="grid">
-		{{ test_row() }}
-		{{ test_row() }}
-		{{ test_row() }}
-		{{ test_row() }}
+		{% for app in apps %}
+			{{ app_entry(app.app_name, url_for("views.app_dashboard", id=app.id), "View") }}
+		{% endfor %}
+		{{ app_entry("Create App", url_for("views.app_create"), "+") }}
 	</div>
 
 {% endblock %}

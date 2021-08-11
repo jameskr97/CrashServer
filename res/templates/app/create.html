@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1 class="text-center">Create Application</h1>
+	<hr>
+	<p class="text-center">Each application represents a piece of software capable of uploading minidump files after they crash.</p>
+	
+	<div class="app-create-grid">
+		<form style="width: min(100%, 500px)" method="post" action="{{ url_for("views.app_create") }}">
+			<div class="text-center" style="font-size: 20px; margin-bottom: 10px;">
+				<label for="app_name">App Name</label>
+			</div>
+			<div class="mb-3">
+				<input type="text" id="app_name" name="app_name" class="form-control" autocomplete="off" required>
+			</div>
+			<div class="text-center">
+				<button type="submit" class="btn btn-outline-dark">Create</button>
+			</div>
+		</form>
+	</div>
+{% endblock %}
