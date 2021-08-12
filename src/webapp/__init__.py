@@ -12,13 +12,16 @@ def create_app() -> Flask:
     Create Flask all object with all paths, error handlers, extensions, etc. registered.
     :return: Flask app object
     """
+    # Setup config directories
     resources_root = Path("res").absolute()
     templates = resources_root / "templates"
     static = resources_root / "static"
 
+    # Load config file
     config_file = os.environ.get("CONFIG_FILE", default=resources_root / "Config.toml")
     config_data = toml.load(config_file)
 
+    # Create app and inital parameters
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))
     app.config["SECRET_KEY"] = config_data["flask"]["secret_key"]
 
