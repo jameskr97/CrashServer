@@ -2,8 +2,28 @@
 
 
 {% block content %}
-	<h1>Detailed Crash Report</h1>
+	<h1 class="text-center">Detailed Crash Report</h1>
 	<hr>
-	<h2>Application Name</h2>
+	<h2>{{ project.project_name }}</h2>
+	<p>Uploaded on {{ dump.date_created.strftime("%F %T %Z") }}</p>
+	<hr>
 
+	{% if dump.raw_stacktrace == None %}
+		<h2 class="text-center">Processing minidump...</h2>
+		<div class="container">
+			<div class="d-flex justify-content-center">
+				<div class="spinner-grow text-center" role="status">
+					<span class="visually-hidden">Processing minidump...</span>
+				</div>
+			</div>
+		</div>
+{#		// TODO(james): This is not the solution to keep, but it's a solution for now #}
+		<meta http-equiv="refresh" content="3" />
+	{% else %}
+		<pre>
+			<code>
+{{ dump.raw_stacktrace }}
+			</code>
+		</pre>
+	{% endif %}
 {% endblock %}

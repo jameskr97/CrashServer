@@ -4,12 +4,13 @@ from pathlib import Path
 from flask import Blueprint, request, current_app
 from werkzeug.utils import secure_filename
 import magic
+import tasks
 
 api = Blueprint("api", __name__)
 
 
 @api.route('/api/minidump/upload', methods=["POST"])
-def upload_api():
+def upload_minidump():
     """
     A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
     argument, and it will save and prepare the file for processing
@@ -46,6 +47,7 @@ def upload_api():
 
     # Save the minidump
     minidump_file = Path(current_app.config["cfg"]["storage"]["minidump_location"]) / minidump_fname
+    minidump.stream.seek(0)
     minidump.save(minidump_file.absolute())
 
     # Add minidump to database
@@ -64,6 +66,8 @@ def upload_api():
         db.session.add(new_annotation)
 
     db.session.commit()
+
+    tasks.decode_minidump(new_dump.id)()
 
     return {"status": "success"}, 200
 
@@ -107,12 +111,11 @@ def upload_symbol():
 
     # Check if module_id already exists
     res = Symbol.query.filter_by(build_id=build_id).first()
-    print(res)
     if res:
         return {"error": "Symbol file already uploaded"}, 400
 
     dir_location = Path(module_id, build_id, secure_filename(symfile.filename))
-    sym_loc = Path(current_app["cfg"]["storage"]["symbol_location"], str(project.id)) / dir_location
+    sym_loc = Path(current_app.config["cfg"]["storage"]["symbol_location"], str(project.id)) / dir_location
     sym_loc.parent.mkdir(parents=True, exist_ok=True)
 
     # Save to filesystem

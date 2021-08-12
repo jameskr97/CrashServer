@@ -43,9 +43,8 @@ def crash():
 
 @views.route('/crash-reports/<crash_id>')
 def crash_detail(crash_id):
-    dump = Minidump.query.filter_by(id=crash_id).first()
-    annotations = Annotation.query.filter_by(minidump_id=dump.id)
-    return render_template("crash_detail.html", dump=dump, annotations=annotations)
+    res = db.session.query(Minidump, Project).filter(Minidump.id == crash_id).first()
+    return render_template("crash_detail.html", dump=res[0], project=res[1])
 
 
 @views.route('/symbols')
