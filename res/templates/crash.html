@@ -2,9 +2,9 @@
 
 {% macro GenRow(dump, project) %}
 <tr>
-	<th scope="row">{{ project }}</th>
-	<th><a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ dump.filename }}</a></th>
-	<th>{{ dump.date_created.strftime('%F %X %Z') }}</th>
+	<td scope="row">{{ project }}</td>
+	<td><a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ dump.filename }}</a></td>
+	<td>{{ dump.date_created.strftime('%F %X %Z') }}</td>
 </tr>
 {% endmacro %}
 
