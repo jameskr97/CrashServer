@@ -4,14 +4,18 @@ from . import db
 import uuid
 
 
-class Application(db.Model):
+class Project(db.Model):
     """
-    Crash Server is capable of storing symbols for, and decoding minidumps for multiple applications.
-    Each row in the applications table is the logical separation for each application
+    Crash Server is capable of storing symbols for, and decoding minidumps for multiple projects.
+
+    id: Generated GUID for this table
+    date_created: The timestamp of when the minidump was uploaded
+    project_name: User-friendly interface name of the project
+    api_key: An api key to be used when uploading minidumps
     """
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    app_name = db.Column(db.Text(), nullable=False)
+    project_name = db.Column(db.Text(), nullable=False)
     api_key = db.Column(db.String(length=32), nullable=False)
 
 
@@ -37,14 +41,15 @@ class Minidump(db.Model):
     but any data to regenerate the UI view of the minidump on /crash-report endpoints
 
     id: Generated GUID for this table
-    processed: True if raw_stacktrace and machine_stacktrace have been generated.
+    project_id: The project which this minidump relates to
+    date_created: The timestamp of when the minidump was uploaded
     filename: The filename of the guid stored in the MINIDUMP_STORE directory
     client_guid: The guid parameter passed in from the post parameters. Optional.
     raw_stacktrace: Stacktrace decoded with `./minidump_stackwalk <dmp> <symbols>`
     machine_stacktrace: Stacktrace decoded with `./minidump_stackwalk -m <dmp> <symbols>`
     """
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    app_id = db.Column(UUID(as_uuid=True), db.ForeignKey('application.id'), nullable=False)
+    project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     filename = db.Column(db.Text(), nullable=False)
     client_guid = db.Column(UUID(as_uuid=True), nullable=True)

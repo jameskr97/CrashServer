@@ -4,35 +4,35 @@ import uuid
 from flask import Blueprint, render_template, request, redirect, url_for
 
 from . import db
-from .models import Minidump, Annotation, Application
+from .models import Annotation, Minidump, Project
 
 views = Blueprint("views", __name__)
 
 
 @views.route('/')
 def home():
-    apps = Application.query.with_entities(Application.id, Application.app_name).all()
+    apps = Project.query.with_entities(Project.id, Project.project_name).all()
     return render_template("home.html", apps=apps)
 
 
-@views.route('/app/create', methods=["GET", "POST"])
-def app_create():
+@views.route('/project/create', methods=["GET", "POST"])
+def project_create():
     if request.method == "GET":
         return render_template("app/create.html")
 
-    new_app = Application(app_name=request.form.get("app_name"))
+    new_project = Project(project_name=request.form.get("project_name"))
     new_api_key = str(uuid.UUID(bytes=os.urandom(16), version=4)).replace("-", "")
-    new_app.api_key = new_api_key
+    new_project.api_key = new_api_key
 
-    db.session.add(new_app)
+    db.session.add(new_project)
     db.session.commit()
-    return redirect(url_for('views.app_dashboard', id=new_app.id))
+    return redirect(url_for('views.project_dashboard', id=new_project.id))
 
 
-@views.route('/app/<id>')
-def app_dashboard(id: str):
-    app = Application.query.filter_by(id=id).first()
-    return render_template("app/dashboard.html", app=app)
+@views.route('/project/<id>')
+def project_dashboard(id: str):
+    proj = Project.query.filter_by(id=id).first()
+    return render_template("app/dashboard.html", project=proj)
 
 
 @views.route('/crash-reports')

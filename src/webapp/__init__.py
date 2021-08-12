@@ -50,12 +50,13 @@ def init_database(app: Flask, sql_params: dict):
     db.init_app(app)
 
     # Import database tables for flask to generate
-    from .models import Application
     from .models import Annotation
     from .models import Minidump
+    from .models import Project
 
     # Ensure database exists
     if not database_exists(db_url):
         create_database(db_url)
-        db.create_all(app=app)  # Setup Database
         print("Database created")
+
+    db.create_all(app=app)  # Setup Database

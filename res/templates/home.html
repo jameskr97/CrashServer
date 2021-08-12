@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% macro app_entry(title, url, button_title) %}
+{% macro project_entry(title, url, button_title) %}
 <div class="home-row">
 	<img src="https://via.placeholder.com/100" alt="">
 	<span class="home-app-title">{{ title }}</span>
@@ -15,9 +15,9 @@
 	<hr>
 	<div class="grid">
 		{% for app in apps %}
-			{{ app_entry(app.app_name, url_for("views.app_dashboard", id=app.id), "View") }}
+			{{ project_entry(app.project_name, url_for("views.project_dashboard", id=app.id), "View") }}
 		{% endfor %}
-		{{ app_entry("Create App", url_for("views.app_create"), "+") }}
+		{{ project_entry("Create App", url_for("views.project_create"), "+") }}
 	</div>
 
 {% endblock %}

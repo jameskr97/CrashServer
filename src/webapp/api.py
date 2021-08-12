@@ -1,5 +1,5 @@
 from . import db
-from .models import Minidump, Annotation, Application
+from .models import Minidump, Annotation, Project
 from pathlib import Path
 from flask import Blueprint, request, current_app
 from werkzeug.utils import secure_filename
@@ -23,11 +23,11 @@ def upload_api():
     if "api-key" not in request.args.keys():
         return {"error": "Missing api key"}, 400
 
-    app = Application.query\
-        .with_entities(Application.id)\
+    project = Project.query\
+        .with_entities(Project.id)\
         .filter_by(api_key=request.args["api-key"])\
         .first()
-    if app is None:
+    if project is None:
         return {"error": "Bad api key"}, 400
 
     # Ensure minidump file was uploaded
@@ -51,7 +51,7 @@ def upload_api():
     # Add minidump to database
     new_dump = Minidump(
         filename=minidump_fname,
-        app_id=app.id,
+        project_id=project.id,
         client_guid=request.args.get("guid", default=None))
     db.session.add(new_dump)
     db.session.flush()
