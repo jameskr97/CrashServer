@@ -1,5 +1,5 @@
 from . import db
-from .models import Minidump, Annotation, Project
+from .models import Minidump, Annotation, Project, Symbol
 from pathlib import Path
 from flask import Blueprint, request, current_app
 from werkzeug.utils import secure_filename
@@ -8,7 +8,7 @@ import magic
 api = Blueprint("api", __name__)
 
 
-@api.route('/api/upload', methods=["POST"])
+@api.route('/api/minidump/upload', methods=["POST"])
 def upload_api():
     """
     A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
@@ -45,7 +45,7 @@ def upload_api():
     # Save the file, insert annotations, and insert minidump records.
 
     # Save the minidump
-    minidump_file = Path(current_app.config["MINIDUMP_STORE"]) / minidump_fname
+    minidump_file = Path(current_app.config["cfg"]["storage"]["minidump_location"]) / minidump_fname
     minidump.save(minidump_file.absolute())
 
     # Add minidump to database
@@ -66,3 +66,61 @@ def upload_api():
     db.session.commit()
 
     return {"status": "success"}, 200
+
+
+@api.route('/api/symbol/upload/', methods=["POST"])
+def upload_symbol():
+    """
+    Endpoint to upload a symbol file
+    Required parameters:
+    - api-key
+    - symbol-file
+
+    body parameters :
+    - metadata
+
+    :return:
+    """
+    # Error out if encoding is gzip. TODO(james): Handle gzip
+    if request.content_encoding == "gzip":
+        return {"error": "Cannot accept gzip"}, 400
+
+    # Ensure endpoint was called with API key, and that the key exists
+    if "api-key" not in request.args.keys():
+        return {"error": "Missing api key"}, 400
+
+    project = Project.query\
+        .with_entities(Project.id)\
+        .filter_by(api_key=request.args["api-key"])\
+        .first()
+    if project is None:
+        return {"error": "Bad api key"}, 400
+
+    # Get first line of the file
+    symfile = request.files.get("symbol-file", default=None)
+    if symfile is None:
+        return {"error": "Missing symbol file"}, 400
+
+    # Get relevant module info from first line of file
+    metadata = symfile.stream.readline().rstrip().decode('utf-8').split(' ')
+    build_id, module_id = metadata[3], metadata[4]
+
+    # Check if module_id already exists
+    res = Symbol.query.filter_by(build_id=build_id).first()
+    print(res)
+    if res:
+        return {"error": "Symbol file already uploaded"}, 400
+
+    dir_location = Path(module_id, build_id, secure_filename(symfile.filename))
+    sym_loc = Path(current_app["cfg"]["storage"]["symbol_location"], str(project.id)) / dir_location
+    sym_loc.parent.mkdir(parents=True, exist_ok=True)
+
+    # Save to filesystem
+    symfile.save(sym_loc)
+
+    # Commit to Database
+    new_sym = Symbol(project_id=project.id, file_location=str(dir_location), build_id=build_id)
+    db.session.add(new_sym)
+    db.session.commit()
+
+    return {"message": "success"}, 200

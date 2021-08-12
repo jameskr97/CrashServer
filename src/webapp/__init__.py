@@ -24,6 +24,7 @@ def create_app() -> Flask:
     # Create app and inital parameters
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))
     app.config["SECRET_KEY"] = config_data["flask"]["secret_key"]
+    app.config["cfg"] = config_data
 
     # Import and register views
     from .views import views

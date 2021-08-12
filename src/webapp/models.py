@@ -55,3 +55,16 @@ class Minidump(db.Model):
     client_guid = db.Column(UUID(as_uuid=True), nullable=True)
     raw_stacktrace = db.Column(db.Text(), nullable=True)
     machine_stacktrace = db.Column(db.Text(), nullable=True)
+
+class Symbol(db.Model):
+    """
+    id: Generated GUID for this table
+    project_id: The project which this minidump relates to
+    date_created: The timestamp of when the minidump was uploaded
+    file_location: The location of the minidump file, with respect to the root storage location
+    """
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    build_id = db.Column(db.Text(), nullable=False)
+    file_location = db.Column(db.Text(), nullable=False)
