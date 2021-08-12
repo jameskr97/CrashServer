@@ -1,0 +1,19 @@
+{% macro flash_message(category, message) %}
+<div class="alert alert-{{ category }}" role="alert">
+	{{ message }}
+</div>
+{% endmacro %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+		{% if category == "error" %}
+			{{ flash_message("danger", message) }}
+		{% elif	category == "message" %}
+			{{ flash_message("primary", message) }}
+		{% else %}
+			{{ flash_message(category, message) }}
+		{% endif %}
+    {% endfor %}
+  {% endif %}
+{% endwith %}
