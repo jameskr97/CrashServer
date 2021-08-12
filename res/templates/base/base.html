@@ -14,9 +14,9 @@
 	<link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
 </head>
 <body>
-{% include 'navbar.html' %}
+{% include 'base/navbar.html' %}
 <div class="container">
-	{% include 'flash.html' %}
+	{% include 'base/flash.html' %}
 	{% block content %}
 	{% endblock %}
 </div>
