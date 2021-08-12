@@ -1,13 +1,28 @@
 {% extends "base.html" %}
 
+{% macro GenRow(dump, project) %}
+<tr>
+	<th scope="row">{{ project }}</th>
+	<th><a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ dump.filename }}</a></th>
+	<th>{{ dump.date_created.strftime('%F %X %Z') }}</th>
+</tr>
+{% endmacro %}
+
 {% block content %}
 	<h1 class="text-center">Crash Reports</h1>
 	<hr>
-	<ul class="list-group">
-		{% for dump in dumps %}
-			<li class="list-group-item">
-				<a href="/crash-reports/{{ dump.id }}">MiniDump</a> {{ dump.filename }}
-			</li>
-		{% endfor %}
-	</ul>
+	<table class="table">
+	  <thead>
+		<tr>
+		  <th scope="col">App</th>
+		  <th scope="col">Minidump</th>
+		  <th scope="col">Date Uploaded</th>
+		</tr>
+	  </thead>
+	  <tbody>
+	  	{% for row in data %}
+			{{ GenRow(row[0], row[1]) }}
+	  	{% endfor %}
+	  </tbody>
+	</table>
 {% endblock %}
