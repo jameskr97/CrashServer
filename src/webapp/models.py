@@ -48,6 +48,5 @@ class Minidump(db.Model):
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     filename = db.Column(db.Text(), nullable=False)
     client_guid = db.Column(UUID(as_uuid=True), nullable=True)
-    processed = db.Column(db.Boolean(), default=False)
     raw_stacktrace = db.Column(db.Text(), nullable=True)
     machine_stacktrace = db.Column(db.Text(), nullable=True)
