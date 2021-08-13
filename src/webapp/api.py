@@ -8,14 +8,7 @@ import tasks
 
 api = Blueprint("api", __name__)
 
-
-@api.route('/api/minidump/upload', methods=["POST"])
-def upload_minidump():
-    """
-    A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
-    argument, and it will save and prepare the file for processing
-    :return:
-    """
+def validate_request():
     # Error out if encoding is gzip. TODO(james): Handle gzip
     if request.content_encoding == "gzip":
         return {"error": "Cannot accept gzip"}, 400
@@ -31,6 +24,19 @@ def upload_minidump():
         .first()
     if project is None:
         return {"error": "Bad api key"}, 400
+
+    return project
+
+@api.route('/api/minidump/upload', methods=["POST"])
+def upload_minidump():
+    """
+    A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
+    argument, and it will save and prepare the file for processing
+    :return:
+    """
+    project = validate_request()
+    if project is not Project:
+        return project
 
     # Ensure minidump file was uploaded
     if "upload_file_minidump" not in request.files.keys():
@@ -88,20 +94,9 @@ def upload_symbol():
 
     :return:
     """
-    # Error out if encoding is gzip. TODO(james): Handle gzip
-    if request.content_encoding == "gzip":
-        return {"error": "Cannot accept gzip"}, 400
-
-    # Ensure endpoint was called with API key, and that the key exists
-    if "api-key" not in request.args.keys():
-        return {"error": "Missing api key"}, 400
-
-    project = Project.query\
-        .with_entities(Project.id)\
-        .filter_by(api_key=request.args["api-key"])\
-        .first()
-    if project is None:
-        return {"error": "Bad api key"}, 400
+    project = validate_request()
+    if project is not Project:
+        return project
 
     # Get first line of the file
     symfile = request.files.get("symbol-file", default=None)
