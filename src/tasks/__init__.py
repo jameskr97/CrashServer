@@ -17,7 +17,7 @@ def decode_minidump(crash_id):
             .filter(Minidump.project_id == Project.id)\
             .first()
 
-        dumpfile = str(Path(app.config["cfg"]["storage"]["minidump_location"]).absolute() / minidump.filename)
+        dumpfile = str(Path(app.config["cfg"]["storage"]["minidump_location"]).absolute() / str(project.id) / minidump.filename)
         symfolder = str(Path(app.config["cfg"]["storage"]["symbol_location"]).absolute() / str(project.id))
 
         raw = subprocess.run([binary, dumpfile, symfolder], capture_output=True)

@@ -21,12 +21,13 @@ def upload_minidump():
         return {"error": "Cannot accept gzip"}, 400
 
     # Ensure endpoint was called with API key, and that the key exists
-    if "api-key" not in request.args.keys():
+    apikey = request.args.get("api-key", default=None)
+    if apikey is None:
         return {"error": "Missing api key"}, 400
 
     project = Project.query\
         .with_entities(Project.id)\
-        .filter_by(api_key=request.args["api-key"])\
+        .filter_by(api_key=apikey)\
         .first()
     if project is None:
         return {"error": "Bad api key"}, 400
@@ -46,7 +47,8 @@ def upload_minidump():
     # Save the file, insert annotations, and insert minidump records.
 
     # Save the minidump
-    minidump_file = Path(current_app.config["cfg"]["storage"]["minidump_location"]) / minidump_fname
+    minidump_file = Path(current_app.config["cfg"]["storage"]["minidump_location"]) / str(project.id) / minidump_fname
+    minidump_file.parent.mkdir(parents=True, exist_ok=True)
     minidump.stream.seek(0)
     minidump.save(minidump_file.absolute())
 
@@ -61,6 +63,7 @@ def upload_minidump():
     # Add annotations to database
     annotation = dict(request.values)
     annotation.pop("guid", None)  # Remove GUID value from annotations
+    annotation.pop("api-key", None)
     for key, value in annotation.items():
         new_annotation = Annotation(minidump_id=new_dump.id, key=key, value=value)
         db.session.add(new_annotation)
