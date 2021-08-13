@@ -38,13 +38,13 @@ def project_dashboard(id: str):
 @views.route('/crash-reports')
 def crash():
     res = db.session.query(Minidump, Project.project_name).order_by(Minidump.date_created.desc()).limit(5).all()
-    return render_template("crash.html", data=res)
+    return render_template("crash/crash.html", data=res)
 
 
 @views.route('/crash-reports/<crash_id>')
 def crash_detail(crash_id):
     res = db.session.query(Minidump, Project).filter(Minidump.id == crash_id).first()
-    return render_template("crash_detail.html", dump=res[0], project=res[1])
+    return render_template("crash/crash_detail.html", dump=res[0], project=res[1])
 
 
 @views.route('/symbols')
