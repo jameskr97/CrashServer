@@ -43,7 +43,10 @@ def crash():
 
 @views.route('/crash-reports/<crash_id>')
 def crash_detail(crash_id):
-    res = db.session.query(Minidump, Project).filter(Minidump.id == crash_id).first()
+    res = db.session.query(Minidump, Project)\
+        .filter(Minidump.id == crash_id)\
+        .filter(Minidump.project_id == Project.id)\
+        .first()
     return render_template("crash/crash_detail.html", dump=res[0], project=res[1])
 
 
