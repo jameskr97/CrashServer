@@ -11,7 +11,7 @@ huey.start()
 def decode_minidump(crash_id):
     app = init_app()
     with app.app_context():
-        binary = str(Path("res/bin/minidump_stackwalk").absolute())
+        binary = str(Path("res/bin/linux/minidump_stackwalk").absolute())
         minidump, project = db.session.query(Minidump, Project)\
             .filter(Minidump.id == crash_id)\
             .filter(Minidump.project_id == Project.id)\
