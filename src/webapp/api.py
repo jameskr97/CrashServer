@@ -1,7 +1,7 @@
 from . import db
 from .models import Minidump, Annotation, Project, Symbol
 from pathlib import Path
-from flask import Blueprint, request, current_app
+from flask import Blueprint, request, current_app, render_template
 from werkzeug.utils import secure_filename
 import magic
 import tasks
@@ -19,7 +19,7 @@ def validate_request():
         return {"error": "Missing api key"}, 400
 
     project = Project.query\
-        .with_entities(Project.id)\
+        .with_entities(Project.id, Project.project_name)\
         .filter_by(api_key=apikey)\
         .first()
     if project is None:
@@ -95,7 +95,7 @@ def upload_symbol():
     :return:
     """
     project = validate_request()
-    if project is not Project:
+    if project is tuple:
         return project
 
     # Get first line of the file
@@ -112,7 +112,7 @@ def upload_symbol():
     if res:
         return {"error": "Symbol file already uploaded"}, 400
 
-    dir_location = Path(module_id, build_id, secure_filename(symfile.filename))
+    dir_location = Path(module_id, build_id, module_id + ".sym")
     sym_loc = Path(current_app.config["cfg"]["storage"]["symbol_location"], str(project.id)) / dir_location
     sym_loc.parent.mkdir(parents=True, exist_ok=True)
 
