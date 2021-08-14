@@ -37,7 +37,10 @@ def project_dashboard(id: str):
 
 @views.route('/crash-reports')
 def crash():
-    res = db.session.query(Minidump, Project.project_name).order_by(Minidump.date_created.desc()).limit(5).all()
+    res = db.session.query(Minidump, Project.project_name)\
+        .filter(Minidump.project_id == Project.id)\
+        .order_by(Minidump.date_created.desc())\
+        .limit(5).all()
     return render_template("crash/crash.html", data=res)
 
 
