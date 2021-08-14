@@ -3,40 +3,27 @@ from .models import Minidump, Annotation, Project, Symbol
 from pathlib import Path
 from flask import Blueprint, request, current_app, render_template
 from werkzeug.utils import secure_filename
+import utility
 import magic
 import tasks
 
 api = Blueprint("api", __name__)
 
-def validate_request():
-    # Error out if encoding is gzip. TODO(james): Handle gzip
-    if request.content_encoding == "gzip":
-        return {"error": "Cannot accept gzip"}, 400
-
-    # Ensure endpoint was called with API key, and that the key exists
-    apikey = request.args.get("api-key", default=None)
-    if apikey is None:
-        return {"error": "Missing api key"}, 400
-
-    project = Project.query\
-        .with_entities(Project.id, Project.project_name)\
-        .filter_by(api_key=apikey)\
-        .first()
-    if project is None:
-        return {"error": "Bad api key"}, 400
-
-    return project
-
 @api.route('/api/minidump/upload', methods=["POST"])
+@utility.url_arg_required("api-key")
 def upload_minidump():
     """
     A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
     argument, and it will save and prepare the file for processing
     :return:
     """
-    project = validate_request()
-    if project is not Project:
-        return project
+    apikey = request.args.get("api-key")
+    project = Project.query\
+        .with_entities(Project.id, Project.project_name)\
+        .filter_by(api_key=apikey)\
+        .first()
+    if project is None:
+        return {"error": "Bad api key"}, 400
 
     # Ensure minidump file was uploaded
     if "upload_file_minidump" not in request.files.keys():
@@ -82,6 +69,7 @@ def upload_minidump():
 
 
 @api.route('/api/symbol/upload/', methods=["POST"])
+@utility.url_arg_required("api-key")
 def upload_symbol():
     """
     Endpoint to upload a symbol file
@@ -94,9 +82,13 @@ def upload_symbol():
 
     :return:
     """
-    project = validate_request()
-    if project is tuple:
-        return project
+    apikey = request.args.get("api-key")
+    project = Project.query\
+        .with_entities(Project.id, Project.project_name)\
+        .filter_by(api_key=apikey)\
+        .first()
+    if project is None:
+        return {"error": "Bad api key"}, 400
 
     # Get first line of the file
     symfile = request.files.get("symbol-file", default=None)
