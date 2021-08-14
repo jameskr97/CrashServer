@@ -13,6 +13,7 @@ api = Blueprint("api", __name__)
 
 @api.route('/api/minidump/upload', methods=["POST"])
 @utility.url_arg_required("api-key")
+@utility.file_key_required("upload_file_minidump")
 def upload_minidump():
     """
     A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
@@ -28,10 +29,7 @@ def upload_minidump():
         return {"error": "Bad api key"}, 400
 
     # Ensure minidump file was uploaded
-    if "upload_file_minidump" not in request.files.keys():
-        return {"error": "Missing minidump"}, 400
-    minidump = request.files["upload_file_minidump"]
-    minidump_fname = secure_filename(minidump.filename)
+    minidump = request.files.get("upload_file_minidump")
 
     # Validate magic number
     magic_number = magic.from_buffer(minidump.stream.read(2048), mime=True)
@@ -42,6 +40,7 @@ def upload_minidump():
     # Save the file, insert annotations, and insert minidump records.
 
     # Save the minidump
+    minidump_fname = secure_filename(minidump.filename)
     minidump_file = Path(current_app.config["cfg"]["storage"]["minidump_location"]) / str(project.id) / minidump_fname
     minidump_file.parent.mkdir(parents=True, exist_ok=True)
     minidump.stream.seek(0)
@@ -72,18 +71,8 @@ def upload_minidump():
 
 @api.route('/api/symbol/upload/', methods=["POST"])
 @utility.url_arg_required("api-key")
+@utility.file_key_required("symbol-file")
 def upload_symbol():
-    """
-    Endpoint to upload a symbol file
-    Required parameters:
-    - api-key
-    - symbol-file
-
-    body parameters :
-    - metadata
-
-    :return:
-    """
     apikey = request.args.get("api-key")
     project = Project.query\
         .with_entities(Project.id, Project.project_name)\
@@ -92,12 +81,8 @@ def upload_symbol():
     if project is None:
         return {"error": "Bad api key"}, 400
 
-    # Get first line of the file
-    symfile = request.files.get("symbol-file", default=None)
-    if symfile is None:
-        return {"error": "Missing symbol file"}, 400
-
     # Get relevant module info from first line of file
+    symfile = request.files.get("symbol-file", default=None)
     metadata = symfile.stream.readline().rstrip().decode('utf-8').split(' ')
     sym_os, sym_arch = metadata[1], metadata[2]
     build_id, module_id = metadata[3], metadata[4]
