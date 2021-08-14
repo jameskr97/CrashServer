@@ -76,3 +76,7 @@ class Symbol(db.Model):
     @property
     def file_location(self):
         return str(Path("{0}/{1}/{2}/{1}.sym".format(self.project_id, self.module_id, self.build_id)))
+
+    @property
+    def file_size_mb(self):
+        return "{:.2f}Mb".format(self.file_size_bytes * 10e-7)
