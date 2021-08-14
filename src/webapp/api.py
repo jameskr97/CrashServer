@@ -108,7 +108,10 @@ def upload_symbol():
         return {"error": "Symbol file already uploaded"}, 400
 
     # Determine file location on disk
-    dir_location = Path(module_id, build_id, module_id + ".sym")
+    # module_id is split by 0, then we get the first component, in-case there is a period.
+    # There will only be a period on windows when it ends in `.pdb` and we do not want to retain that.
+    filesystem_module_id = module_id.split('.')[0]
+    dir_location = Path(module_id, build_id, filesystem_module_id + ".sym")
     sym_loc = Path(current_app.config["cfg"]["storage"]["symbol_location"], str(project.id)) / dir_location
     sym_loc.parent.mkdir(parents=True, exist_ok=True)
 
