@@ -22,3 +22,7 @@ Built for open-source projects that use Google Crashpad, and want to host their 
   - [ ] Support for symbols on development versions of the project
   - [ ] Auto-delete minidumps after a selected interval
   - [ ] Single project mode
+  - [ ] Implement `sym-upload-v2` protocol
+- Misc
+  - [ ] Documentation Generation
+  - [ ] CI and Tests
