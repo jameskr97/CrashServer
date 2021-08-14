@@ -11,6 +11,7 @@ Built for open-source projects that use Google Crashpad, and want to host their 
 ## TODO
 - API
   - [x] `/api/minidump/upload` Upload Minidumps for project under endpoint.
+    - [ ] Handle `gzip` minidump upload
   - [x] `/api/synbol/upload` Upload Symbols for project under endpoint, secured by `api-key`
 - Web
   - [ ] List of all symbols for project
