@@ -4,9 +4,9 @@
 	<h1 class="text-center">Create Project</h1>
 	<hr>
 	<p class="text-center">Each project represents a piece of software capable of uploading minidump files after they crash.</p>
-	
-	<div class="app-create-grid">
-		<form style="width: min(100%, 500px)" method="post" action="{{ url_for("views.project_create") }}">
+
+	<div class="centering-grid">
+		<form class="centering-grid-item" method="post" action="{{ url_for("views.project_create") }}">
 			<div class="text-center" style="font-size: 20px; margin-bottom: 10px;">
 				<label for="project_name">Project Name</label>
 			</div>

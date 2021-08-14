@@ -3,4 +3,15 @@
 {% block content %}
 	<h1 class="text-center">Symbols</h1>
 	<hr>
+	<div  class="centering-grid">
+		<div class="centering-grid-item">
+			<select id="project-select" class="form-select">
+				<option disabled selected>Select Project</option>
+				{% for proj in projects %}
+					<option value="{{ proj.id }}">{{ proj.project_name }}</option>
+				{% endfor %}
+			</select>
+		</div>
+	</div>
+	<hr>
 {% endblock %}

@@ -52,7 +52,8 @@ def crash_detail(crash_id):
 
 @views.route('/symbols')
 def symbols():
-    return render_template("symbols.html")
+    projects = Project.query.with_entities(Project.id, Project.project_name).all()
+    return render_template("symbols.html", projects=projects)
 
 
 @views.route('/upload')
