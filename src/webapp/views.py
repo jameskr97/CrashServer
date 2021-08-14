@@ -4,7 +4,7 @@ import uuid
 from flask import Blueprint, render_template, request, redirect, url_for
 
 from . import db
-from .models import Annotation, Minidump, Project
+from .models import Minidump, Project, CompileMetadata
 
 views = Blueprint("views", __name__)
 
@@ -46,11 +46,12 @@ def crash():
 
 @views.route('/crash-reports/<crash_id>')
 def crash_detail(crash_id):
-    res = db.session.query(Minidump, Project)\
+    res = db.session.query(Minidump, Project, CompileMetadata)\
         .filter(Minidump.id == crash_id)\
         .filter(Minidump.project_id == Project.id)\
+        .filter(Minidump.build_metadata_id == CompileMetadata.id)\
         .first()
-    return render_template("crash/crash_detail.html", dump=res[0], project=res[1])
+    return render_template("crash/crash_detail.html", dump=res[0], project=res[1], meta=res[2])
 
 
 @views.route('/symbols')

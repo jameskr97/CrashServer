@@ -1,5 +1,52 @@
 {% extends "base/base.html" %}
 
+{% macro main_page() %}
+	<ul class="nav nav-tabs" id="myTab" role="tablist">
+	  <li class="nav-item" role="presentation">
+		<button class="nav-link active" id="raw" data-bs-toggle="tab" data-bs-target="#raw-trace" type="button" role="tab">Raw Minidump</button>
+	  </li>
+	  <li class="nav-item" role="presentation">
+		<button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#machine-trace" type="button" role="tab">Machine Minidump</button>
+	  </li>
+	</ul>
+	<div class="tab-content" id="trace-tabs">
+	  <div class="tab-pane fade show active" id="raw-trace" role="tabpanel">
+		  <pre>
+			  <code>
+{{ dump.raw_stacktrace }}
+			  </code>
+		  </pre>
+	  </div>
+	  <div class="tab-pane fade" id="machine-trace" role="tabpanel">
+		  <pre>
+			  <code>
+{{ dump.machine_stacktrace }}
+			  </code>
+		  </pre>
+	  </div>
+	</div>
+{% endmacro %}
+
+{% macro still_processing() %}
+<h2 class="text-center">Processing minidump...</h2>
+<div class="container">
+	<div class="d-flex justify-content-center">
+		<div class="spinner-grow text-center" role="status">
+			<span class="visually-hidden">Processing minidump...</span>
+		</div>
+	</div>
+</div>
+{#		// TODO(james): This is not the solution to keep, but it's a solution for now #}
+<meta http-equiv="refresh" content="3" />
+{% endmacro %}
+
+{% macro no_symbols() %}
+<div class="centering-grid">
+	<div class="centering-grid-item">
+		<h2 class="text-center">Symbols for this minidump haven't been uploaded yet.</h2>
+	</div>
+</div>
+{% endmacro %}
 
 {% block content %}
 	<h1 class="text-center">Detailed Crash Report</h1>
@@ -8,41 +55,11 @@
 	<p>Uploaded on {{ dump.date_created.strftime("%F %T %Z") }}</p>
 	<hr>
 
-	{% if dump.raw_stacktrace == None %}
-		<h2 class="text-center">Processing minidump...</h2>
-		<div class="container">
-			<div class="d-flex justify-content-center">
-				<div class="spinner-grow text-center" role="status">
-					<span class="visually-hidden">Processing minidump...</span>
-				</div>
-			</div>
-		</div>
-{#		// TODO(james): This is not the solution to keep, but it's a solution for now #}
-		<meta http-equiv="refresh" content="3" />
+	{% if meta.symbol_exists == false %}
+		{{ no_symbols() }}
+	{% elif dump.raw_stacktrace == None %}
+		{{ still_processing() }}
 	{% else %}
-		<ul class="nav nav-tabs" id="myTab" role="tablist">
-		  <li class="nav-item" role="presentation">
-			<button class="nav-link active" id="raw" data-bs-toggle="tab" data-bs-target="#raw-trace" type="button" role="tab">Raw Minidump</button>
-		  </li>
-		  <li class="nav-item" role="presentation">
-			<button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#machine-trace" type="button" role="tab">Machine Minidump</button>
-		  </li>
-		</ul>
-		<div class="tab-content" id="trace-tabs">
-		  <div class="tab-pane fade show active" id="raw-trace" role="tabpanel">
-			  <pre>
-				  <code>
-{{ dump.raw_stacktrace }}
-				  </code>
-			  </pre>
-		  </div>
-		  <div class="tab-pane fade" id="machine-trace" role="tabpanel">
-			  <pre>
-				  <code>
-{{ dump.machine_stacktrace }}
-				  </code>
-			  </pre>
-		  </div>
-		</div>
+		{{ main_page() }}
 	{% endif %}
 {% endblock %}

@@ -1,7 +1,7 @@
 import os
 
 from . import db
-from .models import Minidump, Annotation, Project, Symbol
+from .models import Minidump, Annotation, Project, Symbol, CompileMetadata
 from pathlib import Path
 from flask import Blueprint, request, current_app, render_template
 from werkzeug.utils import secure_filename
@@ -88,7 +88,10 @@ def upload_symbol():
     build_id, module_id = metadata[3], metadata[4]
 
     # Check if module_id already exists
-    res = Symbol.query.filter_by(build_id=build_id).first()
+    res = db.session.query(Symbol)\
+        .filter(Symbol.build_metadata_id == CompileMetadata.id)\
+        .filter(CompileMetadata.build_id == build_id)\
+        .filter(CompileMetadata.module_id == module_id).first()
     if res:
         return {"error": "Symbol file already uploaded"}, 400
 
@@ -108,10 +111,24 @@ def upload_symbol():
     # Save to filesystem
     symfile.save(sym_loc)
 
-    # Commit to Database
-    new_sym = Symbol(project_id=project.id, file_os=sym_os, file_arch=sym_arch,
-                     module_id=module_id, build_id=build_id, file_size_bytes=size_bytes)
+    # Check if a minidump was already uploaded with the current module_id and build_id
+    meta = db.session.query(CompileMetadata)\
+        .filter(CompileMetadata.module_id == module_id)\
+        .filter(CompileMetadata.build_id == build_id).first()
+
+    # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded before
+    # the symbol file was uploaded), then create a new CompileMetadata, flush, and relate to symbol
+    if meta is None:
+        meta = CompileMetadata(project_id=project.id, module_id=module_id, build_id=build_id, symbol_exists=True)
+        db.session.add(meta)
+        db.session.flush()
+
+    # Create new symbol entry
+    new_sym = Symbol(project_id=project.id, build_metadata_id=meta.id, file_os=sym_os,
+                     file_arch=sym_arch, file_size_bytes=size_bytes)
     db.session.add(new_sym)
+
+    # Commit to Database
     db.session.commit()
 
     res = {
@@ -128,6 +145,8 @@ def upload_symbol():
 
 @api.route('/webapi/symbols/<project_id>')
 def get_symbols(project_id):
-    project = Project.query.get(project_id)
-    symbols = db.session.query(Symbol).filter(Symbol.project_id == project_id).all()
-    return {"html": render_template("symbols/symbol-list.html", symbols=symbols, project=project)}, 200
+    data = db.session.query(Symbol, CompileMetadata)\
+        .filter(Symbol.project_id == project_id)\
+        .filter(Symbol.build_metadata_id == CompileMetadata.id)\
+        .all()
+    return {"html": render_template("symbols/symbol-list.html", data=data)}, 200
