@@ -1,3 +1,5 @@
+import os
+
 from . import db
 from .models import Minidump, Annotation, Project, Symbol
 from pathlib import Path
@@ -97,6 +99,7 @@ def upload_symbol():
 
     # Get relevant module info from first line of file
     metadata = symfile.stream.readline().rstrip().decode('utf-8').split(' ')
+    sym_os, sym_arch = metadata[1], metadata[2]
     build_id, module_id = metadata[3], metadata[4]
 
     # Check if module_id already exists
@@ -104,19 +107,35 @@ def upload_symbol():
     if res:
         return {"error": "Symbol file already uploaded"}, 400
 
+    # Determine file location on disk
     dir_location = Path(module_id, build_id, module_id + ".sym")
     sym_loc = Path(current_app.config["cfg"]["storage"]["symbol_location"], str(project.id)) / dir_location
     sym_loc.parent.mkdir(parents=True, exist_ok=True)
+
+    # Get file size
+    symfile.stream.seek(0, os.SEEK_END)
+    size_bytes = symfile.stream.tell()
+    symfile.stream.seek(0)
 
     # Save to filesystem
     symfile.save(sym_loc)
 
     # Commit to Database
-    new_sym = Symbol(project_id=project.id, file_location=str(dir_location), build_id=build_id)
+    new_sym = Symbol(project_id=project.id, file_os=sym_os, file_arch=sym_arch,
+                     module_id=module_id, build_id=build_id, file_size_bytes=size_bytes)
     db.session.add(new_sym)
     db.session.commit()
 
-    return {"message": "success"}, 200
+    res = {
+        "id": str(new_sym.id),
+        "sym_os": sym_os,
+        "sym_arch": sym_arch,
+        "build_id": build_id,
+        "module_id": module_id,
+        "date_created": new_sym.date_created.isoformat(),
+    }
+
+    return res, 200
 
 
 @api.route('/webapi/symbols/<project_id>')

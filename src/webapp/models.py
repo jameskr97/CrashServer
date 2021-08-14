@@ -1,5 +1,6 @@
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
+from pathlib import Path
 from . import db
 import uuid
 
@@ -66,5 +67,12 @@ class Symbol(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    file_os = db.Column(db.Text(), nullable=False)
+    file_arch = db.Column(db.Text(), nullable=False)
+    module_id = db.Column(db.Text(), nullable=False)
     build_id = db.Column(db.Text(), nullable=False)
-    file_location = db.Column(db.Text(), nullable=False)
+    file_size_bytes = db.Column(db.Integer(), nullable=False)
+
+    @property
+    def file_location(self):
+        return str(Path("{0}/{1}/{2}/{1}.sym".format(self.project_id, self.module_id, self.build_id)))
