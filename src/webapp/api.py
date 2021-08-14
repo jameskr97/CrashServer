@@ -125,3 +125,10 @@ def upload_symbol():
     db.session.commit()
 
     return {"message": "success"}, 200
+
+
+@api.route('/webapi/symbols/<project_id>')
+def get_symbols(project_id):
+    project = Project.query.get(project_id)
+    symbols = db.session.query(Symbol).filter(Symbol.project_id == project_id).all()
+    return {"html": render_template("symbols/symbol-list.html", symbols=symbols, project=project)}, 200

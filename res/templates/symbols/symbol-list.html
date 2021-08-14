@@ -1,0 +1,7 @@
+{% for sym in symbols %}
+	<tr class="monospace-font">
+		<td>{{ sym.id }}</td>
+		<td>{{ sym.build_id }}</td>
+		<td>{{ sym.date_created.strftime("%F %T %Z") }}</td>
+	</tr>
+{% endfor %}

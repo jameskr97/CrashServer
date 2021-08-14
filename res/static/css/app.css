@@ -2,6 +2,11 @@ body {
     font-family: 'Bai Jamjuree', monospace;
 }
 
+.monospace-font {
+    font-size: 14px;
+    font-family: monospace;
+}
+
 .container {
     padding-top: 15px;
 }

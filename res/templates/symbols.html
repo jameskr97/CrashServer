@@ -5,7 +5,7 @@
 	<hr>
 	<div  class="centering-grid">
 		<div class="centering-grid-item">
-			<select id="project-select" class="form-select">
+			<select id="project-select" class="form-select" onChange="javascript:get_symbol_list(this.value);" autocomplete="off">
 				<option disabled selected>Select Project</option>
 				{% for proj in projects %}
 					<option value="{{ proj.id }}">{{ proj.project_name }}</option>
@@ -14,4 +14,14 @@
 		</div>
 	</div>
 	<hr>
+	<table class="table">
+	  <thead>
+		<tr>
+		  <th scope="col">Crash ID</th>
+		  <th scope="col">Build ID</th>
+		  <th scope="col">Date Uploaded</th>
+		</tr>
+	  </thead>
+	  <tbody></tbody> <!-- Contents of symbols/symbol-list.html, populated by javascript api query -->
+	</table>
 {% endblock %}
