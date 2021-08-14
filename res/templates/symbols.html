@@ -1,8 +1,6 @@
 {% extends "base/base.html" %}
 
-{% block content %}
-	<h1 class="text-center">Symbols</h1>
-	<hr>
+{% macro main_page() %}
 	<div  class="centering-grid">
 		<div class="centering-grid-item">
 			<select id="project-select" class="form-select" onChange="javascript:get_symbol_list(this.value);" autocomplete="off">
@@ -24,4 +22,22 @@
 	  </thead>
 	  <tbody></tbody> <!-- Contents of symbols/symbol-list.html, populated by javascript api query -->
 	</table>
+{% endmacro %}
+
+{% macro no_projects() %}
+	<div class="centering-grid">
+		<div class="centering-grid-item">
+			<h2 class="text-center" style="color: gray">No current projects</h2>
+		</div>
+	</div>
+{% endmacro %}
+
+{% block content %}
+	<h1 class="text-center">Symbols</h1>
+	<hr>
+	{% if projects %}
+		{{ main_page() }}
+	{% else %}
+		{{ no_projects() }}
+	{% endif %}
 {% endblock %}
