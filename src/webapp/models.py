@@ -51,11 +51,17 @@ class Minidump(db.Model):
     """
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
+    build_metadata_id = db.Column(UUID(as_uuid=True), db.ForeignKey('compile_metadata.id'), nullable=True, default=None)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     filename = db.Column(db.Text(), nullable=False)
     client_guid = db.Column(UUID(as_uuid=True), nullable=True)
     raw_stacktrace = db.Column(db.Text(), nullable=True)
     machine_stacktrace = db.Column(db.Text(), nullable=True)
+
+    @property
+    def file_location(self):
+        return str(Path("{0}/{1}".format(self.project_id, self.filename)))
+
 
 class Symbol(db.Model):
     """
@@ -66,11 +72,10 @@ class Symbol(db.Model):
     """
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
+    build_metadata_id = db.Column(UUID(as_uuid=True), db.ForeignKey('compile_metadata.id'), nullable=False)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     file_os = db.Column(db.Text(), nullable=False)
     file_arch = db.Column(db.Text(), nullable=False)
-    module_id = db.Column(db.Text(), nullable=False)
-    build_id = db.Column(db.Text(), nullable=False)
     file_size_bytes = db.Column(db.Integer(), nullable=False)
 
     @property
@@ -80,3 +85,14 @@ class Symbol(db.Model):
     @property
     def file_size_mb(self):
         return "{:.2f}Mb".format(self.file_size_bytes * 10e-7)
+
+class CompileMetadata(db.Model):
+    """
+    Table to story the common elements between symbols and minidump files. The `symbol_exists` row is added
+    for convenience in the the decode_minidump task
+    """
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
+    module_id = db.Column(db.Text(), nullable=False)
+    build_id = db.Column(db.Text(), nullable=False)
+    symbol_exists = db.Column(db.Boolean(), nullable=False)
