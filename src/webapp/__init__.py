@@ -36,17 +36,8 @@ def init_app() -> Flask:
     app.config["SECRET_KEY"] = config_data["flask"]["secret_key"]
     app.config["cfg"] = config_data
 
-    # Prepare database URL
-    sql_params = config_data["postgres"]
-    dbu, dbp = sql_params["username"], sql_params["password"]
-    dbh, dbn = sql_params["hostname"], sql_params["database"]
-    db_url = f"postgresql://{dbu}:{dbp}@{dbh}:5432/{dbn}"
+    # Prepare database
     init_database(app, config_data["postgres"])
-
-    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    db.init_app(app)
-
     return app
 
 def init_views(app: Flask) -> Flask:
