@@ -62,63 +62,17 @@ def upload_minidump():
 
 @api.route('/api/symbol/upload/', methods=["POST"])
 @utility.url_arg_required("api_key")
-@utility.file_key_required("symbol-file")
+@utility.file_key_required("symbol_file")
 def upload_symbol():
     project_id = ops.get_project_id(request.args.get("api_key"))
     if project_id is None:
         return {"error": "Bad api key"}, 400
 
     # Get relevant module info from first line of file
-    symfile = request.files.get("symbol-file", default=None)
-    symdata = ops.get_symbol_data(symfile.stream.readline().decode('utf-8'))
-
-    # Check if module_id already exists
-    if ops.get_db_symbol(db.session, symdata):
-        return {"error": "Symbol file already uploaded"}, 400
-
-    size_bytes = ops.store_symbol(project_id, symdata, symfile.stream.read())
-
-    # Check if a minidump was already uploaded with the current module_id and build_id
-    meta = ops.get_db_compile_metadata(db.session, symdata)  # Check if data exists
-    process_undecoded_dumps = meta is not None
-    if meta is None:
-        # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded
-        # before the symbol file was uploaded), then create a new CompileMetadata, flush, and relate to symbol
-        meta = CompileMetadata(project_id=project_id, module_id=symdata.module_id, build_id=symdata.build_id,
-                               symbol_exists=True)
-        db.session.add(meta)
-        db.session.flush()
-
-    # Ensure compile metadata shows we do have the symbols
-    meta.symbol_exists = True
-
-    # Create new symbol entry
-    new_sym = Symbol(project_id=project_id, build_metadata_id=meta.id, os=symdata.os,
-                     arch=symdata.arch, file_size_bytes=size_bytes)
-    db.session.add(new_sym)
-
-    # Commit to Database
-    db.session.commit()
-
-    if process_undecoded_dumps:
-        dumps = db.session.query(Minidump.id)\
-            .filter(Minidump.build_metadata_id == meta.id)\
-            .filter(Minidump.machine_stacktrace == None).all()
-
-        # Send all minidump id's to task processor to for decoding
-        for dump in dumps:
-            tasks.decode_minidump(dump[0])
-
-    res = {
-        "id": str(new_sym.id),
-        "os": symdata.os,
-        "arch": symdata.arch,
-        "build_id": symdata.build_id,
-        "module_id": symdata.module_id,
-        "date_created": new_sym.date_created.isoformat(),
-    }
-
-    return res, 200
+    symbol_file = request.files.get("symbol_file")
+    symbol_data = ops.get_symbol_data(symbol_file.stream.readline().decode('utf-8'))
+    symbol_file.stream.seek(0)
+    return ops.symbol_upload(db.session, project_id, symbol_file.stream.read(), symbol_data)
 
 
 @api.route('/webapi/symbols/<project_id>')
