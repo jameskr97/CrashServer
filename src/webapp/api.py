@@ -12,7 +12,7 @@ import tasks
 api = Blueprint("api", __name__)
 
 @api.route('/api/minidump/upload', methods=["POST"])
-@utility.url_arg_required("api-key")
+@utility.url_arg_required("api_key")
 @utility.file_key_required("upload_file_minidump")
 def upload_minidump():
     """
@@ -20,7 +20,7 @@ def upload_minidump():
     argument, and it will save and prepare the file for processing
     :return:
     """
-    apikey = request.args.get("api-key")
+    apikey = request.args.get("api_key")
     project = Project.query\
         .with_entities(Project.id, Project.project_name)\
         .filter_by(api_key=apikey)\
@@ -57,7 +57,7 @@ def upload_minidump():
     # Add annotations to database
     annotation = dict(request.values)
     annotation.pop("guid", None)  # Remove GUID value from annotations
-    annotation.pop("api-key", None)
+    annotation.pop("api_key", None)
     for key, value in annotation.items():
         new_annotation = Annotation(minidump_id=new_dump.id, key=key, value=value)
         db.session.add(new_annotation)
@@ -70,10 +70,10 @@ def upload_minidump():
 
 
 @api.route('/api/symbol/upload/', methods=["POST"])
-@utility.url_arg_required("api-key")
+@utility.url_arg_required("api_key")
 @utility.file_key_required("symbol-file")
 def upload_symbol():
-    apikey = request.args.get("api-key")
+    apikey = request.args.get("api_key")
     project = Project.query\
         .with_entities(Project.id, Project.project_name)\
         .filter_by(api_key=apikey)\
