@@ -10,7 +10,7 @@ def url_arg_required(arg=""):
         @functools.wraps(func)
         def inner(*args, **kwargs):
             if arg not in flask.request.args.keys():
-                return {"error": "missing url argument '{}'".format(arg)}, 400
+                return {"error": "missing url argument {}".format(arg)}, 400
             return func(*args, **kwargs)
         return inner
     return decorator
