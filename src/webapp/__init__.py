@@ -56,6 +56,9 @@ def init_database(app: Flask, sql_params: dict):
     # Configure app parameters
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_size": 30
+    }
     db.init_app(app)
 
 def setup_database(app: Flask):

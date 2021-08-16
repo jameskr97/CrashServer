@@ -74,8 +74,8 @@ class Symbol(db.Model):
     project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
     build_metadata_id = db.Column(UUID(as_uuid=True), db.ForeignKey('compile_metadata.id'), nullable=False)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    file_os = db.Column(db.Text(), nullable=False)
-    file_arch = db.Column(db.Text(), nullable=False)
+    os = db.Column(db.Text(), nullable=False)
+    arch = db.Column(db.Text(), nullable=False)
     file_size_bytes = db.Column(db.Integer(), nullable=False)
 
     @property
@@ -86,10 +86,15 @@ class Symbol(db.Model):
     def file_size_mb(self):
         return "{:.2f}Mb".format(self.file_size_bytes * 10e-7)
 
+
 class CompileMetadata(db.Model):
     """
     Table to story the common elements between symbols and minidump files. The `symbol_exists` row is added
-    for convenience in the the decode_minidump task
+    for convenience in the the decode_minidump task.
+
+    This data is stored separately in the database in-case we receive a minidump file, but have not received
+    symbol files to decode that minidump. Even if we can't decode the minidump, we still want a record that we are
+    aware of the existence of a given module and build id combination.
     """
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)

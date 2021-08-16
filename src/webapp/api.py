@@ -1,15 +1,16 @@
 import os
 
-from . import db
 from .models import Minidump, Annotation, Project, Symbol, CompileMetadata
-from pathlib import Path
+import src.webapp.operations as ops
+from . import db
+
 from flask import Blueprint, request, current_app, render_template
-from werkzeug.utils import secure_filename
 import utility
 import magic
 import tasks
 
 api = Blueprint("api", __name__)
+
 
 @api.route('/api/minidump/upload', methods=["POST"])
 @utility.url_arg_required("api_key")
@@ -20,12 +21,8 @@ def upload_minidump():
     argument, and it will save and prepare the file for processing
     :return:
     """
-    apikey = request.args.get("api_key")
-    project = Project.query\
-        .with_entities(Project.id, Project.project_name)\
-        .filter_by(api_key=apikey)\
-        .first()
-    if project is None:
+    project_id = ops.get_project_id(request.args.get("api_key"))
+    if project_id is None:
         return {"error": "Bad api key"}, 400
 
     # Ensure minidump file was uploaded
@@ -36,20 +33,14 @@ def upload_minidump():
     if magic_number != "application/x-dmp":
         return {"error": "Bad Minidump"}, 400
 
-    # At this point, we have received a minidump validated to be the correct type.
-    # Save the file, insert annotations, and insert minidump records.
-
-    # Save the minidump
-    minidump_fname = secure_filename(minidump.filename)
-    minidump_file = Path(current_app.config["cfg"]["storage"]["minidump_location"]) / str(project.id) / minidump_fname
-    minidump_file.parent.mkdir(parents=True, exist_ok=True)
+    # File is acceptable. Save the minidump.
     minidump.stream.seek(0)
-    minidump.save(minidump_file.absolute())
+    filename = ops.store_minidump(project_id, minidump.stream.read())
 
     # Add minidump to database
     new_dump = Minidump(
-        filename=minidump_fname,
-        project_id=project.id,
+        filename=filename,
+        project_id=project_id,
         client_guid=request.args.get("guid", default=None))
     db.session.add(new_dump)
     db.session.flush()
@@ -73,70 +64,57 @@ def upload_minidump():
 @utility.url_arg_required("api_key")
 @utility.file_key_required("symbol-file")
 def upload_symbol():
-    apikey = request.args.get("api_key")
-    project = Project.query\
-        .with_entities(Project.id, Project.project_name)\
-        .filter_by(api_key=apikey)\
-        .first()
-    if project is None:
+    project_id = ops.get_project_id(request.args.get("api_key"))
+    if project_id is None:
         return {"error": "Bad api key"}, 400
 
     # Get relevant module info from first line of file
     symfile = request.files.get("symbol-file", default=None)
-    metadata = symfile.stream.readline().rstrip().decode('utf-8').split(' ')
-    sym_os, sym_arch = metadata[1], metadata[2]
-    build_id, module_id = metadata[3], metadata[4]
+    symdata = ops.get_symbol_data(symfile.stream.readline().decode('utf-8'))
 
     # Check if module_id already exists
-    res = db.session.query(Symbol)\
-        .filter(Symbol.build_metadata_id == CompileMetadata.id)\
-        .filter(CompileMetadata.build_id == build_id)\
-        .filter(CompileMetadata.module_id == module_id).first()
-    if res:
+    if ops.get_db_symbol(db.session, symdata):
         return {"error": "Symbol file already uploaded"}, 400
 
-    # Determine file location on disk
-    # module_id is split by 0, then we get the first component, in-case there is a period.
-    # There will only be a period on windows when it ends in `.pdb` and we do not want to retain that.
-    filesystem_module_id = module_id.split('.')[0]
-    dir_location = Path(module_id, build_id, filesystem_module_id + ".sym")
-    sym_loc = Path(current_app.config["cfg"]["storage"]["symbol_location"], str(project.id)) / dir_location
-    sym_loc.parent.mkdir(parents=True, exist_ok=True)
-
-    # Get file size
-    symfile.stream.seek(0, os.SEEK_END)
-    size_bytes = symfile.stream.tell()
-    symfile.stream.seek(0)
-
-    # Save to filesystem
-    symfile.save(sym_loc)
+    size_bytes = ops.store_symbol(project_id, symdata, symfile.stream.read())
 
     # Check if a minidump was already uploaded with the current module_id and build_id
-    meta = db.session.query(CompileMetadata)\
-        .filter(CompileMetadata.module_id == module_id)\
-        .filter(CompileMetadata.build_id == build_id).first()
-
-    # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded before
-    # the symbol file was uploaded), then create a new CompileMetadata, flush, and relate to symbol
+    meta = ops.get_db_compile_metadata(db.session, symdata)  # Check if data exists
+    process_undecoded_dumps = meta is not None
     if meta is None:
-        meta = CompileMetadata(project_id=project.id, module_id=module_id, build_id=build_id, symbol_exists=True)
+        # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded
+        # before the symbol file was uploaded), then create a new CompileMetadata, flush, and relate to symbol
+        meta = CompileMetadata(project_id=project_id, module_id=symdata.module_id, build_id=symdata.build_id,
+                               symbol_exists=True)
         db.session.add(meta)
         db.session.flush()
 
+    # Ensure compile metadata shows we do have the symbols
+    meta.symbol_exists = True
+
     # Create new symbol entry
-    new_sym = Symbol(project_id=project.id, build_metadata_id=meta.id, file_os=sym_os,
-                     file_arch=sym_arch, file_size_bytes=size_bytes)
+    new_sym = Symbol(project_id=project_id, build_metadata_id=meta.id, os=symdata.os,
+                     arch=symdata.arch, file_size_bytes=size_bytes)
     db.session.add(new_sym)
 
     # Commit to Database
     db.session.commit()
 
+    if process_undecoded_dumps:
+        dumps = db.session.query(Minidump.id)\
+            .filter(Minidump.build_metadata_id == meta.id)\
+            .filter(Minidump.machine_stacktrace == None).all()
+
+        # Send all minidump id's to task processor to for decoding
+        for dump in dumps:
+            tasks.decode_minidump(dump[0])
+
     res = {
         "id": str(new_sym.id),
-        "sym_os": sym_os,
-        "sym_arch": sym_arch,
-        "build_id": build_id,
-        "module_id": module_id,
+        "os": symdata.os,
+        "arch": symdata.arch,
+        "build_id": symdata.build_id,
+        "module_id": symdata.module_id,
         "date_created": new_sym.date_created.isoformat(),
     }
 

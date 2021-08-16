@@ -1,3 +1,4 @@
+from gevent import monkey; monkey.patch_all()
 from huey.contrib.mini import MiniHuey
 from webapp.models import Minidump, Project, Symbol, CompileMetadata
 from pathlib import Path
@@ -34,7 +35,7 @@ def decode_minidump(crash_id):
         # relationship from that metadata to the minidump
         if compile_meta is None:
             logger.info("New build_id {} for module_id {}. Recording existence for project"
-                        .format(metadata.build_id, metadata.build_id))
+                        .format(metadata.build_id, metadata.module_id))
             new_metadata = CompileMetadata(project_id=minidump.project_id, module_id=metadata.module_id,
                                            build_id=metadata.build_id, symbol_exists=False)
             db.session.add(new_metadata)
@@ -47,12 +48,12 @@ def decode_minidump(crash_id):
 
         if not compile_meta.symbol_exists:
             logger.info("Unable to symbolicate minidump id {}. Symbols do not exist.".format(crash_id))
-            return
-
-        symfolder = str(Path(app.config["cfg"]["storage"]["symbol_location"]).absolute() / str(minidump.project_id))
-        raw = subprocess.run([binary, dumpfile, symfolder], capture_output=True)
-        minidump.machine_stacktrace = machine.stdout.decode('utf-8')
-        minidump.raw_stacktrace = raw.stdout.decode('utf-8')
+        else:
+            symfolder = str(Path(app.config["cfg"]["storage"]["symbol_location"]).absolute() / str(minidump.project_id))
+            raw = subprocess.run([binary, dumpfile, symfolder], capture_output=True)
+            minidump.machine_stacktrace = machine.stdout.decode('utf-8')
+            minidump.raw_stacktrace = raw.stdout.decode('utf-8')
+        print("DECODED")
         db.session.commit()
 
 
