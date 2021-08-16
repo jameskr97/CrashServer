@@ -10,13 +10,13 @@ from flask import Blueprint, request, url_for
 
 from src.utility import url_arg_required, file_key_required
 from src.webapp import operations as ops
-from . import db
+from src.webapp import db
 
 
-symupload = Blueprint("sym-upload-v1", __name__)
+sym_upload_v1 = Blueprint("sym-upload-v1", __name__)
 
 
-@symupload.route("", methods=["POST"])
+@sym_upload_v1.route("", methods=["POST"])
 @url_arg_required('api_key')
 @file_key_required('symbol_file')
 def upload():
