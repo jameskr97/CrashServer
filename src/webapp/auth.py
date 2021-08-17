@@ -57,11 +57,6 @@ def login():
     return render_template('auth/login.html', form=form)
 
 
-@auth.route("/settings")
-def user_settings():
-    return render_template("auth/user_settings.html")
-
-
 @auth.route("/logout")
 def logout():
     if current_user.is_authenticated:
