@@ -2,6 +2,7 @@ import os
 import uuid
 
 from flask import Blueprint, render_template, request, redirect, url_for
+from flask_login import login_required
 
 from . import db
 from .models import Minidump, Project, CompileMetadata
@@ -13,6 +14,12 @@ views = Blueprint("views", __name__)
 def home():
     apps = Project.query.with_entities(Project.id, Project.project_name).all()
     return render_template("home.html", apps=apps)
+
+
+@views.route('/settings')
+@login_required
+def settings():
+    return render_template("app/settings.html")
 
 
 @views.route('/project/create', methods=["GET", "POST"])

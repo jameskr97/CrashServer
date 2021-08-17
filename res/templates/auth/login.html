@@ -1,0 +1,28 @@
+{% extends "base/base.html" %}
+
+
+{% block content %}
+	<h1 class="text-center">Login</h1>
+	<hr>
+	<div class="centering-grid">
+		<form class="centering-grid-item" action="{{ url_for("auth.login") }}" method="post">
+			{{ form.csrf_token }}
+			<div class="mb-3">
+				<label for="email" class="form-label">{{ form.email.label }}</label>
+				{{ form.email(class="form-control") }}
+			</div>
+			<div class="mb-3">
+				<label for="password" class="form-label">{{ form.password.label }}</label>
+				{{ form.password(class="form-control") }}
+			</div>
+			<div class="mb-3">
+				{{ form.remember_me(class="form-check-input") }}
+				<label for="remember_me" class="form-check-label">{{ form.remember_me.label }}</label>
+			</div>
+			<div class="text-center">
+				<button type="submit" class="btn btn-outline-dark">Login</button>
+			</div>
+		</form>
+	</div>
+	<hr>
+{% endblock  %}

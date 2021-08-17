@@ -13,6 +13,25 @@
 				<a class="nav-item nav-link" href="{{ url_for("views.symbols") }}">Symbols</a>
 				<a class="nav-item nav-link" href="{{ url_for("views.upload") }}">Upload</a>
 			</div>
+
+			{% if current_user.is_authenticated %}
+				<ul class="navbar-nav ms-auto">
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								Account
+							</a>
+							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+									<li><a class="dropdown-item" href="{{ url_for("auth.user_settings") }}">Account Settings</a></li>
+									<li><a class="dropdown-item" href="{{ url_for("views.settings") }}">Server Settings</a></li>
+									<li><a class="dropdown-item" href="{{ url_for("auth.logout") }}">Logout</a></li>
+							</ul>
+						</li>
+				</ul>
+			{% elif current_user.is_anonymous %}
+				<div class="navbar-nav ms-auto">
+					<a class="nav-item nav-link" href="{{ url_for("auth.login") }}">Login</a>
+				</div>
+			{% endif %}
 		</div>
 
 	</div>
