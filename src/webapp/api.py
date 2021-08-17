@@ -1,10 +1,9 @@
-import os
+from flask import Blueprint, request, current_app, render_template
 
 from .models import Minidump, Annotation, Project, Symbol, CompileMetadata
 import src.webapp.operations as ops
 from . import db
 
-from flask import Blueprint, request, current_app, render_template
 import utility
 import magic
 import tasks

@@ -2,20 +2,25 @@
 symbol.py: Operations which coordinate transactions between
 the filesystem and the database on each api request
 """
-from .models import Project, Symbol, CompileMetadata, Minidump
-import src.tasks as tasks
-
-from flask import current_app
-
 from pathlib import Path
 import dataclasses
 import hashlib
 import uuid
 
+from .models import Project, Symbol, CompileMetadata, Minidump
+
+from flask import current_app
+
+from src import tasks
+
 
 # %% Models
 @dataclasses.dataclass
 class SymbolData:
+    """
+    These attributes uniquely identify any symbol file. It is used over the Symbol db model as the db model is
+    organized different to keep data duplication to a minimum
+    """
     os: str = ""
     arch: str = ""
     build_id: str = ""
@@ -56,7 +61,6 @@ def get_db_symbol_exists(session, project_id: str, symbol_data: SymbolData):
                  .filter(CompileMetadata.project_id == project_id)\
                  .filter(CompileMetadata.module_id == symbol_data.module_id)\
                  .filter(CompileMetadata.build_id == symbol_data.build_id).scalar()
-
 
 
 def get_db_unprocessed_dumps(session, compile_id: str):

@@ -1,11 +1,14 @@
 from gevent import monkey; monkey.patch_all()
-from huey.contrib.mini import MiniHuey
-from webapp.models import Minidump, Project, Symbol, CompileMetadata
 from pathlib import Path
-from webapp import db, init_app
 import subprocess
-import utility
 import logging
+
+from huey.contrib.mini import MiniHuey
+
+from src import utility
+from src.webapp.models import Minidump, Project, Symbol, CompileMetadata
+from src.webapp import db, init_app
+
 
 logger = logging.getLogger("CrashServer")
 
@@ -53,7 +56,6 @@ def decode_minidump(crash_id):
             raw = subprocess.run([binary, dumpfile, symfolder], capture_output=True)
             minidump.machine_stacktrace = machine.stdout.decode('utf-8')
             minidump.raw_stacktrace = raw.stdout.decode('utf-8')
-        print("DECODED")
         db.session.commit()
 
 

@@ -57,17 +57,18 @@ v2 protocol calls the following functions:
         - "RESULT_UNSPECIFIED"  - I have no idea what this value is, or when to use this value. It's not referenced in
                                   the symupload, and is equivalent to "OK" when sent.
 """
+from pathlib import Path
+import logging
+import hashlib
+import os
+
+from flask import Blueprint, request, url_for, current_app
+
 from src.webapp.models import SymbolUploadV2
 from src.utility import url_arg_required
 from src.webapp import operations as ops
 from src.webapp import db
 
-from flask import Blueprint, request, url_for, current_app
-
-from pathlib import Path
-import logging
-import hashlib
-import os
 
 
 logger = logging.getLogger("CrashServer").getChild("sym-upload-v2")
@@ -127,8 +128,8 @@ def upload_location():
 
     new_symbol_path = Path(current_app.config["cfg"]["storage"]["sym_upload_location"], "{}.sym".format(sym_id))
     new_symbol_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(new_symbol_path.absolute(), "wb") as f:
-        f.write(symbol_file_content)
+    with open(new_symbol_path.absolute(), "wb") as file:
+        file.write(symbol_file_content)
 
     sym = SymbolUploadV2.query.get(sym_id)
     sym.file_hash = hashlib.blake2s(symbol_file_content).hexdigest()
@@ -157,11 +158,11 @@ def is_upload_complete(upload_key):
     symbol_ref = SymbolUploadV2.query.get(upload_key)
 
     # Load new file data
-    with open(symbol_ref.file_location, "rb") as f:
-        first_line = f.readline().decode('utf-8')
+    with open(symbol_ref.file_location, "rb") as file:
+        first_line = file.readline().decode('utf-8')
         symbol_data = ops.get_symbol_data(first_line)  # Get symbol data from file module line
-        f.seek(0)
-        uploaded_symbol_file = f.read()
+        file.seek(0)
+        uploaded_symbol_file = file.read()
 
     # If a version already exists, compare hashes
     existing_sym_file = ops.get_db_symbol(db.session, symbol_data)

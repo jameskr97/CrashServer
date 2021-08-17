@@ -1,7 +1,12 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class CrashMetadata:
+    # pylint: disable=too-many-instance-attributes
+    """
+    Data from the machine readable minidump to get additional info, and determine if we can decode the dump
+    """
     # OS Line
     os_platform: str = ""
     os_version: str = ""

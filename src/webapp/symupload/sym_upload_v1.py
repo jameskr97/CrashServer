@@ -6,7 +6,7 @@ This protocol is used when the `symupload` program from the breakpad repository
 is invoked without any `-p` parameter, and without
 """
 
-from flask import Blueprint, request, url_for
+from flask import Blueprint, request
 
 from src.utility import url_arg_required, file_key_required
 from src.webapp import operations as ops
@@ -20,6 +20,11 @@ sym_upload_v1 = Blueprint("sym-upload-v1", __name__)
 @url_arg_required('api_key')
 @file_key_required('symbol_file')
 def upload():
+    """
+    Upload endpoint for `sym-upload-v1` protocol.
+    Received payload is a multipart/form request with all data needed to receive a symbol file
+    :return:
+    """
     key = request.args.get("api_key")
 
     proj_id = ops.get_project_id(key)
@@ -35,4 +40,3 @@ def upload():
     file_content = request.files.get('symbol_file').stream.read()
 
     return ops.symbol_upload(db.session, proj_id, file_content, data)
-
