@@ -9,16 +9,17 @@ from flask import current_app
 
 from pathlib import Path
 import dataclasses
+import hashlib
 import uuid
 
 
 # %% Models
 @dataclasses.dataclass
 class SymbolData:
-    os: str
-    arch: str
-    build_id: str
-    module_id: str
+    os: str = ""
+    arch: str = ""
+    build_id: str = ""
+    module_id: str = ""
 
 
 # %% Database Queries
@@ -50,6 +51,14 @@ def get_db_compile_metadata(session, symdata: SymbolData):
             .filter(CompileMetadata.build_id == symdata.build_id).first()
 
 
+def get_db_symbol_exists(session, project_id: str, symbol_data: SymbolData):
+    return session.query(CompileMetadata.symbol_exists)\
+                 .filter(CompileMetadata.project_id == project_id)\
+                 .filter(CompileMetadata.module_id == symbol_data.module_id)\
+                 .filter(CompileMetadata.build_id == symbol_data.build_id).scalar()
+
+
+
 def get_db_unprocessed_dumps(session, compile_id: str):
     return session.query(Minidump.id)\
             .filter(Minidump.build_metadata_id == compile_id)\
@@ -57,13 +66,14 @@ def get_db_unprocessed_dumps(session, compile_id: str):
 
 
 # %% Database/Storage Modification
-def store_symbol(proj_id, symbol_data: SymbolData, file_contents: bytes) -> int:
+def store_symbol(proj_id, symbol_data: SymbolData, file_contents: bytes) -> str:
     """
     Takes project_id, symbol module data, and the symbol file content, and writes it to file.
 
     :param proj_id: Project ID to store file in
     :param symbol_data: Struct of info from module line of symbol data
     :param file_contents: Symbol file in bytes
+    :return file location within project directory
     """
 
     # Determine file location on disk
@@ -76,6 +86,8 @@ def store_symbol(proj_id, symbol_data: SymbolData, file_contents: bytes) -> int:
 
     with open(sym_loc.absolute(), 'wb') as f:
         f.write(file_contents)
+
+    return str(dir_location)
 
 
 def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: SymbolData):
@@ -95,15 +107,13 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
     :param symbol_data: Metadata about the symfile param
     :return: The response to the client making this request
     """
-    # Check if module_id already exists
-    if get_db_symbol(session, symbol_data):
-        return {"error": "Symbol file already uploaded"}, 400
-
-    store_symbol(project_id, symbol_data, symbol_file)
+    # Save to file
+    file_location = store_symbol(project_id, symbol_data, symbol_file)
+    file_hash = str(hashlib.blake2s(symbol_file).hexdigest())
 
     # Check if a minidump was already uploaded with the current module_id and build_id
     meta = get_db_compile_metadata(session, symbol_data)  # Check if data exists
-    process_undecoded_dumps = meta is not None
+    process_unprocessed_dumps = meta is not None
     if meta is None:
         # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded
         # before the symbol file was uploaded), then create a new CompileMetadata, flush, and relate to symbol
@@ -111,16 +121,20 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
                                build_id=symbol_data.build_id, symbol_exists=True)
         session.add(meta)
         session.flush()
-
     meta.symbol_exists = True  # Ensure compile metadata shows we do have the symbols
 
-    new_sym = Symbol(project_id=project_id, build_metadata_id=meta.id, os=symbol_data.os,
-                     arch=symbol_data.arch, file_size_bytes=len(symbol_file))
+    new_sym = Symbol(project_id=project_id,
+                     build_metadata_id=meta.id,
+                     os=symbol_data.os,
+                     arch=symbol_data.arch,
+                     file_location=file_location,
+                     file_hash=file_hash,
+                     file_size_bytes=len(symbol_file))
 
     session.add(new_sym)  # Create new symbol entry
     session.commit()      # Commit to Database
 
-    if process_undecoded_dumps:
+    if process_unprocessed_dumps:
         dumps = get_db_unprocessed_dumps(session, meta.id)
         for dump in dumps:  # Send all minidump id's to task processor to for decoding
             tasks.decode_minidump(dump[0])

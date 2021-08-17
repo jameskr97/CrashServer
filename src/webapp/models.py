@@ -1,5 +1,6 @@
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
+from flask import current_app
 from pathlib import Path
 from . import db
 import uuid
@@ -76,11 +77,9 @@ class Symbol(db.Model):
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     os = db.Column(db.Text(), nullable=False)
     arch = db.Column(db.Text(), nullable=False)
+    file_location = db.Column(db.Text(), nullable=False)
     file_size_bytes = db.Column(db.Integer(), nullable=False)
-
-    @property
-    def file_location(self):
-        return str(Path("{0}/{1}/{2}/{1}.sym".format(self.project_id, self.module_id, self.build_id)))
+    file_hash = db.Column(db.String(length=64), nullable=False)
 
     @property
     def file_size_mb(self):
@@ -101,3 +100,22 @@ class CompileMetadata(db.Model):
     module_id = db.Column(db.Text(), nullable=False)
     build_id = db.Column(db.Text(), nullable=False)
     symbol_exists = db.Column(db.Boolean(), nullable=False)
+
+
+class SymbolUploadV2(db.Model):
+    __tablename__ = "sym_upload_tracker"
+    """
+    Track upload_locations for the `sym-upload-v2` protocol.
+
+    While `sym-upload-v1` is a more direct uploading protocol, `sym-upload-v2` defines
+    additional endpoints to use to check the status of a symbol before/after it's been
+    uploaded. Steps are explained in the header of `sym_upload_v2.py`
+    """
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
+    date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    file_hash = db.Column(db.String(length=64))
+
+    @property
+    def file_location(self):
+        return Path(current_app.config["cfg"]["storage"]["sym_upload_location"], "{}.sym".format(self.id)).absolute()

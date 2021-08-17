@@ -23,7 +23,7 @@ Built for open-source projects that use Google Crashpad, and want to host their 
   - [ ] Auto-delete minidumps after a selected interval
   - [ ] Single project mode
   - [x] Implement `sym-upload-v1` protocol
-  - [ ] Implement `sym-upload-v2` protocol
+  - [x] Implement `sym-upload-v2` protocol
 - Misc
   - [ ] Documentation Generation
   - [ ] CI and Tests

@@ -43,10 +43,11 @@ def init_app() -> Flask:
 def init_views(app: Flask) -> Flask:
     from .views import views
     from .api import api
-    from .symupload import sym_upload_v1
+    from .symupload import sym_upload_v1, sym_upload_v2
     app.register_blueprint(views)
     app.register_blueprint(api)
     app.register_blueprint(sym_upload_v1, url_prefix="/symupload")
+    app.register_blueprint(sym_upload_v2, url_prefix="/symupload")
     return app
 
 def init_database(app: Flask, sql_params: dict):

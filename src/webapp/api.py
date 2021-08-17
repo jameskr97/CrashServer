@@ -72,6 +72,11 @@ def upload_symbol():
     symbol_file = request.files.get("symbol_file")
     symbol_data = ops.get_symbol_data(symbol_file.stream.readline().decode('utf-8'))
     symbol_file.stream.seek(0)
+
+    # Check if module_id already exists
+    if ops.get_db_symbol(db.session, symbol_data):
+        return {"error": "Symbol file already uploaded"}, 400
+
     return ops.symbol_upload(db.session, project_id, symbol_file.stream.read(), symbol_data)
 
 
