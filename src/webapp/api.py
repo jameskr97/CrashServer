@@ -59,7 +59,7 @@ def upload_minidump():
     return {"status": "success"}, 200
 
 
-@api.route('/api/symbol/upload/', methods=["POST"])
+@api.route('/api/symbol/upload', methods=["POST"])
 @utility.url_arg_required("api_key")
 @utility.file_key_required("symbol_file")
 def upload_symbol():
