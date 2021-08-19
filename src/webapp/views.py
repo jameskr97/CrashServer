@@ -4,8 +4,8 @@ import uuid
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import login_required
 
-from . import db
-from .models import Minidump, Project, BuildMetadata
+from src.webapp import db
+from src.webapp.models import Minidump, Project, BuildMetadata
 
 views = Blueprint("views", __name__)
 

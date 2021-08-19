@@ -7,16 +7,6 @@ from flask_login import LoginManager
 from flask import Flask
 import toml
 
-db = SQLAlchemy()
-login = LoginManager()
-
-def init_web_app() -> Flask:
-    app = init_app()
-    init_views(app)
-    init_database(app)
-    init_login(app)
-
-    return app
 
 def init_app() -> Flask:
     """
@@ -50,9 +40,11 @@ def init_app() -> Flask:
     # Configure app parameters
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_size": 30}
+    # app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_size": 30}
+    db.app = app
     db.init_app(app)
     return app
+
 
 def init_views(app: Flask):
     from .views import views
@@ -65,20 +57,40 @@ def init_views(app: Flask):
     app.register_blueprint(sym_upload_v2, url_prefix="/symupload")
     app.register_blueprint(auth, url_prefix="/auth")
 
+
 def init_database(app: Flask):
     # Ensure database exists
     if not database_exists(app.config["SQLALCHEMY_DATABASE_URI"]):
         create_database(app.config["SQLALCHEMY_DATABASE_URI"])
         print("Database created")
 
-    from .models import Annotation
-    from .models import Minidump
-    from .models import Project
+    from src.webapp.models import Annotation
+    from src.webapp.models import BuildMetadata
+    from src.webapp.models import Minidump
+    from src.webapp.models import Project
+    from src.webapp.models import Symbol
+    from src.webapp.models import SymbolUploadV2
+    from src.webapp.models import User
 
     db.create_all(app=app)  # Setup Database
+
 
 def init_login(app: Flask):
     login.init_app(app)
     login.login_view = "auth.login"
     login.login_message = "You must be logged in to see this page"
     login.login_message_category = "info"
+
+
+def init_web_app() -> Flask:
+    app = init_app()
+    app.app_context().push()
+    init_database(app)
+    init_views(app)
+    init_login(app)
+    return app
+
+
+db = SQLAlchemy()
+login = LoginManager()
+app = init_web_app()

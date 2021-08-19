@@ -10,5 +10,5 @@ logger.addHandler(log_handler)
 
 # Run CrashServer
 if __name__ == '__main__':
-    app = webapp.init_web_app()
+    from src.webapp import app
     app.run(host="0.0.0.0", port=8081, debug=True)

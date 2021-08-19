@@ -4,7 +4,7 @@ the filesystem and the database on each api request
 """
 import dataclasses
 
-from .models import Project, Symbol, BuildMetadata
+from src.webapp.models import Project, Symbol, BuildMetadata
 from src import tasks
 
 

@@ -7,8 +7,8 @@ from wtforms.validators import DataRequired, Email, Length
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_user, login_required, logout_user
-from . import db, login
-from .models import User
+from src.webapp import db, login
+from src.webapp.models import User
 
 auth = Blueprint("auth", __name__)
 

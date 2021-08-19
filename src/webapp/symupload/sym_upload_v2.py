@@ -20,7 +20,7 @@ v2 protocol calls the following functions:
         - "STATUS_UNSPECIFIED"  - The server doesn't not explicitly state the existence or nonexistence of the symbol
 
     My interpretation of "STATUS_UNSPECIFIED" comes down to if there is not a row matching `debug_file` and `debug_id`
-    in the `compile_metadata` table. Thought at the time of writing this, it doesn't really matter. On mac, windows,
+    in the `build_metadata` table. Thought at the time of writing this, it doesn't really matter. On mac, windows,
     and linux, in the source for symupload, it basically checks (res["status"] == "FOUND") ? "FOUND" : "MISSING".
     Nothing happens for "STATUS_UNSPECIFIED". Breakpad, why?
 
