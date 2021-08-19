@@ -1,45 +1,35 @@
-from flask import Blueprint, request, current_app, render_template
-
-from .models import Minidump, Annotation, Project, Symbol, CompileMetadata
-import src.webapp.operations as ops
-from . import db
-
-import utility
+from flask import Blueprint, request, render_template
 import magic
+
+from src.webapp.models import Minidump, Annotation, Symbol
+import src.webapp.operations as ops
+import src.utility as utility
 import src.tasks as tasks
+from src.webapp import db
 
 api = Blueprint("api", __name__)
 
 
 @api.route('/api/minidump/upload', methods=["POST"])
-@utility.url_arg_required("api_key")
 @utility.file_key_required("upload_file_minidump")
-def upload_minidump():
+@utility.api_key_required()
+def upload_minidump(project_id):
     """
     A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
     argument, and it will save and prepare the file for processing
     :return:
     """
-    project_id = ops.get_project_id(db.session, request.args.get("api_key"))
-    if project_id is None:
-        return {"error": "Bad api key"}, 400
-
     minidump = request.files.get("upload_file_minidump")
 
     # Validate magic number
     magic_number = magic.from_buffer(minidump.stream.read(2048), mime=True)
     if magic_number != "application/x-dmp":
         return {"error": "Bad Minidump"}, 400
-
-    # File is acceptable. Save the minidump.
     minidump.stream.seek(0)
-    filename = ops.store_minidump(project_id, minidump.stream.read())
 
     # Add minidump to database
-    new_dump = Minidump(
-        filename=filename,
-        project_id=project_id,
-        client_guid=request.args.get("guid", default=None))
+    new_dump = Minidump(project_id=project_id, client_guid=request.args.get("guid", default=None))
+    new_dump.store_minidump(minidump.stream.read())
     db.session.add(new_dump)
     db.session.flush()
 
@@ -48,24 +38,17 @@ def upload_minidump():
     annotation.pop("guid", None)  # Remove GUID value from annotations
     annotation.pop("api_key", None)
     for key, value in annotation.items():
-        new_annotation = Annotation(minidump_id=new_dump.id, key=key, value=value)
-        db.session.add(new_annotation)
+        new_dump.annotations.append(Annotation(key=key, value=value))
 
     db.session.commit()
-
     tasks.decode_minidump(new_dump.id)()
-
     return {"status": "success"}, 200
 
 
 @api.route('/api/symbol/upload', methods=["POST"])
-@utility.url_arg_required("api_key")
 @utility.file_key_required("symbol_file")
-def upload_symbol():
-    project_id = ops.get_project_id(db.session, request.args.get("api_key"))
-    if project_id is None:
-        return {"error": "Bad api key"}, 400
-
+@utility.api_key_required()
+def upload_symbol(project_id):
     # Get relevant module info from first line of file
     symbol_file = request.files.get("symbol_file")
     symbol_data = ops.SymbolData.from_module_line(symbol_file.stream.readline().decode('utf-8'))

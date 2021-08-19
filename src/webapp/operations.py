@@ -2,15 +2,9 @@
 symbol.py: Operations which coordinate transactions between
 the filesystem and the database on each api request
 """
-from pathlib import Path
 import dataclasses
-import hashlib
-import uuid
 
-from .models import Project, Symbol, CompileMetadata, Minidump
-
-from flask import current_app
-
+from .models import Project, Symbol, CompileMetadata
 from src import tasks
 
 
@@ -31,16 +25,6 @@ class SymbolData:
         metadata = module_line.strip().split(' ')
         return SymbolData(os=metadata[1], arch=metadata[2],
                           build_id=metadata[3], module_id=metadata[4])
-
-
-# %% Database Queries
-
-def get_project_id(session, api_key):
-    return session.query(Project.id).filter_by(api_key=api_key).scalar()
-
-
-def get_build_data(session, data: SymbolData):
-    return session.query(CompileMetadata).filter_by(build_id=data.build_id, module_id=data.module_id).first()
 
 
 def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: SymbolData):
@@ -94,19 +78,3 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
     }
 
     return res, 200
-
-
-def store_minidump(proj_id, file_contents: bytes) -> str:
-    """
-    Takes a project, and file data, and stores it to the proper location.
-    :return: name of the stored file
-    """
-    filename = "minidump-%s.dmp" % str(uuid.uuid4().hex)
-
-    minidump_file = Path(current_app.config["cfg"]["storage"]["minidump_location"])
-    minidump_file = minidump_file / str(proj_id) / filename
-    minidump_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(minidump_file.absolute(), 'wb') as f:
-        f.write(file_contents)
-
-    return filename

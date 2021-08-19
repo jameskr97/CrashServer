@@ -101,6 +101,17 @@ class Minidump(db.Model):
     def file_location(self):
         return str(Path("{0}/{1}".format(self.project_id, self.filename)))
 
+    def store_minidump(self, file_contents: bytes):
+        filename = "minidump-%s.dmp" % str(uuid.uuid4().hex)
+
+        dump_file = Path(current_app.config["cfg"]["storage"]["minidump_location"]) / str(self.project_id) / filename
+        dump_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(dump_file.absolute(), 'wb') as f:
+            f.write(file_contents)
+
+        self.filename = filename
+
+
 
 class Annotation(db.Model):
     """

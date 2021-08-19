@@ -63,7 +63,7 @@ import os
 from flask import Blueprint, request, url_for
 
 from src.webapp.models import SymbolUploadV2, CompileMetadata
-from src.utility import url_arg_required
+from src.utility import url_arg_required, api_key_required
 from src.webapp import operations as ops
 from src.webapp import db
 
@@ -72,18 +72,11 @@ sym_upload_v2 = Blueprint("sym-upload-v2", __name__)
 
 
 @sym_upload_v2.route('/v1/symbols/<module_id>/<build_id>:checkStatus')
-@url_arg_required('key')
+@api_key_required("key", pass_project=False)
 def check_status(module_id, build_id):
-    apikey = request.args.get("key")
-    if apikey == "(null)":
-        return {"error": "Bad api_key"}, 400
-
-    proj_id = ops.get_project_id(db.session, apikey)
-    if proj_id is None:
-        return {"error": "Bad api_key"}, 400
-
-    data = ops.SymbolData(module_id=module_id.strip(), build_id=build_id.strip())
-    build = ops.get_build_data(db.session, data)
+    build = db.session.query(CompileMetadata).filter_by(
+        build_id=module_id.strip(),
+        module_id=build_id.strip()).first()
 
     # # This will return if the row does not exist...
     if build is None:
@@ -94,17 +87,9 @@ def check_status(module_id, build_id):
 
 
 @sym_upload_v2.route('/v1/uploads:create', methods=["POST"])
-@url_arg_required('key')
-def create():
-    apikey = request.args.get("key")
-    if apikey == "(null)":
-        return {"error": "Bad api_key"}, 400
-
-    proj_id = ops.get_project_id(db.session, apikey)
-    if proj_id is None:
-        return {"error": "Bad api_key"}, 400
-
-    symbol_ref = SymbolUploadV2(project_id=proj_id)
+@api_key_required("key")
+def create(project_id):
+    symbol_ref = SymbolUploadV2(project_id=project_id)
     db.session.add(symbol_ref)
     db.session.commit()
 
@@ -126,16 +111,8 @@ def upload_location():
 
 
 @sym_upload_v2.route('/v1/uploads/<upload_key>:complete', methods=["POST"])
-@url_arg_required('key')
-def is_upload_complete(upload_key):
-    apikey = request.args.get("key")
-    if apikey == "(null)":
-        return {"error": "Bad api_key"}, 400
-
-    proj_id = ops.get_project_id(db.session, apikey)
-    if proj_id is None:
-        return {"error": "Bad api_key"}, 400
-
+@api_key_required("key")
+def is_upload_complete(project_id, upload_key):
     logger.info("Attempting to upload new symbol file")
     if request.json["symbol_upload_type"] != "BREAKPAD":
         return {"error": "CrashServer only accepts breakpad debug symbols"}, 400
@@ -154,7 +131,7 @@ def is_upload_complete(upload_key):
 
     # Save the file!
     file_data = symbol_ref.load_file()
-    ops.symbol_upload(db.session, proj_id, file_data, symbol_ref.symbol_data)
+    ops.symbol_upload(db.session, project_id, file_data, symbol_ref.symbol_data)
 
     # Delete upload
     os.remove(symbol_ref.file_location)
