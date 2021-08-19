@@ -48,7 +48,7 @@ class Project(db.Model):
     api_key = db.Column(db.String(length=32), nullable=False)
 
 
-class CompileMetadata(db.Model):
+class BuildMetadata(db.Model):
     """
     Table to story the common elements between symbols and minidump files. The `symbol_exists` row is added
     for convenience in the the decode_minidump task.
@@ -57,7 +57,7 @@ class CompileMetadata(db.Model):
     symbol files to decode that minidump. Even if we can't decode the minidump, we still want a record that we are
     aware of the existence of a given module and build id combination.
     """
-    __tablename__ = "compile_metadata"
+    __tablename__ = "build_metadata"
     id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), default=uuid.uuid4)
     project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
     module_id = db.Column(db.Text(), nullable=False)
@@ -65,7 +65,7 @@ class CompileMetadata(db.Model):
 
     # Relationships
     symbol = db.relationship('Symbol', uselist=False, back_populates='build')
-    unprocessed_dumps = db.relationship("Minidump", primaryjoin="and_(Minidump.build_metadata_id==CompileMetadata.id,"
+    unprocessed_dumps = db.relationship("Minidump", primaryjoin="and_(Minidump.build_metadata_id==BuildMetadata.id,"
                                                                 "Minidump.machine_stacktrace==None)")
 
 
@@ -94,7 +94,7 @@ class Minidump(db.Model):
 
     # Relationships
     project = db.relationship("Project")
-    build = db.relationship("CompileMetadata", back_populates='unprocessed_dumps')
+    build = db.relationship("BuildMetadata", back_populates='unprocessed_dumps')
     annotations = db.relationship("Annotation")
 
     @property
@@ -153,7 +153,7 @@ class Symbol(db.Model):
 
     # Relationships
     project: Project = db.relationship('Project')
-    build: CompileMetadata = db.relationship('CompileMetadata')
+    build: BuildMetadata = db.relationship('BuildMetadata')
 
     @property
     def file_size_mb(self):

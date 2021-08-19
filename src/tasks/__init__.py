@@ -6,7 +6,7 @@ import logging
 from huey.contrib.mini import MiniHuey
 
 from src import utility
-from src.webapp.models import Minidump, Project, Symbol, CompileMetadata
+from src.webapp.models import Minidump, Project, Symbol, BuildMetadata
 from src.webapp import db, init_app
 
 
@@ -28,15 +28,15 @@ def decode_minidump(crash_id):
         machine_text = machine.stdout.decode('utf-8').split('\n')
         metadata = utility.process_machine_minidump(machine_text)
 
-        minidump.build = db.session.query(CompileMetadata).filter(CompileMetadata.build_id == metadata.build_id).first()
+        minidump.build = db.session.query(BuildMetadata).filter(BuildMetadata.build_id == metadata.build_id).first()
 
         # The symbol file needed to decode this minidump does not exist.
         # Make a record in the CompileMetadata table with {build,module}_id. There will be a
         # relationship from that metadata to the minidump
         if minidump.build is None:
-            minidump.build = CompileMetadata(project_id=minidump.project_id,
-                                             module_id=metadata.module_id,
-                                             build_id=metadata.build_id)
+            minidump.build = BuildMetadata(project_id=minidump.project_id,
+                                           module_id=metadata.module_id,
+                                           build_id=metadata.build_id)
             db.session.flush()
 
         if not minidump.build.symbol:

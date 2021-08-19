@@ -62,7 +62,7 @@ import os
 
 from flask import Blueprint, request, url_for
 
-from src.webapp.models import SymbolUploadV2, CompileMetadata
+from src.webapp.models import SymbolUploadV2, BuildMetadata
 from src.utility import url_arg_required, api_key_required
 from src.webapp import operations as ops
 from src.webapp import db
@@ -74,7 +74,7 @@ sym_upload_v2 = Blueprint("sym-upload-v2", __name__)
 @sym_upload_v2.route('/v1/symbols/<module_id>/<build_id>:checkStatus')
 @api_key_required("key", pass_project=False)
 def check_status(module_id, build_id):
-    build = db.session.query(CompileMetadata).filter_by(
+    build = db.session.query(BuildMetadata).filter_by(
         build_id=module_id.strip(),
         module_id=build_id.strip()).first()
 
@@ -121,7 +121,7 @@ def is_upload_complete(project_id, upload_key):
     symbol_ref = db.session.query(SymbolUploadV2).get(upload_key)
 
     # If a version already exists, compare hashes
-    build = db.session.query(CompileMetadata).filter_by(
+    build = db.session.query(BuildMetadata).filter_by(
         build_id=symbol_ref.build_id,
         module_id=symbol_ref.module_id).first()
 

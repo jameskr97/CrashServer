@@ -4,7 +4,7 @@ the filesystem and the database on each api request
 """
 import dataclasses
 
-from .models import Project, Symbol, CompileMetadata
+from .models import Project, Symbol, BuildMetadata
 from src import tasks
 
 
@@ -45,15 +45,15 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
     :return: The response to the client making this request
     """
     # Check if a minidump was already uploaded with the current module_id and build_id
-    build = session.query(CompileMetadata).filter_by(
+    build = session.query(BuildMetadata).filter_by(
         build_id=symbol_data.build_id,
         module_id=symbol_data.module_id).first()
     if build is None:
         # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded
-        # before the symbol file was uploaded), then create a new CompileMetadata, flush, and relate to symbol
-        build = CompileMetadata(project_id=project_id,
-                                module_id=symbol_data.module_id,
-                                build_id=symbol_data.build_id)
+        # before the symbol file was uploaded), then create a new BuildMetadata, flush, and relate to symbol
+        build = BuildMetadata(project_id=project_id,
+                              module_id=symbol_data.module_id,
+                              build_id=symbol_data.build_id)
 
     if build.symbol:
         return {"error": "Symbol file already uploaded"}, 203
