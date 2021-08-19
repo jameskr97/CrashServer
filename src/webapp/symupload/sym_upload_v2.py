@@ -57,19 +57,15 @@ v2 protocol calls the following functions:
         - "RESULT_UNSPECIFIED"  - I have no idea what this value is, or when to use this value. It's not referenced in
                                   the symupload, and is equivalent to "OK" when sent.
 """
-from pathlib import Path
 import logging
-import hashlib
 import os
 
-from flask import Blueprint, request, url_for, current_app
+from flask import Blueprint, request, url_for
 
-from src.webapp.models import SymbolUploadV2
+from src.webapp.models import SymbolUploadV2, CompileMetadata
 from src.utility import url_arg_required
 from src.webapp import operations as ops
 from src.webapp import db
-
-
 
 logger = logging.getLogger("CrashServer").getChild("sym-upload-v2")
 sym_upload_v2 = Blueprint("sym-upload-v2", __name__)
@@ -82,19 +78,19 @@ def check_status(module_id, build_id):
     if apikey == "(null)":
         return {"error": "Bad api_key"}, 400
 
-    proj_id = ops.get_project_id(apikey)
+    proj_id = ops.get_project_id(db.session, apikey)
     if proj_id is None:
         return {"error": "Bad api_key"}, 400
 
-    data = ops.SymbolData(module_id=module_id, build_id=build_id)
-    symbol_exists = ops.get_db_symbol_exists(db.session, project_id=proj_id, symbol_data=data)
+    data = ops.SymbolData(module_id=module_id.strip(), build_id=build_id.strip())
+    build = ops.get_build_data(db.session, data)
 
-    # This will return if the row does not exist...
-    if symbol_exists is None:
+    # # This will return if the row does not exist...
+    if build is None:
         return {"status": "STATUS_UNSPECIFIED"}, 200
 
     # ...and this will return based on symbol_exists on an existing row
-    return {"status": "FOUND" if symbol_exists else "MISSING"}, 200
+    return {"status": "FOUND" if build.symbol else "MISSING"}, 200
 
 
 @sym_upload_v2.route('/v1/uploads:create', methods=["POST"])
@@ -104,7 +100,7 @@ def create():
     if apikey == "(null)":
         return {"error": "Bad api_key"}, 400
 
-    proj_id = ops.get_project_id(apikey)
+    proj_id = ops.get_project_id(db.session, apikey)
     if proj_id is None:
         return {"error": "Bad api_key"}, 400
 
@@ -114,7 +110,7 @@ def create():
 
     res = {
         "uploadUrl": url_for("sym-upload-v2.upload_location", sym_id=symbol_ref.id, _external=True),
-        "uploadKey": symbol_ref.id,
+        "uploadKey": symbol_ref.id
     }
 
     return res, 200
@@ -123,19 +119,9 @@ def create():
 @sym_upload_v2.route('/upload', methods=["PUT"])
 @url_arg_required('sym_id')
 def upload_location():
-    sym_id = request.args.get("sym_id")
-    symbol_file_content = bytes(request.data)
-
-    new_symbol_path = Path(current_app.config["cfg"]["storage"]["sym_upload_location"], "{}.sym".format(sym_id))
-    new_symbol_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(new_symbol_path.absolute(), "wb") as file:
-        file.write(symbol_file_content)
-
-    sym = SymbolUploadV2.query.get(sym_id)
-    sym.file_hash = hashlib.blake2s(symbol_file_content).hexdigest()
+    new_symbol = db.session.query(SymbolUploadV2).get(request.args.get("sym_id"))
+    new_symbol.store_file(request.data)
     db.session.commit()
-
-    logger.info("New symbol file uploaded")
     return "", 200
 
 
@@ -146,7 +132,7 @@ def is_upload_complete(upload_key):
     if apikey == "(null)":
         return {"error": "Bad api_key"}, 400
 
-    proj_id = ops.get_project_id(apikey)
+    proj_id = ops.get_project_id(db.session, apikey)
     if proj_id is None:
         return {"error": "Bad api_key"}, 400
 
@@ -155,31 +141,20 @@ def is_upload_complete(upload_key):
         return {"error": "CrashServer only accepts breakpad debug symbols"}, 400
 
     # Get reference to the uploaded sym file
-    symbol_ref = SymbolUploadV2.query.get(upload_key)
-
-    # Load new file data
-    with open(symbol_ref.file_location, "rb") as file:
-        first_line = file.readline().decode('utf-8')
-        symbol_data = ops.get_symbol_data(first_line)  # Get symbol data from file module line
-        file.seek(0)
-        uploaded_symbol_file = file.read()
+    symbol_ref = db.session.query(SymbolUploadV2).get(upload_key)
 
     # If a version already exists, compare hashes
-    existing_sym_file = ops.get_db_symbol(db.session, symbol_data)
+    build = db.session.query(CompileMetadata).filter_by(
+        build_id=symbol_ref.build_id,
+        module_id=symbol_ref.module_id).first()
 
-    res = {"result": "OK"}
-    update_sym = lambda: ops.symbol_upload(db.session, proj_id, uploaded_symbol_file, symbol_data)
-    if existing_sym_file is None:  # No existing symbol file
-        logger.info("Symbol file for {}:{} does not exist. Storing symbol..."
-                    .format(symbol_data.module_id, symbol_data.build_id))
-        update_sym()
-    else:  # Existing symbol file. Compare hashes, update if different, notify if same.
-        if existing_sym_file.file_hash == symbol_ref.file_hash:
-            logger.info("Symbol file hashes match. Changing nothing.")
-            res["result"] = "DUPLICATE_DATA"
-        else:
-            logger.info("Symbol file hashes do not match. Replacing existing symbol file...")
-            update_sym()
+    # If symbol exists, and hashes match, then do nothing.
+    if build and build.symbol and build.symbol.file_hash == symbol_ref.file_hash:
+        return {"result": "DUPLICATE_DATA"}, 200
+
+    # Save the file!
+    file_data = symbol_ref.load_file()
+    ops.symbol_upload(db.session, proj_id, file_data, symbol_ref.symbol_data)
 
     # Delete upload
     os.remove(symbol_ref.file_location)
@@ -188,4 +163,4 @@ def is_upload_complete(upload_key):
     db.session.delete(symbol_ref)
     db.session.commit()
 
-    return res, 200
+    return {"result": "OK"}, 200

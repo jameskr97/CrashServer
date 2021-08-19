@@ -25,18 +25,15 @@ def upload():
     Received payload is a multipart/form request with all data needed to receive a symbol file
     :return:
     """
-    key = request.args.get("api_key")
-
-    proj_id = ops.get_project_id(key)
+    proj_id = ops.get_project_id(db.session, request.args.get("api_key"))
     if not proj_id:
         return {"error": "Bad api_key"}, 400
 
     data = ops.SymbolData(
-        os=request.form['os'],
-        arch=request.form['cpu'],
-        build_id=request.form['debug_identifier'],
-        module_id=request.form['debug_file'])
+        os=request.form['os'].strip(),
+        arch=request.form['cpu'].strip(),
+        build_id=request.form['debug_identifier'].strip(),
+        module_id=request.form['debug_file'].strip())
 
     file_content = request.files.get('symbol_file').stream.read()
-
     return ops.symbol_upload(db.session, proj_id, file_content, data)

@@ -13,14 +13,14 @@
 	  <div class="tab-pane fade show active" id="raw-trace" role="tabpanel">
 		  <pre>
 			  <code>
-{{ dump.raw_stacktrace }}
+{{ minidump.raw_stacktrace }}
 			  </code>
 		  </pre>
 	  </div>
 	  <div class="tab-pane fade" id="machine-trace" role="tabpanel">
 		  <pre>
 			  <code>
-{{ dump.machine_stacktrace }}
+{{ minidump.machine_stacktrace }}
 			  </code>
 		  </pre>
 	  </div>
@@ -51,15 +51,15 @@
 {% block content %}
 	<h1 class="text-center">Detailed Crash Report</h1>
 	<hr>
-	<h2>{{ project.project_name }}</h2>
-	<p>Uploaded on {{ dump.date_created.strftime("%F %T %Z") }}</p>
+	<h2>{{ minidump.project.project_name }}</h2>
+	<p>Uploaded on {{ minidump.date_created.strftime("%F %T %Z") }}</p>
 	<hr>
 
-	{% if meta.symbol_exists == false %}
-		{{ no_symbols() }}
-	{% elif dump.raw_stacktrace == None %}
-		{{ still_processing() }}
-	{% else %}
+	{% if minidump.raw_stacktrace != None %}
 		{{ main_page() }}
+	{% elif minidump.build.symbol == None %}
+		{{ no_symbols() }}
+	{% else %}
+		{{ still_processing() }}
 	{% endif %}
 {% endblock %}

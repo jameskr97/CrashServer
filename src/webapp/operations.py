@@ -25,73 +25,22 @@ class SymbolData:
     arch: str = ""
     build_id: str = ""
     module_id: str = ""
+    
+    @staticmethod
+    def from_module_line(module_line: str):
+        metadata = module_line.strip().split(' ')
+        return SymbolData(os=metadata[1], arch=metadata[2],
+                          build_id=metadata[3], module_id=metadata[4])
 
 
 # %% Database Queries
-def get_project_id(api_key):
-    return Project.query.with_entities(Project.id).filter_by(api_key=api_key).scalar()
+
+def get_project_id(session, api_key):
+    return session.query(Project.id).filter_by(api_key=api_key).scalar()
 
 
-def get_symbol_data(first_line: str) -> SymbolData:
-    """
-    Parse the `MODULE` line of a symbol file. Always the first line of the symbol file.
-    Format: MODULE <os> <arch> <build_id> <module_id>
-    """
-    metadata = first_line.strip().split(' ')
-    return SymbolData(os=metadata[1], arch=metadata[2],
-                      build_id=metadata[3], module_id=metadata[4])
-
-
-def get_db_symbol(session, params: SymbolData):
-    res = session.query(Symbol)\
-        .filter(Symbol.build_metadata_id == CompileMetadata.id)\
-        .filter(CompileMetadata.build_id == params.build_id)\
-        .filter(CompileMetadata.module_id == params.module_id).first()
-    return res
-
-
-def get_db_compile_metadata(session, symdata: SymbolData):
-    return session.query(CompileMetadata)\
-            .filter(CompileMetadata.module_id == symdata.module_id)\
-            .filter(CompileMetadata.build_id == symdata.build_id).first()
-
-
-def get_db_symbol_exists(session, project_id: str, symbol_data: SymbolData):
-    return session.query(CompileMetadata.symbol_exists)\
-                 .filter(CompileMetadata.project_id == project_id)\
-                 .filter(CompileMetadata.module_id == symbol_data.module_id)\
-                 .filter(CompileMetadata.build_id == symbol_data.build_id).scalar()
-
-
-def get_db_unprocessed_dumps(session, compile_id: str):
-    return session.query(Minidump.id)\
-            .filter(Minidump.build_metadata_id == compile_id)\
-            .filter(Minidump.machine_stacktrace == None).all()
-
-
-# %% Database/Storage Modification
-def store_symbol(proj_id, symbol_data: SymbolData, file_contents: bytes) -> str:
-    """
-    Takes project_id, symbol module data, and the symbol file content, and writes it to file.
-
-    :param proj_id: Project ID to store file in
-    :param symbol_data: Struct of info from module line of symbol data
-    :param file_contents: Symbol file in bytes
-    :return file location within project directory
-    """
-
-    # Determine file location on disk
-    # module_id is split by 0, then we get the first component, in-case there is a period.
-    # There will only be a period on windows when it ends in `.pdb` and we do not want to retain that.
-    filesystem_module_id = symbol_data.module_id.split('.')[0]
-    dir_location = Path(symbol_data.module_id, symbol_data.build_id, filesystem_module_id + ".sym")
-    sym_loc = Path(current_app.config["cfg"]["storage"]["symbol_location"], str(proj_id), dir_location)
-    sym_loc.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(sym_loc.absolute(), 'wb') as f:
-        f.write(file_contents)
-
-    return str(dir_location)
+def get_build_data(session, data: SymbolData):
+    return session.query(CompileMetadata).filter_by(build_id=data.build_id, module_id=data.module_id).first()
 
 
 def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: SymbolData):
@@ -111,45 +60,37 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
     :param symbol_data: Metadata about the symfile param
     :return: The response to the client making this request
     """
-    # Save to file
-    file_location = store_symbol(project_id, symbol_data, symbol_file)
-    file_hash = str(hashlib.blake2s(symbol_file).hexdigest())
-
     # Check if a minidump was already uploaded with the current module_id and build_id
-    meta = get_db_compile_metadata(session, symbol_data)  # Check if data exists
-    process_unprocessed_dumps = meta is not None
-    if meta is None:
+    build = session.query(CompileMetadata).filter_by(
+        build_id=symbol_data.build_id,
+        module_id=symbol_data.module_id).first()
+    if build is None:
         # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded
         # before the symbol file was uploaded), then create a new CompileMetadata, flush, and relate to symbol
-        meta = CompileMetadata(project_id=project_id, module_id=symbol_data.module_id,
-                               build_id=symbol_data.build_id, symbol_exists=True)
-        session.add(meta)
-        session.flush()
-    meta.symbol_exists = True  # Ensure compile metadata shows we do have the symbols
+        build = CompileMetadata(project_id=project_id,
+                                module_id=symbol_data.module_id,
+                                build_id=symbol_data.build_id)
 
-    new_sym = Symbol(project_id=project_id,
-                     build_metadata_id=meta.id,
-                     os=symbol_data.os,
-                     arch=symbol_data.arch,
-                     file_location=file_location,
-                     file_hash=file_hash,
-                     file_size_bytes=len(symbol_file))
+    if build.symbol:
+        return {"error": "Symbol file already uploaded"}, 203
 
-    session.add(new_sym)  # Create new symbol entry
-    session.commit()      # Commit to Database
+    build.symbol = Symbol(project_id=project_id,
+                          os=symbol_data.os,
+                          arch=symbol_data.arch)
+    build.symbol.store_file(symbol_file)
+    session.commit()
 
-    if process_unprocessed_dumps:
-        dumps = get_db_unprocessed_dumps(session, meta.id)
-        for dump in dumps:  # Send all minidump id's to task processor to for decoding
-            tasks.decode_minidump(dump[0])
+    # Send all minidump id's to task processor to for decoding
+    for dump in build.unprocessed_dumps:
+        tasks.decode_minidump(dump.id)
 
     res = {
-        "id": str(new_sym.id),
-        "os": symbol_data.os,
-        "arch": symbol_data.arch,
-        "build_id": symbol_data.build_id,
-        "module_id": symbol_data.module_id,
-        "date_created": new_sym.date_created.isoformat(),
+        "id": build.symbol.id,
+        "os": build.symbol.os,
+        "arch": build.symbol.arch,
+        "build_id": build.build_id,
+        "module_id": build.module_id,
+        "date_created": build.symbol.date_created.isoformat(),
     }
 
     return res, 200

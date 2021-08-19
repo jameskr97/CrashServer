@@ -6,7 +6,7 @@ from . import db
 
 import utility
 import magic
-import tasks
+import src.tasks as tasks
 
 api = Blueprint("api", __name__)
 
@@ -20,11 +20,10 @@ def upload_minidump():
     argument, and it will save and prepare the file for processing
     :return:
     """
-    project_id = ops.get_project_id(request.args.get("api_key"))
+    project_id = ops.get_project_id(db.session, request.args.get("api_key"))
     if project_id is None:
         return {"error": "Bad api key"}, 400
 
-    # Ensure minidump file was uploaded
     minidump = request.files.get("upload_file_minidump")
 
     # Validate magic number
@@ -63,26 +62,19 @@ def upload_minidump():
 @utility.url_arg_required("api_key")
 @utility.file_key_required("symbol_file")
 def upload_symbol():
-    project_id = ops.get_project_id(request.args.get("api_key"))
+    project_id = ops.get_project_id(db.session, request.args.get("api_key"))
     if project_id is None:
         return {"error": "Bad api key"}, 400
 
     # Get relevant module info from first line of file
     symbol_file = request.files.get("symbol_file")
-    symbol_data = ops.get_symbol_data(symbol_file.stream.readline().decode('utf-8'))
+    symbol_data = ops.SymbolData.from_module_line(symbol_file.stream.readline().decode('utf-8'))
     symbol_file.stream.seek(0)
-
-    # Check if module_id already exists
-    if ops.get_db_symbol(db.session, symbol_data):
-        return {"error": "Symbol file already uploaded"}, 400
 
     return ops.symbol_upload(db.session, project_id, symbol_file.stream.read(), symbol_data)
 
 
 @api.route('/webapi/symbols/<project_id>')
 def get_symbols(project_id):
-    data = db.session.query(Symbol, CompileMetadata)\
-        .filter(Symbol.project_id == project_id)\
-        .filter(Symbol.build_metadata_id == CompileMetadata.id)\
-        .all()
+    data = db.session.query(Symbol).filter_by(project_id=project_id).all()
     return {"html": render_template("symbols/symbol-list.html", data=data)}, 200

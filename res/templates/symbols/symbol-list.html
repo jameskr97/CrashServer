@@ -1,10 +1,10 @@
-{% for sym, meta in data %}
+{% for symbol in data %}
 	<tr class="monospace-font">
-		<td>{{ sym.id }}</td>
-		<td>{{ meta.build_id }}</td>
-		<td>{{ sym.os }}</td>
-		<td>{{ sym.arch }}</td>
-		<td>{{ sym.file_size_mb }}</td>
-		<td>{{ sym.date_created.strftime("%F %T %Z") }}</td>
+		<td>{{ symbol.id }}</td>
+		<td>{{ symbol.build.build_id }}</td>
+		<td>{{ symbol.os }}</td>
+		<td>{{ symbol.arch }}</td>
+		<td>{{ symbol.file_size_mb }}</td>
+		<td>{{ symbol.date_created.strftime("%F %T %Z") }}</td>
 	</tr>
 {% endfor %}
