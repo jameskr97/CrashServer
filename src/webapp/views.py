@@ -23,6 +23,7 @@ def settings():
 
 
 @views.route('/project/create', methods=["GET", "POST"])
+@login_required
 def project_create():
     if request.method == "GET":
         return render_template("app/create.html")

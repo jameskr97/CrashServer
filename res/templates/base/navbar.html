@@ -21,14 +21,15 @@
 								Account
 							</a>
 							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-									<li><a class="dropdown-item" href="{{ url_for("views.settings") }}">Settings</a></li>
-									<li><a class="dropdown-item" href="{{ url_for("auth.logout") }}">Logout</a></li>
+									<li><a class="dropdown-item" href="{{ url_for("views.project_create") }}"><i class="fas fa-plus fa-fw"></i> Create App</a></li>
+									<li><a class="dropdown-item" href="{{ url_for("views.settings") }}"><i class="fas fa-cog fa-fw"></i> Settings</a></li>
+									<li><a class="dropdown-item" href="{{ url_for("auth.logout") }}"><i class="fas fa-sign-out-alt fa-fw"></i> Logout</a></li>
 							</ul>
 						</li>
 				</ul>
 			{% elif current_user.is_anonymous %}
 				<div class="navbar-nav ms-auto">
-					<a class="nav-item nav-link" href="{{ url_for("auth.login") }}">Login</a>
+					<a class="nav-item nav-link" href="{{ url_for("auth.login") }}"><i class="fas fa-sign-in-alt fa-fw"></i>Login</a>
 				</div>
 			{% endif %}
 		</div>

@@ -17,7 +17,6 @@
 		{% for app in apps %}
 			{{ project_entry(app.project_name, url_for("views.project_dashboard", id=app.id), "View") }}
 		{% endfor %}
-		{{ project_entry("Create App", url_for("views.project_create"), "+") }}
 	</div>
 
 {% endblock %}
