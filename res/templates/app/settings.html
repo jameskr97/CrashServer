@@ -1,6 +1,238 @@
 {% extends "base/base.html" %}
 
+{% macro user_account_row(user) %}
+	<tr>
+		<td>{{ user.email }}</td>
+		<td>{{ user.date_created.strftime("%T %F") }}</td>
+	</tr>
+{% endmacro %}
+
+{% macro project_disk_space(title, path) %}
+{% set disk = sysinfo.get_disk_space(path) %}
+	<div class="row settings-storage-row">
+		<div class="col-sm-4">{{ title }}</div>
+		<div class="col-sm-8">
+			<div class="progress">
+				<div class="progress-bar" style="width: {{ (disk.used / disk.total) * 100 }}%"></div>
+			</div>
+		</div>
+	</div>
+{% endmacro %}
+
+{% macro generate_project_row(p) %}
+	<div style="border: 3px solid gray; border-radius: 5px; padding: 10px">
+		<h4 style="display: inline">{{ p.project_name }}</h4>
+		<p style="display: inline">
+			| {{ p.symbol|length }} Symbols ({{ HumanBytes.format(p.total_symbol_size) }})
+			| {{ p.minidump|length }} Minidumps ({{ HumanBytes.format(p.total_minidump_size) }})
+		</p>
+		<hr>
+		<h5 style="margin-top: 10px;">Disk Space</h5>
+		{{ project_disk_space("Minidump Storage", p.minidump_location) }}
+		{{ project_disk_space("Symbol Storage", p.symbol_location) }}
+		<hr>
+
+		<button type="button" class="btn btn-danger">Purge Minidumps</button>
+		<button type="button" class="btn btn-danger">Delete Project</button>
+	</div>
+{% endmacro %}
+
 {% block content %}
 	<h1 class="text-center">Server Settings</h1>
 	<hr>
-{% endblock  %}
+	<div class="container">
+
+		<!-- MOBILE SIZE TOP TABS -->
+		<div class="row d-md-none">
+			<div class="col-12">
+				<ul id="settings-top-tabs" class="nav nav-tabs">
+					<li id="account" class="nav-item nav-link active"><i class="fas fa-user"></i></li> <!-- My Account -->
+					<li id="users" class="nav-item nav-link"><i class="fas fa-users fa-fw"></i></li> <!-- Users-->
+					<li id="server" class="nav-item nav-link"><i class="fas fa-server fa-fw"></i></li> <!-- Server-->
+					<li id="projects" class="nav-item nav-link"><i class="fas fa-archive fa-fw"></i></li> <!-- Projects-->
+					<li id="about" class="nav-item nav-link"><i class="fas fa-info-circle fa-fw"></i></li> <!-- About-->
+				</ul>
+			</div>
+		</div>
+
+		<!-- SIDE TABS AND CONTENT AREA -->
+		<div class="row">
+			<!-- DESKTOP SIDE TABS  -->
+			<div class="col-md-4 col-lg-3 d-none d-md-block">
+				<div id="settings-side-tabs" class="list-group settings-box-border">
+					<a id="account" class="list-group-item active" href="#account"><i class="fas fa-user fa-fw"></i>My Account</a>
+					<a id="users" class="list-group-item" href="#users"><i class="fas fa-users fa-fw"></i>Users</a>
+					<a id="server" class="list-group-item" href="#server"><i class="fas fa-server fa-fw"></i>Server</a>
+					<a id="projects" class="list-group-item" href="#projects"><i class="fas fa-archive fa-fw"></i>Projects</a>
+					<a id="about" class="list-group-item" href="#about"><i class="fas fa-info-circle fa-fw"></i>About</a>
+				</div>
+			</div>
+
+			<!-- MAIN CONTENT AREA -->
+			<div class="col-md-8 col-lg-9">
+				<div class="settings-content-container">
+					<div id="settings-content" class="tab-content settings-box-border">
+						<!-- MY ACCOUNT TAB -->
+						<div class="tab-pane active" role="tabpanel" id="account-content">
+							<h4>My Account</h4>
+							<hr>
+							<h5>My Info</h5>
+							<div class="row mb-3">
+								<label for="username" class="col-sm-2 col-form-label">Username</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="username">
+								</div>
+							</div>
+							<div class="row mb-3">
+								<label for="email-address" class="col-sm-2 col-form-label">Email Address</label>
+								<div class="col-sm-10">
+									<input type="email" class="form-control" id="email-address">
+								</div>
+							</div>
+
+							<hr>
+							<h5>Change Password</h5>
+							<div class="row mb-3">
+								<label for="pw-current" class="col-sm-2 col-form-label">Current Password</label>
+								<div class="col-sm-10">
+									<input type="email" class="form-control" id="pw-current">
+								</div>
+							</div>
+							<div class="row mb-3">
+								<label for="pw-new" class="col-sm-2 col-form-label">New Password</label>
+								<div class="col-sm-10">
+									<input type="email" class="form-control" id="pw-new">
+								</div>
+							</div>
+							<div class="row mb-3">
+								<label for="pw-new-verify" class="col-sm-2 col-form-label">Verify Password</label>
+								<div class="col-sm-10">
+									<input type="email" class="form-control" id="pw-new-verify">
+								</div>
+							</div>
+
+							<hr>
+							<div class="text-center">
+								<button type="submit" class="btn btn-outline-dark">Submit</button>
+							</div>
+						</div>
+
+						<!-- USERS TAB -->
+						<div class="tab-pane" role="tabpanel" id="users-content">
+							<div class="text-center">
+								<h5>Current Users</h5>
+							</div>
+							<div class="row">
+								<div class="d-none d-md-block">
+									<table class="table">
+										<thead>
+										<tr>
+											<th scope="col">Email</th>
+											<th scope="col">Account Created</th>
+										</tr>
+										</thead>
+										<tbody>
+										{% for user in users %}
+											{{ user_account_row(user) }}
+										{% endfor %}
+										</tbody>
+									</table>
+								</div>
+
+							</div> <!-- END OF LARGE SCREEN ROW -->
+						</div>
+
+						<!-- SERVER TAB -->
+						<div class="tab-pane" role="tabpanel" id="server-content">
+							<h4>Server Settings</h4>
+							<hr>
+							<h5>Host</h5>
+
+							<div class="row mb-3">
+								<label for="domain-name" class="col-sm-2 col-form-label">Domain Name</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="domain-name">
+								</div>
+							</div>
+							<div class="row mb-3">
+								<label for="host-port" class="col-sm-2 col-form-label">Server Port</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="host-port">
+								</div>
+							</div>
+
+
+							<hr>
+							<h5>Data Storage</h5>
+							<div class="row mb-3">
+								<label for="symbol-path" class="col-sm-2 col-form-label">Symbol Path</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="symbol-path">
+								</div>
+							</div>
+							<div class="row mb-3">
+								<label for="minidump-path" class="col-sm-2 col-form-label">Minidump Path</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="minidump-path">
+								</div>
+							</div>
+
+							<hr>
+							<h5>Symbol Upload</h5>
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
+								<label class="form-check-label" for="symupload-v2">
+									Enable <code>sym-upload-v1</code> protocol
+								</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
+								<label class="form-check-label" for="symupload-v1">
+									Enable <code>sym-upload-v2</code> protocol
+								</label>
+							</div>
+
+
+							<hr>
+							<div class="text-center">
+								<button type="submit" class="btn btn-outline-dark">Save</button>
+							</div>
+						</div>
+
+						<!-- PROJECTS TAB -->
+						<div class="tab-pane" role="tabpanel" id="projects-content">
+							<h4>Projects</h4>
+							<hr>
+							<div class="settings-project-grid">
+								{% if not projects %}
+									<p>No projects have been created yet.</p>
+								{% else %}
+									{% for p in projects %}
+										{{ generate_project_row(p) }}
+									{% endfor %}
+								{% endif %}
+							</div>
+						</div>
+
+						<!-- ABOUT TAB -->
+						<div class="tab-pane" role="tabpanel" id="about-content">
+							<h5>System Information</h5>
+							<hr>
+							<dl class="row">
+								<dt class="col-sm-3">Crash Server Version</dt>
+								<dd class="col-sm-9">VERSION_NUMBER</dd>
+
+								<dt class="col-sm-3">Uptime</dt>
+								<dd class="col-sm-9">UPTIME</dd>
+							</dl>
+						</div>
+					</div> <!-- END OF SETTINGS CONTENT-->
+				</div> <!-- END OF SETTING CONTENT CONTAINER -->
+			</div> <!-- END OF COL SIZE CLASSES -->
+		</div> <!--  END OF SIDE TABS AND CONTENT AREA-->
+	</div> <!-- END OF CONTAINER -->
+
+	<script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => settings_registerEvents())
+	</script>
+{% endblock %}

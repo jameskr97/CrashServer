@@ -7,6 +7,9 @@ from flask_login import LoginManager
 from flask import Flask
 import toml
 
+from src.utility.humanbytes import HumanBytes
+from src.utility import sysinfo
+
 
 def init_app() -> Flask:
     """
@@ -30,6 +33,10 @@ def init_app() -> Flask:
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))
     app.config["SECRET_KEY"] = config_data["flask"]["secret_key"]
     app.config["cfg"] = config_data
+
+    # Configure jinja2
+    app.add_template_global(HumanBytes, "HumanBytes")
+    app.add_template_global(sysinfo, "sysinfo")
 
     # Prepare database
     sql_params = config_data["postgres"]

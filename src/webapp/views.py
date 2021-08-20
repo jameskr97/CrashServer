@@ -5,7 +5,8 @@ from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import login_required
 
 from src.webapp import db
-from src.webapp.models import Minidump, Project, BuildMetadata
+from src.webapp.models import Minidump, Project, User
+from src.utility import sysinfo
 
 views = Blueprint("views", __name__)
 
@@ -19,7 +20,9 @@ def home():
 @views.route('/settings')
 @login_required
 def settings():
-    return render_template("app/settings.html")
+    users = db.session.query(User).all()
+    projects = db.session.query(Project).all()
+    return render_template("app/settings.html", users=users, projects=projects)
 
 
 @views.route('/project/create', methods=["GET", "POST"])

@@ -1,3 +1,5 @@
+/* CSS For Any Page*/
+
 body {
     font-family: 'Bai Jamjuree', monospace;
 }
@@ -23,6 +25,7 @@ body {
     display: inline;
 }
 
+/* Homepage specific CSS */
 .home-row {
     display: flex;
     flex-basis: 0;
@@ -57,4 +60,40 @@ body {
 
 .centering-grid-item {
     grid-column: 2;
+}
+
+/* Settings page specific CSS */
+.settings-content-container {
+    padding: 15px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: 5px;
+    /*box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;*/
+}
+
+#settings-side-tabs .active {
+    background-color: #9e9e9e;
+    border-color: #9e9e9e;
+    color: #212529;
+}
+
+#settings-side-tabs a:hover {
+    color: #212529;
+}
+
+.nav-link {
+    color: #495057;
+}
+
+.settings-box-border {
+    /*box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;*/
+}
+
+.settings-project-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.settings-storage-row {
+    margin-top: 5px;
 }
