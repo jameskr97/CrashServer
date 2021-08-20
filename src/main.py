@@ -1,5 +1,4 @@
 import logging
-import webapp
 
 # Initialize Logging
 logger = logging.getLogger("CrashServer")

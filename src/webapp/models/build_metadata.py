@@ -1,7 +1,6 @@
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
-from src.webapp.models import Symbol, Minidump
 from src.webapp import db
 
 

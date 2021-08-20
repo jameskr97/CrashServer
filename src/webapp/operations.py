@@ -4,7 +4,7 @@ the filesystem and the database on each api request
 """
 import dataclasses
 
-from src.webapp.models import Project, Symbol, BuildMetadata
+from src.webapp.models import Symbol, BuildMetadata
 from src import tasks
 
 
@@ -54,6 +54,7 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
         build = BuildMetadata(project_id=project_id,
                               module_id=symbol_data.module_id,
                               build_id=symbol_data.build_id)
+        session.add(build)
 
     if build.symbol:
         return {"error": "Symbol file already uploaded"}, 203

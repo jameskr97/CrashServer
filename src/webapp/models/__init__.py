@@ -1,9 +1,9 @@
-from .Annotation import Annotation
-from .BuildMetadata import BuildMetadata
-from .Minidump import Minidump
-from .Project import Project
-from .Symbol import Symbol
-from .SymbolUpload import SymbolUploadV2
-from .User import User
+from .annotation import Annotation
+from .build_metadata import BuildMetadata
+from .minidump import Minidump
+from .project import Project
+from .symbol import Symbol
+from .symbol_upload import SymbolUploadV2
+from .user import User
 
 __all__ = ["Annotation", "BuildMetadata", "Minidump", "Project", "Symbol", "SymbolUploadV2", "User"]
