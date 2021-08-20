@@ -16,7 +16,7 @@ Built for open-source projects that use Google Crashpad, and want to host their 
 - Web
   - [ ] List of all symbols for project
   - [ ] Upload minidump (publicly)
-  - [ ] Upload symbols (authenticated users only)
+  - [x] Upload symbols (authenticated users only)
 - Backend
   - [ ] Ensure minidump can be decoded before producing readable minidump
   - [ ] Support for symbols on development versions of the project
@@ -24,6 +24,8 @@ Built for open-source projects that use Google Crashpad, and want to host their 
   - [ ] Single project mode
   - [x] Implement `sym-upload-v1` protocol
   - [x] Implement `sym-upload-v2` protocol
+  - [ ] Use Amazon S3 for symbol store
 - Misc
   - [ ] Documentation Generation
   - [ ] CI and Tests
+  - [ ] CLI Management interface
