@@ -3,4 +3,21 @@
 {% block content %}
 	<h1 class="text-center">Upload Minidump</h1>
 	<hr>
-{% endblock  %}
+	<div class="centering-grid">
+		<div class="centering-grid-item">
+			<select id="project-select" class="form-select" onChange="javascript:set_minidump_upload_enabled(true);" autocomplete="off">
+				<option disabled selected>Select Project</option>
+				{% for proj in projects %}
+					<option value="{{ proj.id }}">{{ proj.project_name }}</option>
+				{% endfor %}
+			</select>
+		</div>
+	</div>
+	<hr>
+	<div class="centering-grid">
+		<div class="centering-grid-item">
+			<label class="form-label" for="minidump-upload">Select minidump file</label>
+			<input id="minidump-upload" type="file" class="form-control" disabled/>
+		</div>
+	</div>
+{% endblock %}

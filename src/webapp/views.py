@@ -69,4 +69,5 @@ def symbols():
 
 @views.route('/upload')
 def upload():
-    return render_template("upload.html")
+    projects = Project.query.with_entities(Project.id, Project.project_name).all()
+    return render_template("upload.html", projects=projects)

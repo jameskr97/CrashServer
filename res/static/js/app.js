@@ -25,3 +25,7 @@ function settings_registerEvents(){
     }));
     // TODO(james): Deep linking with history modification
 }
+
+function set_minidump_upload_enabled(bool){
+    document.getElementById("minidump-upload").disabled = !bool;
+}
