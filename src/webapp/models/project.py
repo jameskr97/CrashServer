@@ -1,7 +1,11 @@
+import pathlib
+
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
+from flask import current_app
 
 from src.webapp import db
+from src.utility import sysinfo
 
 
 class Project(db.Model):
@@ -18,3 +22,26 @@ class Project(db.Model):
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     project_name = db.Column(db.Text(), nullable=False)
     api_key = db.Column(db.String(length=32), nullable=False)
+
+    # Relationships
+    minidump = db.relationship('Minidump')
+    symbol = db.relationship('Symbol')
+
+    @property
+    def symbol_location(self):
+        return pathlib.Path(current_app.config["cfg"]["storage"]["symbol_location"], str(self.id)).absolute()
+
+    @property
+    def minidump_location(self):
+        return pathlib.Path(current_app.config["cfg"]["storage"]["minidump_location"], str(self.id)).absolute()
+
+    @property
+    def total_minidump_size(self):
+        """:return: Size of this projects minidump location in bytes"""
+        return sysinfo.get_directory_size(self.minidump_location)
+
+    @property
+    def total_symbol_size(self):
+        """:return: Size of this projects symbol location in bytes"""
+        return sysinfo.get_directory_size(self.symbol_location)
+

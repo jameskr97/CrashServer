@@ -23,7 +23,7 @@ def decode_minidump(crash_id):
 
         # Get minidump metadata
         minidump = db.session.query(Minidump).get(crash_id)
-        dumpfile = str(Path(app.config["cfg"]["storage"]["minidump_location"]).absolute() / minidump.file_location)
+        dumpfile = str(Path(minidump.project.minidump_location) / minidump.file_location)
         machine = subprocess.run([binary, "-m", dumpfile], capture_output=True)
         machine_text = machine.stdout.decode('utf-8').split('\n')
         metadata = processor.process_machine_minidump(machine_text)
@@ -42,9 +42,8 @@ def decode_minidump(crash_id):
         if not minidump.build.symbol:
             logger.info("Unable to symbolicate minidump id {}. Symbols do not exist.".format(crash_id))
         else:
-            symfolder = str(Path(app.config["cfg"]["storage"]["symbol_location"]).absolute() / str(minidump.project_id))
-            raw = subprocess.run([binary, dumpfile, symfolder], capture_output=True)
-            machine = subprocess.run([binary, "-m", dumpfile, symfolder], capture_output=True)
+            raw = subprocess.run([binary, dumpfile, minidump.project.symbol_location], capture_output=True)
+            machine = subprocess.run([binary, "-m", dumpfile, minidump.project.symbol_location], capture_output=True)
             minidump.machine_stacktrace = machine.stdout.decode('utf-8')
             minidump.raw_stacktrace = raw.stdout.decode('utf-8')
         db.session.commit()
