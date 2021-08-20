@@ -63,7 +63,7 @@ import os
 from flask import Blueprint, request, url_for
 
 from src.webapp.models import SymbolUploadV2, BuildMetadata
-from src.utility import url_arg_required, api_key_required
+from src.utility.decorators import url_arg_required, api_key_required
 from src.webapp import operations as ops
 from src.webapp import db
 

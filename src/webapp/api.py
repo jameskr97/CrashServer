@@ -1,9 +1,9 @@
 from flask import Blueprint, request, render_template
 import magic
 
+from src.utility.decorators import file_key_required, api_key_required
 from src.webapp.models import Minidump, Annotation, Symbol
 import src.webapp.operations as ops
-import src.utility as utility
 import src.tasks as tasks
 from src.webapp import db
 
@@ -11,8 +11,8 @@ api = Blueprint("api", __name__)
 
 
 @api.route('/api/minidump/upload', methods=["POST"])
-@utility.file_key_required("upload_file_minidump")
-@utility.api_key_required()
+@file_key_required("upload_file_minidump")
+@api_key_required()
 def upload_minidump(project_id):
     """
     A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
@@ -46,8 +46,8 @@ def upload_minidump(project_id):
 
 
 @api.route('/api/symbol/upload', methods=["POST"])
-@utility.file_key_required("symbol_file")
-@utility.api_key_required()
+@file_key_required("symbol_file")
+@api_key_required()
 def upload_symbol(project_id):
     # Get relevant module info from first line of file
     symbol_file = request.files.get("symbol_file")

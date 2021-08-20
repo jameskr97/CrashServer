@@ -8,7 +8,7 @@ is invoked without any `-p` parameter, and without
 
 from flask import Blueprint, request
 
-from src.utility import file_key_required, api_key_required
+from src.utility.decorators import file_key_required, api_key_required
 from src.webapp import operations as ops
 from src.webapp import db
 

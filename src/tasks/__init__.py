@@ -5,7 +5,7 @@ import logging
 
 from huey.contrib.mini import MiniHuey
 
-from src import utility
+from src.utility import processor
 from src.webapp.models import Minidump, Project, Symbol, BuildMetadata
 from src.webapp import db, init_app
 
@@ -26,7 +26,7 @@ def decode_minidump(crash_id):
         dumpfile = str(Path(app.config["cfg"]["storage"]["minidump_location"]).absolute() / minidump.file_location)
         machine = subprocess.run([binary, "-m", dumpfile], capture_output=True)
         machine_text = machine.stdout.decode('utf-8').split('\n')
-        metadata = utility.process_machine_minidump(machine_text)
+        metadata = processor.process_machine_minidump(machine_text)
 
         minidump.build = db.session.query(BuildMetadata).filter(BuildMetadata.build_id == metadata.build_id).first()
 
@@ -44,6 +44,7 @@ def decode_minidump(crash_id):
         else:
             symfolder = str(Path(app.config["cfg"]["storage"]["symbol_location"]).absolute() / str(minidump.project_id))
             raw = subprocess.run([binary, dumpfile, symfolder], capture_output=True)
+            machine = subprocess.run([binary, "-m", dumpfile, symfolder], capture_output=True)
             minidump.machine_stacktrace = machine.stdout.decode('utf-8')
             minidump.raw_stacktrace = raw.stdout.decode('utf-8')
         db.session.commit()
