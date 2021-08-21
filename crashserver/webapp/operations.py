@@ -19,6 +19,7 @@ class SymbolData:
     arch: str = ""
     build_id: str = ""
     module_id: str = ""
+    app_version: str = None
     
     @staticmethod
     def from_module_line(module_line: str):
@@ -46,6 +47,7 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
     """
     # Check if a minidump was already uploaded with the current module_id and build_id
     build = session.query(BuildMetadata).filter_by(
+        project_id=project_id,
         build_id=symbol_data.build_id,
         module_id=symbol_data.module_id).first()
     if build is None:
@@ -61,7 +63,8 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
 
     build.symbol = Symbol(project_id=project_id,
                           os=symbol_data.os,
-                          arch=symbol_data.arch)
+                          arch=symbol_data.arch,
+                          app_version=symbol_data.app_version)
     build.symbol.store_file(symbol_file)
     session.commit()
 

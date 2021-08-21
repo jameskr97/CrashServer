@@ -20,6 +20,7 @@ class Symbol(db.Model):
     project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
     build_metadata_id = db.Column(UUID(as_uuid=True), db.ForeignKey('build_metadata.id'), nullable=False)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    app_version = db.Column(db.Text(), nullable=True)
     os = db.Column(db.Text(), nullable=False)
     arch = db.Column(db.Text(), nullable=False)
     file_location = db.Column(db.Text(), nullable=False)

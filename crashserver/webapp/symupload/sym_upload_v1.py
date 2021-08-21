@@ -8,7 +8,7 @@ is invoked without any `-p` parameter, and without
 
 from flask import Blueprint, request
 
-from crashserver.utility.decorators import file_key_required, api_key_required
+from crashserver.utility.decorators import file_key_required, api_key_required, check_project_versioned
 from crashserver.webapp import operations as ops
 from crashserver.webapp import db
 
@@ -19,7 +19,8 @@ sym_upload_v1 = Blueprint("sym-upload-v1", __name__)
 @sym_upload_v1.route("", methods=["POST"])
 @file_key_required('symbol_file')
 @api_key_required()
-def upload(project_id):
+@check_project_versioned()
+def upload(project, version):
     """
     Upload endpoint for `sym-upload-v1` protocol.
     Received payload is a multipart/form request with all data needed to receive a symbol file
@@ -29,7 +30,8 @@ def upload(project_id):
         os=request.form['os'].strip(),
         arch=request.form['cpu'].strip(),
         build_id=request.form['debug_identifier'].strip(),
-        module_id=request.form['debug_file'].strip())
+        module_id=request.form['debug_file'].strip(),
+        app_version=version)
 
     file_content = request.files.get('symbol_file').stream.read()
-    return ops.symbol_upload(db.session, project_id, file_content, data)
+    return ops.symbol_upload(db.session, project.id, file_content, data)

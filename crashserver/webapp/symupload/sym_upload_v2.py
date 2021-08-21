@@ -88,8 +88,8 @@ def check_status(module_id, build_id):
 
 @sym_upload_v2.route('/v1/uploads:create', methods=["POST"])
 @api_key_required("key")
-def create(project_id):
-    symbol_ref = SymbolUploadV2(project_id=project_id)
+def create(project):
+    symbol_ref = SymbolUploadV2(project_id=project.id)
     db.session.add(symbol_ref)
     db.session.commit()
 
@@ -112,7 +112,7 @@ def upload_location():
 
 @sym_upload_v2.route('/v1/uploads/<upload_key>:complete', methods=["POST"])
 @api_key_required("key")
-def is_upload_complete(project_id, upload_key):
+def is_upload_complete(project, upload_key):
     logger.info("Attempting to upload new symbol file")
     if request.json["symbol_upload_type"] != "BREAKPAD":
         return {"error": "CrashServer only accepts breakpad debug symbols"}, 400
@@ -131,7 +131,7 @@ def is_upload_complete(project_id, upload_key):
 
     # Save the file!
     file_data = symbol_ref.load_file()
-    ops.symbol_upload(db.session, project_id, file_data, symbol_ref.symbol_data)
+    ops.symbol_upload(db.session, project.id, file_data, symbol_ref.symbol_data)
 
     # Delete upload
     os.remove(symbol_ref.file_location)
