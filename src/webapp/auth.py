@@ -1,14 +1,9 @@
-import os
-import uuid
-
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField
-from wtforms.validators import DataRequired, Email, Length
-
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import current_user, login_user, login_required, logout_user
-from src.webapp import db, login
+from flask_login import current_user, login_user, logout_user
+
+from src.webapp import login
 from src.webapp.models import User
+from src.webapp.forms import LoginForm
 
 auth = Blueprint("auth", __name__)
 
@@ -16,12 +11,6 @@ auth = Blueprint("auth", __name__)
 @login.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
-
-# %% Flask-WTF Form
-class LoginForm(FlaskForm):
-    email = StringField('Email Address', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=8, max=256)])
-    remember_me = BooleanField('Remember Me')
 
 # %% Routes
 @auth.route("/login", methods=["GET", "POST"])
