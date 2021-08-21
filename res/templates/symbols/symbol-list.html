@@ -4,7 +4,7 @@
 		<td>{{ symbol.build.build_id }}</td>
 		<td>{{ symbol.os }}</td>
 		<td>{{ symbol.arch }}</td>
-		<td>{{ symbol.file_size_mb }}</td>
+		<td>{{ HumanBytes.format(symbol.file_size_bytes) }}</td>
 		<td>{{ symbol.date_created.strftime("%F %T %Z") }}</td>
 	</tr>
 {% endfor %}

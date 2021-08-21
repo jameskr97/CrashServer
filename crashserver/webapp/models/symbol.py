@@ -30,10 +30,6 @@ class Symbol(db.Model):
     project = db.relationship('Project')
     build = db.relationship('BuildMetadata')
 
-    @property
-    def file_size_mb(self):
-        return "{:.2f}Mb".format(self.file_size_bytes * 10e-7)
-
     def store_file(self, file_content: bytes):
         filesystem_module_id = self.build.module_id.split('.')[0]
         dir_location = Path(self.build.module_id, self.build.build_id, filesystem_module_id + ".sym")
