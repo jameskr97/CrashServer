@@ -5,8 +5,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 from flask import current_app
 
-from src.webapp import operations as ops
-from src.webapp import db
+from crashserver.webapp import operations as ops
+from crashserver.webapp import db
 
 
 class SymbolUploadV2(db.Model):

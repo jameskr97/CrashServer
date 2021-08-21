@@ -2,8 +2,8 @@ import functools
 
 import flask
 
-from src.webapp.models import Project
-from src.webapp import db
+from crashserver.webapp.models import Project
+from crashserver.webapp import db
 
 
 def api_key_required(url_arg_key="api_key", pass_project=True):

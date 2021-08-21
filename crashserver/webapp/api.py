@@ -1,11 +1,11 @@
 from flask import Blueprint, request, render_template
 import magic
 
-from src.utility.decorators import file_key_required, api_key_required
-from src.webapp.models import Minidump, Annotation, Symbol
-import src.webapp.operations as ops
-import src.tasks as tasks
-from src.webapp import db
+from crashserver.utility.decorators import file_key_required, api_key_required
+from crashserver.webapp.models import Minidump, Annotation, Symbol
+import crashserver.webapp.operations as ops
+import crashserver.tasks as tasks
+from crashserver.webapp import db
 
 api = Blueprint("api", __name__)
 

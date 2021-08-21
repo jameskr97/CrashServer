@@ -1,4 +1,5 @@
 import logging
+import os
 
 # Initialize Logging
 logger = logging.getLogger("CrashServer")
@@ -7,7 +8,9 @@ log_handler = logging.StreamHandler()
 log_handler.setFormatter(logging.Formatter(fmt="[%(asctime)s][%(name)s][%(levelname)s]: %(message)s", datefmt="%F %T"))
 logger.addHandler(log_handler)
 
-# Run CrashServer
 if __name__ == '__main__':
-    from src.webapp import app
+    # Set working directory to the directory of this file (project root)
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+    from crashserver.webapp import app
     app.run(host="0.0.0.0", port=8081, debug=True)

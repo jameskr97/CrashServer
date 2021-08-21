@@ -4,8 +4,8 @@ the filesystem and the database on each api request
 """
 import dataclasses
 
-from src.webapp.models import Symbol, BuildMetadata
-from src import tasks
+from crashserver.webapp.models import Symbol, BuildMetadata
+from crashserver import tasks
 
 
 # %% Models

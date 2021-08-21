@@ -5,9 +5,9 @@ import logging
 
 from huey.contrib.mini import MiniHuey
 
-from src.utility import processor
-from src.webapp.models import Minidump, Project, Symbol, BuildMetadata
-from src.webapp import db, init_app
+from crashserver.utility import processor
+from crashserver.webapp.models import Minidump, Project, Symbol, BuildMetadata
+from crashserver.webapp import db, init_app
 
 
 logger = logging.getLogger("CrashServer")

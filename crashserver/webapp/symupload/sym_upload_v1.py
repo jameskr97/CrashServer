@@ -8,9 +8,9 @@ is invoked without any `-p` parameter, and without
 
 from flask import Blueprint, request
 
-from src.utility.decorators import file_key_required, api_key_required
-from src.webapp import operations as ops
-from src.webapp import db
+from crashserver.utility.decorators import file_key_required, api_key_required
+from crashserver.webapp import operations as ops
+from crashserver.webapp import db
 
 
 sym_upload_v1 = Blueprint("sym-upload-v1", __name__)

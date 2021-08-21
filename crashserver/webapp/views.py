@@ -4,9 +4,9 @@ import uuid
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import login_required
 
-from src.webapp import db
-from src.webapp.models import Minidump, Project, User
-from src.utility import sysinfo
+from crashserver.webapp import db
+from crashserver.webapp.models import Minidump, Project, User
+from crashserver.utility import sysinfo
 
 views = Blueprint("views", __name__)
 

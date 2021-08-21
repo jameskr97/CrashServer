@@ -7,8 +7,8 @@ from flask_login import LoginManager
 from flask import Flask
 import toml
 
-from src.utility.humanbytes import HumanBytes
-from src.utility import sysinfo
+from crashserver.utility.humanbytes import HumanBytes
+from crashserver.utility import sysinfo
 
 
 def init_app() -> Flask:
@@ -71,13 +71,13 @@ def init_database(app: Flask):
         create_database(app.config["SQLALCHEMY_DATABASE_URI"])
         print("Database created")
 
-    from src.webapp.models import Annotation
-    from src.webapp.models import BuildMetadata
-    from src.webapp.models import Minidump
-    from src.webapp.models import Project
-    from src.webapp.models import Symbol
-    from src.webapp.models import SymbolUploadV2
-    from src.webapp.models import User
+    from crashserver.webapp.models import Annotation
+    from crashserver.webapp.models import BuildMetadata
+    from crashserver.webapp.models import Minidump
+    from crashserver.webapp.models import Project
+    from crashserver.webapp.models import Symbol
+    from crashserver.webapp.models import SymbolUploadV2
+    from crashserver.webapp.models import User
 
     db.create_all(app=app)  # Setup Database
 

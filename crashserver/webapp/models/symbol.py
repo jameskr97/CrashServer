@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 from flask import current_app
 
-from src.webapp import db
+from crashserver.webapp import db
 
 
 class Symbol(db.Model):

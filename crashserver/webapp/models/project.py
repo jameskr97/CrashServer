@@ -4,8 +4,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 from flask import current_app
 
-from src.webapp import db
-from src.utility import sysinfo
+from crashserver.webapp import db
+from crashserver.utility import sysinfo
 
 
 class Project(db.Model):
