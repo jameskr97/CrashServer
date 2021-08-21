@@ -14,6 +14,7 @@
 		<div class="col-sm-8">
 			<div class="progress">
 				<div class="progress-bar" style="width: {{ (disk.used / disk.total) * 100 }}%"></div>
+				<div class="progress-bar" style="width: 100%; background-color: gray"></div>
 			</div>
 		</div>
 	</div>
@@ -27,9 +28,10 @@
 {% endmacro %}
 
 {% macro generate_project_row(p) %}
-	<div style="border: 3px solid gray; border-radius: 5px; padding: 10px">
+	<div style="border: 3px solid gray; border-radius: 5px; padding: 10px; margin-top: 10px">
 		<h4 style="display: inline">{{ p.project_name }}</h4>
 		<p style="display: inline">
+			| {{ p.project_type.value|capitalize }}
 			| {{ p.symbol|length }} Symbols ({{ HumanBytes.format(p.total_symbol_size) }})
 			| {{ p.minidump|length }} Minidumps ({{ HumanBytes.format(p.total_minidump_size) }})
 		</p>
@@ -39,8 +41,32 @@
 		{{ project_disk_space("Symbol Storage", p.symbol_location) }}
 		<hr>
 
-		<button type="button" class="btn btn-danger">Purge Minidumps</button>
-		<button type="button" class="btn btn-danger">Delete Project</button>
+		<!-- MOBILE BUTTONS -->
+		<div class="row d-md-none">
+			<div class="col-12">
+				<button type="button" class="btn btn-primary"><i class="fas fa-edit"></i></button>
+				<button type="button" class="btn btn-danger"><i class="fas fa-eraser"></i></button>
+				<button type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
+			</div>
+		</div>
+
+		<!-- DESKTOP FULLSCREEN BUTTONS -->
+		<div class="row">
+			<div class="col-12 d-none d-md-block">
+				<button type="button" class="btn btn-primary">
+					Rename
+					<span class="d-none d-lg-inline">Project</span>
+				</button>
+				<button type="button" class="btn btn-warning">
+					Purge
+					<span class="d-none d-lg-inline">Minidumps</span>
+				</button>
+				<button type="button" class="btn btn-danger">
+					Delete
+					<span class="d-none d-lg-inline">Project</span>
+				</button>
+			</div>
+		</div>
 	</div>
 {% endmacro %}
 
@@ -156,8 +182,8 @@
 								<hr>
 								<h5>Symbol Upload</h5>
 								<div class="form-check">
-									<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
-									<label class="form-check-label" for="symupload-v2">
+									<input class="form-check-input" type="checkbox" value="" id="symupload-v1">
+									<label class="form-check-label" for="symupload-v1">
 										Enable <code>sym-upload-v1</code> protocol
 									</label>
 								</div>
@@ -184,8 +210,8 @@
 									Enabling will not delete any projects or symbols.
 								</p>
 								<div class="form-check">
-									<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
-									<label class="form-check-label" for="symupload-v1">
+									<input class="form-check-input" type="checkbox" value="" id="single-project-mode">
+									<label class="form-check-label" for="single-project-mode">
 										Enable Single Project Mode
 									</label>
 								</div>
@@ -232,6 +258,7 @@
 					</div> <!-- END OF SETTINGS CONTENT-->
 				</div> <!-- END OF SETTING CONTENT CONTAINER -->
 			</div> <!-- END OF COL SIZE CLASSES -->
+
 		</div> <!--  END OF SIDE TABS AND CONTENT AREA-->
 	</div> <!-- END OF CONTAINER -->
 
