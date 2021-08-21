@@ -8,7 +8,7 @@
 {% endmacro %}
 
 {% macro project_disk_space(title, path) %}
-{% set disk = sysinfo.get_disk_space(path) %}
+	{% set disk = sysinfo.get_disk_space(path) %}
 	<div class="row settings-storage-row">
 		<div class="col-sm-4">{{ title }}</div>
 		<div class="col-sm-8">
@@ -16,6 +16,13 @@
 				<div class="progress-bar" style="width: {{ (disk.used / disk.total) * 100 }}%"></div>
 			</div>
 		</div>
+	</div>
+{% endmacro %}
+
+{% macro settings_info_line(title, value) %}
+	<div class="row">
+		<div class="col-sm-3 float-end">{{ title }}</div>
+		<div class="col-sm-9">{{ value }}</div>
 	</div>
 {% endmacro %}
 
@@ -144,59 +151,55 @@
 
 						<!-- SERVER TAB -->
 						<div class="tab-pane" role="tabpanel" id="server-content">
-							<h4>Server Settings</h4>
-							<hr>
-							<h5>Host</h5>
-
-							<div class="row mb-3">
-								<label for="domain-name" class="col-sm-2 col-form-label">Domain Name</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control" id="domain-name">
+							<form action="">
+								<h4>Server Settings</h4>
+								<hr>
+								<h5>Symbol Upload</h5>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
+									<label class="form-check-label" for="symupload-v2">
+										Enable <code>sym-upload-v1</code> protocol
+									</label>
 								</div>
-							</div>
-							<div class="row mb-3">
-								<label for="host-port" class="col-sm-2 col-form-label">Server Port</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control" id="host-port">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
+									<label class="form-check-label" for="symupload-v1">
+										Enable <code>sym-upload-v2</code> protocol
+									</label>
 								</div>
-							</div>
+								<hr>
 
+								<h5>Single Project Mode</h5>
+								<p>
+									Crash Server supports collecting symbols and minidumps for multiple applications, and keeping the data stored separately on disk,
+									some projects may only have a single project they want to store their symbols for. Enabling single project mode will:
+								</p>
 
-							<hr>
-							<h5>Data Storage</h5>
-							<div class="row mb-3">
-								<label for="symbol-path" class="col-sm-2 col-form-label">Symbol Path</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control" id="symbol-path">
+								<ul>
+									<li>Set the homepage to be the selected projects dashboard.</li>
+									<li>Disable public access to any project expect the selected project.</li>
+								</ul>
+
+								<p>
+									Enabling will not delete any projects or symbols.
+								</p>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
+									<label class="form-check-label" for="symupload-v1">
+										Enable Single Project Mode
+									</label>
 								</div>
-							</div>
-							<div class="row mb-3">
-								<label for="minidump-path" class="col-sm-2 col-form-label">Minidump Path</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control" id="minidump-path">
+								<select id="project-select" class="form-select" onChange="javascript:set_minidump_upload_enabled(true);" autocomplete="off">
+									<option disabled selected>Select Project</option>
+									{% for proj in projects %}
+										<option value="{{ proj.id }}">{{ proj.project_name }}</option>
+									{% endfor %}
+								</select>
+								<hr>
+								<div class="text-center">
+									<button type="submit" class="btn btn-outline-dark">Save</button>
 								</div>
-							</div>
-
-							<hr>
-							<h5>Symbol Upload</h5>
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
-								<label class="form-check-label" for="symupload-v2">
-									Enable <code>sym-upload-v1</code> protocol
-								</label>
-							</div>
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
-								<label class="form-check-label" for="symupload-v1">
-									Enable <code>sym-upload-v2</code> protocol
-								</label>
-							</div>
-
-
-							<hr>
-							<div class="text-center">
-								<button type="submit" class="btn btn-outline-dark">Save</button>
-							</div>
+							</form>
 						</div>
 
 						<!-- PROJECTS TAB -->
@@ -216,15 +219,15 @@
 
 						<!-- ABOUT TAB -->
 						<div class="tab-pane" role="tabpanel" id="about-content">
-							<h5>System Information</h5>
+							<h4>System Information</h4>
 							<hr>
-							<dl class="row">
-								<dt class="col-sm-3">Crash Server Version</dt>
-								<dd class="col-sm-9">VERSION_NUMBER</dd>
-
-								<dt class="col-sm-3">Uptime</dt>
-								<dd class="col-sm-9">UPTIME</dd>
-							</dl>
+							<h5>Host</h5>
+							{{ settings_info_line("Domain Name", "http://crash.hidden.lan/") }}
+							{{ settings_info_line("Server Port", "8081") }}
+							<hr>
+							<h5>Data Storage</h5>
+							{{ settings_info_line("Symbol Path", "/data/symbols") }}
+							{{ settings_info_line("Minidump Path", "/data/symbols") }}
 						</div>
 					</div> <!-- END OF SETTINGS CONTENT-->
 				</div> <!-- END OF SETTING CONTENT CONTAINER -->
