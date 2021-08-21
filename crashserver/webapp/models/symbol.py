@@ -27,7 +27,7 @@ class Symbol(db.Model):
     file_hash = db.Column(db.String(length=64), nullable=False)
 
     # Relationships
-    project = db.relationship('Project')
+    project = db.relationship('Project', back_populates="symbol")
     build = db.relationship('BuildMetadata')
 
     def store_file(self, file_content: bytes):

@@ -3,15 +3,31 @@
 {% block content %}
 	<h1 class="text-center">Create Project</h1>
 	<hr>
-	<p class="text-center">Each project represents a piece of software capable of uploading minidump files after they crash.</p>
 
 	<div class="centering-grid">
 		<form class="centering-grid-item" method="post" action="{{ url_for("views.project_create") }}">
-			<div class="text-center" style="font-size: 20px; margin-bottom: 10px;">
-				<label for="project_name">Project Name</label>
-			</div>
+			<p class="text-center">Each project represents a piece of software capable of uploading minidump files after they crash.</p>
+
+			{{ form.csrf_token }}
 			<div class="mb-3">
-				<input type="text" id="project_name" name="project_name" class="form-control" autocomplete="off" required>
+				{{ form.title.label(class="form-label") }}
+				{{ form.title(class="form-control") }}
+			</div>
+			<hr>
+			<div class="mb-3">
+				{{ form.project_type.label(class="form-label") }}
+				<p>Project type determines symbol storage requirements, and minidump annotation recommendations.</p>
+				<ul>
+					<li>
+						<b>Simple</b>: A version number is not required to upload symbols. All symbols uploaded will be stored in their
+						correct location to allow for symbolication, though this won't relate an application version.
+					</li>
+					<li>
+						<b>Versioned</b>: This will require a version number to be uploaded with the symbol file. Symbol files uploaded without a version
+						number will be rejected from the server.
+					</li>
+				</ul>
+				{{ form.project_type(class="form-control") }}
 			</div>
 			<div class="text-center">
 				<button type="submit" class="btn btn-outline-dark">Create</button>

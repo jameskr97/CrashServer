@@ -8,16 +8,16 @@
 		<form class="centering-grid-item" action="{{ url_for("auth.login") }}" method="post">
 			{{ form.csrf_token }}
 			<div class="mb-3">
-				<label for="email" class="form-label">{{ form.email.label }}</label>
+				{{ form.email.label(class="form-label") }}
 				{{ form.email(class="form-control") }}
 			</div>
 			<div class="mb-3">
-				<label for="password" class="form-label">{{ form.password.label }}</label>
+				{{ form.password.label(class="form-label") }}
 				{{ form.password(class="form-control") }}
 			</div>
 			<div class="mb-3">
 				{{ form.remember_me(class="form-check-input") }}
-				<label for="remember_me" class="form-check-label">{{ form.remember_me.label }}</label>
+				{{ form.remember_me.label(class="form-check-label") }}
 			</div>
 			<div class="text-center">
 				<button type="submit" class="btn btn-outline-dark">Login</button>

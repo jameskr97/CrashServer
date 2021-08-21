@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_user, logout_user
 
-from crashserver.webapp import login
-from crashserver.webapp.models import User
 from crashserver.webapp.forms import LoginForm
+from crashserver.webapp.models import User
+from crashserver.webapp import login
+from crashserver.utility import misc
 
 auth = Blueprint("auth", __name__)
 
@@ -18,7 +19,7 @@ def login():
     """Present the user with a page where they can login."""
     # Go to homepage if user is already logged in
     if current_user.is_authenticated:
-        return redirect(url_for("auth.secure"))
+        return redirect(url_for("views.home"))
 
     # If we posted and the for is valid
     form = LoginForm(request.form)
@@ -39,9 +40,7 @@ def login():
 
     # Present form errors if form is invalid
     elif form.errors:
-        for field_name in form.errors:
-            for error in form.errors[field_name]:
-                flash("{}: {}".format(form[field_name].label.text, error), "error")
+        misc.flash_form_errors(form)
 
     return render_template('auth/login.html', form=form)
 

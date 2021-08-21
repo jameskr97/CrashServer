@@ -1,12 +1,13 @@
 import os
 import uuid
 
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
 
+from crashserver.webapp.models import Minidump, Project, ProjectType, User
+from crashserver.webapp.forms import CreateAppForm
+from crashserver.utility import misc
 from crashserver.webapp import db
-from crashserver.webapp.models import Minidump, Project, User
-from crashserver.utility import sysinfo
 
 views = Blueprint("views", __name__)
 
@@ -28,16 +29,36 @@ def settings():
 @views.route('/project/create', methods=["GET", "POST"])
 @login_required
 def project_create():
-    if request.method == "GET":
-        return render_template("app/create.html")
+    form = CreateAppForm(request.form)
 
-    new_project = Project(project_name=request.form.get("project_name"))
-    new_api_key = str(uuid.UUID(bytes=os.urandom(16), version=4)).replace("-", "")
-    new_project.api_key = new_api_key
+    # If the form is valid
+    if request.method == "POST" and form.validate():
+        print("title", form.title.data)
+        print("option", form.type.data)
+        # Check if the name is taken
+        existing = db.session.query(Project).filter_by(project_name=form.title.data).first()
+        if existing is not None:
+            flash('Project name "%s" is taken.' % form.title.data)
+            return redirect(url_for('views.project_create', form=form))
 
-    db.session.add(new_project)
-    db.session.commit()
-    return redirect(url_for('views.project_dashboard', id=new_project.id))
+        # Create the project
+        # TODO(james): Ensure apikey doesn't exist?
+        new_project = Project(project_name=form.title.data)
+        new_api_key = str(uuid.UUID(bytes=os.urandom(16), version=4)).replace("-", "")
+        new_project.api_key = new_api_key
+        new_project.project_type = ProjectType.get_type_from_str(form.project_type.data)
+
+        db.session.add(new_project)
+        db.session.commit()
+
+        new_project.create_directories()
+
+        flash('Project "%s" was created.' % form.title.data)
+        return redirect(url_for('views.home'))
+    else:
+        misc.flash_form_errors(form)
+
+    return render_template("app/create.html", form=form)
 
 
 @views.route('/project/<id>')

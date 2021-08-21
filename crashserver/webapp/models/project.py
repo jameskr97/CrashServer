@@ -1,4 +1,5 @@
 import pathlib
+import enum
 
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
@@ -6,6 +7,17 @@ from flask import current_app
 
 from crashserver.webapp import db
 from crashserver.utility import sysinfo
+
+
+class ProjectType(enum.Enum):
+    SIMPLE = "Simple"
+    VERSIONED = "Versioned"
+
+    @staticmethod
+    def get_type_from_str(ptype):
+        if ptype == "simple": return ProjectType.SIMPLE
+        if ptype == "versioned": return ProjectType.VERSIONED
+        return None
 
 
 class Project(db.Model):
@@ -21,11 +33,16 @@ class Project(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     project_name = db.Column(db.Text(), nullable=False)
+    project_type = db.Column(db.Enum(ProjectType), nullable=False)
     api_key = db.Column(db.String(length=32), nullable=False)
 
     # Relationships
-    minidump = db.relationship('Minidump')
+    minidump = db.relationship('Minidump', viewonly=True)
     symbol = db.relationship('Symbol')
+
+    def create_directories(self):
+        self.symbol_location.mkdir(parents=True, exist_ok=True)
+        self.minidump_location.mkdir(parents=True, exist_ok=True)
 
     @property
     def symbol_location(self):
