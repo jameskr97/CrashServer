@@ -18,7 +18,7 @@ Built for open-source projects that use Google Crashpad, and want to host their 
   - [ ] Upload minidump (publicly)
   - [x] Upload symbols (authenticated users only)
 - Backend
-  - [ ] Ensure minidump can be decoded before producing readable minidump
+  - [x] Ensure minidump can be decoded before producing readable minidump
   - [ ] Support for symbols on development versions of the project
   - [ ] Auto-delete minidumps after a selected interval
   - [ ] Single project mode
