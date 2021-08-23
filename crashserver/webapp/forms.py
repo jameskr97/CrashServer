@@ -8,6 +8,6 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Remember Me')
 
 class CreateAppForm(FlaskForm):
-    title = StringField('Project Name')
-    project_type = SelectField('Project Type', choices=[('simple', "Simple"), ('versioned', "Versioned")])
+    title = StringField('Project Name', validators=[DataRequired()])
+    project_type = SelectField('Project Type', validators=[DataRequired()], choices=[('simple', "Simple"), ('versioned', "Versioned")])
 
