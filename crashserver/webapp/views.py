@@ -24,6 +24,7 @@ def home():
 def settings():
     users = db.session.query(User).all()
     projects = db.session.query(Project).all()
+    [p.create_directories() for p in projects]
     return render_template("app/settings.html", users=users, projects=projects)
 
 
