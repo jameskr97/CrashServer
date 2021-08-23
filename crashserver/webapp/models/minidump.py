@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 from flask import current_app
 
+from crashserver.config import settings
 from crashserver.webapp import db
 
 
@@ -39,7 +40,7 @@ class Minidump(db.Model):
     def store_minidump(self, file_contents: bytes):
         filename = "minidump-%s.dmp" % str(uuid.uuid4().hex)
 
-        dump_file = Path(current_app.config["cfg"]["storage"]["minidump_location"]) / str(self.project_id) / filename
+        dump_file = Path(settings.storage.minidump) / str(self.project_id) / filename
         dump_file.parent.mkdir(parents=True, exist_ok=True)
         with open(dump_file.absolute(), 'wb') as f:
             f.write(file_contents)

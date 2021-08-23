@@ -3,3 +3,6 @@
 
 # IDE Related
 /.idea/
+
+# Application related
+.env

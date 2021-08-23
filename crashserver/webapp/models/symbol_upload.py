@@ -6,6 +6,7 @@ from sqlalchemy.sql import func, text
 from flask import current_app
 
 from crashserver.webapp import operations as ops
+from crashserver.webapp import settings
 from crashserver.webapp import db
 
 
@@ -32,7 +33,7 @@ class SymbolUploadV2(db.Model):
 
     @property
     def file_location(self):
-        return Path(current_app.config["cfg"]["storage"]["sym_upload_location"], "{}.sym".format(self.id))
+        return Path(settings.storage.sym_upload, "{}.sym".format(self.id))
 
     @property
     def symbol_data(self):

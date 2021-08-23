@@ -1,14 +1,13 @@
 from pathlib import Path
-import os
 
 from sqlalchemy_utils import create_database, database_exists
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask import Flask
-import toml
 
 from crashserver.utility.humanbytes import HumanBytes
 from crashserver.utility import sysinfo, misc
+from crashserver.config import settings
 
 
 def init_app() -> Flask:
@@ -21,18 +20,13 @@ def init_app() -> Flask:
     templates = resources_root / "templates"
     static = resources_root / "static"
 
-    # Load config file
-    config_file = os.environ.get("CONFIG_FILE", default=resources_root / "Config.toml")
-    config_data = toml.load(config_file)
-
     # Create config directories
-    Path(config_data["storage"]["minidump_location"]).absolute().mkdir(parents=True, exist_ok=True)
-    Path(config_data["storage"]["symbol_location"]).absolute().mkdir(parents=True, exist_ok=True)
+    Path(settings.storage.minidump).absolute().mkdir(parents=True, exist_ok=True)
+    Path(settings.storage.symbol).absolute().mkdir(parents=True, exist_ok=True)
 
     # Create app and inital parameters
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))
-    app.config["SECRET_KEY"] = config_data["flask"]["secret_key"]
-    app.config["cfg"] = config_data
+    app.config["SECRET_KEY"] = settings.flask.secret_key
 
     # Configure jinja2
     app.add_template_global(HumanBytes, "HumanBytes")
@@ -40,10 +34,9 @@ def init_app() -> Flask:
     app.add_template_global(misc.get_font_awesome_os_icon, "get_font_awesome_os_icon")
 
     # Prepare database
-    sql_params = config_data["postgres"]
-    dbu, dbp = sql_params["username"], sql_params["password"]
-    dbh, dbn = sql_params["hostname"], sql_params["database"]
-    db_url = f"postgresql://{dbu}:{dbp}@{dbh}:5432/{dbn}"
+    db_user, db_pass = settings.db.user, settings.db.passwd
+    db_host, db_name, db_port = settings.db.host, settings.db.name, settings.db.port
+    db_url = f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
 
     # Configure app parameters
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
