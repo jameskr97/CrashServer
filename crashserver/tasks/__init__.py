@@ -23,7 +23,7 @@ def decode_minidump(crash_id):
 
         # Get minidump metadata
         minidump = db.session.query(Minidump).get(crash_id)
-        dumpfile = str(Path(minidump.project.minidump_location) / minidump.file_location)
+        dumpfile = str(Path(minidump.project.minidump_location) / minidump.filename)
         machine = subprocess.run([binary, "-m", dumpfile], capture_output=True)
         machine_text = machine.stdout.decode('utf-8').split('\n')
         metadata = processor.process_machine_minidump(machine_text)

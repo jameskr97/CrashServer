@@ -36,10 +36,6 @@ class Minidump(db.Model):
     build = db.relationship("BuildMetadata", back_populates='unprocessed_dumps')
     annotations = db.relationship("Annotation")
 
-    @property
-    def file_location(self):
-        return str(Path("{0}/{1}".format(self.project_id, self.filename)))
-
     def store_minidump(self, file_contents: bytes):
         filename = "minidump-%s.dmp" % str(uuid.uuid4().hex)
 
