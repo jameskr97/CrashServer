@@ -23,5 +23,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 USER nonroot
 EXPOSE 8888
-CMD ["python3", "main.py"]
+CMD ["gunicorn", "main:app", "-b", "0.0.0.0:8888"]
 
