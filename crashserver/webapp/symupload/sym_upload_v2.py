@@ -75,8 +75,8 @@ sym_upload_v2 = Blueprint("sym-upload-v2", __name__)
 @api_key_required("key", pass_project=False)
 def check_status(module_id, build_id):
     build = db.session.query(BuildMetadata).filter_by(
-        build_id=module_id.strip(),
-        module_id=build_id.strip()).first()
+        build_id=build_id.strip(),
+        module_id=module_id.strip()).first()
 
     # # This will return if the row does not exist...
     if build is None:
@@ -114,8 +114,10 @@ def upload_location():
 @api_key_required("key")
 def is_upload_complete(project, upload_key):
     logger.info("Attempting to upload new symbol file")
-    if request.json["symbol_upload_type"] != "BREAKPAD":
-        return {"error": "CrashServer only accepts breakpad debug symbols"}, 400
+
+    # TODO(james): Why does this not get sent on windows? Ignoring as it doesn't break core functionality
+    # if request.json["symbol_upload_type"] != "BREAKPAD":
+    #     return {"error": "CrashServer only accepts breakpad debug symbols"}, 400
 
     # Get reference to the uploaded sym file
     symbol_ref = db.session.query(SymbolUploadV2).get(upload_key)
