@@ -39,6 +39,9 @@ class SymbolUploadV2(db.Model):
         return ops.SymbolData(module_id=self.module_id, build_id=self.build_id, arch=self.arch, os=self.os)
 
     def store_file(self, file_content: bytes):
+        # Ensure very first line starts with word "MODULE"
+        file_content = file_content[file_content.find("MODULE".encode()):]
+
         first_line = file_content[:file_content.find('\n'.encode())].decode('utf-8')
         symbol_data = ops.SymbolData.from_module_line(first_line)
         self.build_id = symbol_data.build_id
