@@ -18,17 +18,22 @@ class SymbolData:
     These attributes uniquely identify any symbol file. It is used over the Symbol db model as the db model is
     organized different to keep data duplication to a minimum
     """
+
     os: str = ""
     arch: str = ""
     build_id: str = ""
     module_id: str = ""
     app_version: str = None
-    
+
     @staticmethod
     def from_module_line(module_line: str):
-        metadata = module_line.strip().split(' ')
-        return SymbolData(os=metadata[1], arch=metadata[2],
-                          build_id=metadata[3], module_id=metadata[4])
+        metadata = module_line.strip().split(" ")
+        return SymbolData(
+            os=metadata[1],
+            arch=metadata[2],
+            build_id=metadata[3],
+            module_id=metadata[4],
+        )
 
 
 def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: SymbolData):
@@ -49,25 +54,34 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
     :return: The response to the client making this request
     """
     # Check if a minidump was already uploaded with the current module_id and build_id
-    build = session.query(BuildMetadata).filter_by(
-        project_id=project_id,
-        build_id=symbol_data.build_id,
-        module_id=symbol_data.module_id).first()
+    build = (
+        session.query(BuildMetadata)
+        .filter_by(
+            project_id=project_id,
+            build_id=symbol_data.build_id,
+            module_id=symbol_data.module_id,
+        )
+        .first()
+    )
     if build is None:
         # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded
         # before the symbol file was uploaded), then create a new BuildMetadata, flush, and relate to symbol
-        build = BuildMetadata(project_id=project_id,
-                              module_id=symbol_data.module_id,
-                              build_id=symbol_data.build_id)
+        build = BuildMetadata(
+            project_id=project_id,
+            module_id=symbol_data.module_id,
+            build_id=symbol_data.build_id,
+        )
         session.add(build)
 
     if build.symbol:
         return {"error": "Symbol file already uploaded"}, 203
 
-    build.symbol = Symbol(project_id=project_id,
-                          os=symbol_data.os,
-                          arch=symbol_data.arch,
-                          app_version=symbol_data.app_version)
+    build.symbol = Symbol(
+        project_id=project_id,
+        os=symbol_data.os,
+        arch=symbol_data.arch,
+        app_version=symbol_data.app_version,
+    )
     build.symbol.store_file(symbol_file)
     session.commit()
 

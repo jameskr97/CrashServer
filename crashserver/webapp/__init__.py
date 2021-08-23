@@ -52,6 +52,7 @@ def init_views(app: Flask):
     from .api import api
     from .symupload import sym_upload_v1, sym_upload_v2
     from .auth import auth
+
     app.register_blueprint(views)
     app.register_blueprint(api)
     app.register_blueprint(sym_upload_v1, url_prefix="/symupload")

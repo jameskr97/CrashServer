@@ -13,6 +13,7 @@ auth = Blueprint("auth", __name__)
 def load_user(user_id):
     return User.query.get(user_id)
 
+
 # %% Routes
 @auth.route("/login", methods=["GET", "POST"])
 def login():
@@ -29,20 +30,20 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is None or not user.check_password(form.password.data):
             # If any info is bad, alert user
-            flash('Invalid email or password', category="error")
-            return redirect(url_for('auth.login'))
+            flash("Invalid email or password", category="error")
+            return redirect(url_for("auth.login"))
 
         # Otherwise login
         else:
             flash("Logged in", category="info")
             login_user(user, remember=form.remember_me.data)
-            return redirect(url_for('views.home'))
+            return redirect(url_for("views.home"))
 
     # Present form errors if form is invalid
     elif form.errors:
         misc.flash_form_errors(form)
 
-    return render_template('auth/login.html', form=form)
+    return render_template("auth/login.html", form=form)
 
 
 @auth.route("/logout")

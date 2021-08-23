@@ -22,10 +22,16 @@ class Minidump(db.Model):
     raw_stacktrace: Stacktrace decoded with `./minidump_stackwalk <dmp> <symbols>`
     machine_stacktrace: Stacktrace decoded with `./minidump_stackwalk -m <dmp> <symbols>`
     """
+
     __tablename__ = "minidump"
     id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
-    project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
-    build_metadata_id = db.Column(UUID(as_uuid=True), db.ForeignKey('build_metadata.id'), nullable=True, default=None)
+    project_id = db.Column(UUID(as_uuid=True), db.ForeignKey("project.id"), nullable=False)
+    build_metadata_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey("build_metadata.id"),
+        nullable=True,
+        default=None,
+    )
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     filename = db.Column(db.Text(), nullable=False)
     client_guid = db.Column(UUID(as_uuid=True), nullable=True)
@@ -34,7 +40,7 @@ class Minidump(db.Model):
 
     # Relationships
     project = db.relationship("Project")
-    build = db.relationship("BuildMetadata", back_populates='unprocessed_dumps')
+    build = db.relationship("BuildMetadata", back_populates="unprocessed_dumps")
     annotations = db.relationship("Annotation")
 
     def store_minidump(self, file_contents: bytes):
@@ -42,8 +48,7 @@ class Minidump(db.Model):
 
         dump_file = Path(settings.storage.minidump) / str(self.project_id) / filename
         dump_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(dump_file.absolute(), 'wb') as f:
+        with open(dump_file.absolute(), "wb") as f:
             f.write(file_contents)
 
         self.filename = filename
-

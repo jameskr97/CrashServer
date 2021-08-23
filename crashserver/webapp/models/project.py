@@ -16,8 +16,10 @@ class ProjectType(enum.Enum):
 
     @staticmethod
     def get_type_from_str(ptype):
-        if ptype == "simple": return ProjectType.SIMPLE
-        if ptype == "versioned": return ProjectType.VERSIONED
+        if ptype == "simple":
+            return ProjectType.SIMPLE
+        if ptype == "versioned":
+            return ProjectType.VERSIONED
         return None
 
 
@@ -30,6 +32,7 @@ class Project(db.Model):
     project_name: User-friendly interface name of the project
     api_key: An api key to be used when uploading minidumps
     """
+
     __tablename__ = "project"
     id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
@@ -38,8 +41,8 @@ class Project(db.Model):
     api_key = db.Column(db.String(length=32), nullable=False)
 
     # Relationships
-    minidump = db.relationship('Minidump', viewonly=True)
-    symbol = db.relationship('Symbol')
+    minidump = db.relationship("Minidump", viewonly=True)
+    symbol = db.relationship("Symbol")
 
     def create_directories(self):
         self.symbol_location.mkdir(parents=True, exist_ok=True)
@@ -62,4 +65,3 @@ class Project(db.Model):
     def total_symbol_size(self):
         """:return: Size of this projects symbol location in bytes"""
         return sysinfo.get_directory_size(self.symbol_location)
-

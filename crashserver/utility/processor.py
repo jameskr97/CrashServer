@@ -24,6 +24,7 @@ class CrashMetadata:
     module_id: str = ""
     build_id: str = ""
 
+
 def process_machine_minidump(machine_text):
     """
     Processes `minidump_stackwalk` command run with the `-m` parameter.
@@ -34,8 +35,8 @@ def process_machine_minidump(machine_text):
 
     for line in machine_text:
         line = line.strip()
-        split_data = line.split('|')
-        if line.startswith('OS'):
+        split_data = line.split("|")
+        if line.startswith("OS"):
             res.os_platform = split_data[1]
             res.os_version = split_data[2]
 
@@ -48,7 +49,7 @@ def process_machine_minidump(machine_text):
             res.crash_reason = split_data[1]
             res.crash_address = split_data[2]
 
-        elif not res.module_id and line.startswith('Module') and line.endswith('1'):
+        elif not res.module_id and line.startswith("Module") and line.endswith("1"):
             res.module_id = split_data[3]
             res.build_id = split_data[4]
 

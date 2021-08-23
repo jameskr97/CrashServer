@@ -8,7 +8,10 @@ def flash_form_errors(form):
 
 
 def get_font_awesome_os_icon(os: str):
-    if os == "windows": return "fab fa-windows"
-    if os == "mac": return "fab fa-apple"
-    if os == "linux": return "fab fa-linux"
+    if os == "windows":
+        return "fab fa-windows"
+    if os == "mac":
+        return "fab fa-apple"
+    if os == "linux":
+        return "fab fa-linux"
     return ""

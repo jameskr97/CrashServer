@@ -13,12 +13,12 @@ class Annotation(db.Model):
     key: The annotation key
     value: The annotation value
     """
+
     __tablename__ = "annotation"
     id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
-    minidump_id = db.Column(UUID(as_uuid=True), db.ForeignKey('minidump.id'), nullable=False)
+    minidump_id = db.Column(UUID(as_uuid=True), db.ForeignKey("minidump.id"), nullable=False)
     key = db.Column(db.Text(), nullable=False)
     value = db.Column(db.Text(), nullable=False)
 
     # Relationships
-    minidump = db.relationship('Minidump', back_populates='annotations')
-
+    minidump = db.relationship("Minidump", back_populates="annotations")

@@ -6,4 +6,12 @@ from .symbol import Symbol
 from .symbol_upload import SymbolUploadV2
 from .user import User
 
-__all__ = ["Annotation", "BuildMetadata", "Minidump", "Project", "Symbol", "SymbolUploadV2", "User"]
+__all__ = [
+    "Annotation",
+    "BuildMetadata",
+    "Minidump",
+    "Project",
+    "Symbol",
+    "SymbolUploadV2",
+    "User",
+]

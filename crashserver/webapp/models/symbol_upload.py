@@ -18,9 +18,10 @@ class SymbolUploadV2(db.Model):
     additional endpoints to use to check the status of a symbol before/after it's been
     uploaded. Steps are explained in the header of `sym_upload_v2.py`
     """
+
     __tablename__ = "sym_upload_tracker"
     id = db.Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
-    project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project.id'), nullable=False)
+    project_id = db.Column(UUID(as_uuid=True), db.ForeignKey("project.id"), nullable=False)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     module_id = db.Column(db.Text(), nullable=True)
     build_id = db.Column(db.Text(), nullable=True)
@@ -41,9 +42,9 @@ class SymbolUploadV2(db.Model):
 
     def store_file(self, file_content: bytes):
         # Ensure very first line starts with word "MODULE"
-        file_content = file_content[file_content.find("MODULE".encode()):]
+        file_content = file_content[file_content.find("MODULE".encode()) :]
 
-        first_line = file_content[:file_content.find('\n'.encode())].decode('utf-8')
+        first_line = file_content[: file_content.find("\n".encode())].decode("utf-8")
         symbol_data = ops.SymbolData.from_module_line(first_line)
         self.build_id = symbol_data.build_id
         self.module_id = symbol_data.module_id
@@ -51,14 +52,12 @@ class SymbolUploadV2(db.Model):
         self.os = symbol_data.os
 
         self.file_location.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.file_location.absolute(), 'wb') as f:
+        with open(self.file_location.absolute(), "wb") as f:
             f.write(file_content)
 
         self.file_hash = str(hashlib.blake2s(file_content).hexdigest())
 
     def load_file(self) -> bytes:
-        with open(self.file_location.absolute(), 'rb') as f:
+        with open(self.file_location.absolute(), "rb") as f:
             file_content = f.read()
         return file_content
-
-

@@ -13,13 +13,13 @@ from crashserver.webapp import operations as ops
 views = Blueprint("views", __name__)
 
 
-@views.route('/')
+@views.route("/")
 def home():
     apps = Project.query.with_entities(Project.id, Project.project_name).all()
     return render_template("home.html", apps=apps)
 
 
-@views.route('/settings')
+@views.route("/settings")
 @login_required
 def settings():
     users = db.session.query(User).all()
@@ -28,7 +28,7 @@ def settings():
     return render_template("app/settings.html", users=users, projects=projects)
 
 
-@views.route('/project/create', methods=["GET", "POST"])
+@views.route("/project/create", methods=["GET", "POST"])
 @login_required
 def project_create():
     form = CreateAppForm(request.form)
@@ -39,7 +39,7 @@ def project_create():
         existing = db.session.query(Project).filter_by(project_name=form.title.data).first()
         if existing is not None:
             flash('Project name "%s" is taken.' % form.title.data)
-            return redirect(url_for('views.project_create', form=form))
+            return redirect(url_for("views.project_create", form=form))
 
         # Create the project
         # TODO(james): Ensure apikey doesn't exist?
@@ -54,41 +54,44 @@ def project_create():
         new_project.create_directories()
 
         flash('Project "%s" was created.' % form.title.data)
-        return redirect(url_for('views.home'))
+        return redirect(url_for("views.home"))
     else:
         misc.flash_form_errors(form)
 
     return render_template("app/create.html", form=form)
 
 
-@views.route('/project/<id>')
+@views.route("/project/<id>")
 def project_dashboard(id: str):
     proj = Project.query.filter_by(id=id).first()
     return render_template("app/dashboard.html", project=proj)
 
 
-@views.route('/crash-reports')
+@views.route("/crash-reports")
 def crash():
-    res = db.session.query(Minidump, Project.project_name)\
-        .filter(Minidump.project_id == Project.id)\
-        .order_by(Minidump.date_created.desc())\
-        .limit(5).all()
+    res = (
+        db.session.query(Minidump, Project.project_name)
+        .filter(Minidump.project_id == Project.id)
+        .order_by(Minidump.date_created.desc())
+        .limit(5)
+        .all()
+    )
     return render_template("crash/crash.html", data=res)
 
 
-@views.route('/crash-reports/<crash_id>')
+@views.route("/crash-reports/<crash_id>")
 def crash_detail(crash_id):
     minidump = db.session.query(Minidump).get(crash_id)
     return render_template("crash/crash_detail.html", minidump=minidump)
 
 
-@views.route('/symbols')
+@views.route("/symbols")
 def symbols():
     projects = Project.query.with_entities(Project.id, Project.project_name).all()
     return render_template("symbols/symbols.html", projects=projects)
 
 
-@views.route('/upload', methods=["GET", "POST"])
+@views.route("/upload", methods=["GET", "POST"])
 def upload():
     form = UploadMinidumpForm()
 
@@ -96,9 +99,9 @@ def upload():
         res = ops.minidump_upload(db.session, form.project.data, None, form.minidump.data.stream.read())
         if res.status_code != 200:
             flash(res.json["error"], category="danger")
-            return redirect(url_for('views.upload'))
+            return redirect(url_for("views.upload"))
         else:
-            return redirect(url_for('views.crash_detail', crash_id=res.json["id"]))
+            return redirect(url_for("views.crash_detail", crash_id=res.json["id"]))
     else:
         misc.flash_form_errors(form)
 

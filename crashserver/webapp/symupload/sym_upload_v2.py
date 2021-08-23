@@ -71,12 +71,10 @@ logger = logging.getLogger("CrashServer").getChild("sym-upload-v2")
 sym_upload_v2 = Blueprint("sym-upload-v2", __name__)
 
 
-@sym_upload_v2.route('/v1/symbols/<module_id>/<build_id>:checkStatus')
+@sym_upload_v2.route("/v1/symbols/<module_id>/<build_id>:checkStatus")
 @api_key_required("key", pass_project=False)
 def check_status(module_id, build_id):
-    build = db.session.query(BuildMetadata).filter_by(
-        build_id=build_id.strip(),
-        module_id=module_id.strip()).first()
+    build = db.session.query(BuildMetadata).filter_by(build_id=build_id.strip(), module_id=module_id.strip()).first()
 
     # # This will return if the row does not exist...
     if build is None:
@@ -86,7 +84,7 @@ def check_status(module_id, build_id):
     return {"status": "FOUND" if build.symbol else "MISSING"}, 200
 
 
-@sym_upload_v2.route('/v1/uploads:create', methods=["POST"])
+@sym_upload_v2.route("/v1/uploads:create", methods=["POST"])
 @api_key_required("key")
 def create(project):
     symbol_ref = SymbolUploadV2(project_id=project.id)
@@ -95,14 +93,14 @@ def create(project):
 
     res = {
         "uploadUrl": url_for("sym-upload-v2.upload_location", sym_id=symbol_ref.id, _external=True),
-        "uploadKey": symbol_ref.id
+        "uploadKey": symbol_ref.id,
     }
 
     return res, 200
 
 
-@sym_upload_v2.route('/upload', methods=["PUT"])
-@url_arg_required('sym_id')
+@sym_upload_v2.route("/upload", methods=["PUT"])
+@url_arg_required("sym_id")
 def upload_location():
     new_symbol = db.session.query(SymbolUploadV2).get(request.args.get("sym_id"))
     new_symbol.store_file(request.data)
@@ -110,7 +108,7 @@ def upload_location():
     return "", 200
 
 
-@sym_upload_v2.route('/v1/uploads/<upload_key>:complete', methods=["POST"])
+@sym_upload_v2.route("/v1/uploads/<upload_key>:complete", methods=["POST"])
 @api_key_required("key")
 def is_upload_complete(project, upload_key):
     logger.info("Attempting to upload new symbol file")
@@ -123,9 +121,9 @@ def is_upload_complete(project, upload_key):
     symbol_ref = db.session.query(SymbolUploadV2).get(upload_key)
 
     # If a version already exists, compare hashes
-    build = db.session.query(BuildMetadata).filter_by(
-        build_id=symbol_ref.build_id,
-        module_id=symbol_ref.module_id).first()
+    build = (
+        db.session.query(BuildMetadata).filter_by(build_id=symbol_ref.build_id, module_id=symbol_ref.module_id).first()
+    )
 
     # If symbol exists, and hashes match, then do nothing.
     if build and build.symbol and build.symbol.file_hash == symbol_ref.file_hash:
