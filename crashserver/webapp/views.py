@@ -33,8 +33,6 @@ def project_create():
 
     # If the form is valid
     if request.method == "POST" and form.validate():
-        print("title", form.title.data)
-        print("option", form.type.data)
         # Check if the name is taken
         existing = db.session.query(Project).filter_by(project_name=form.title.data).first()
         if existing is not None:
