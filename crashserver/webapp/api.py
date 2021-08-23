@@ -15,14 +15,14 @@ api = Blueprint("api", __name__)
 @api.route('/api/minidump/upload', methods=["POST"])
 @file_key_required("upload_file_minidump")
 @api_key_required()
-def upload_minidump(project_id):
+def upload_minidump(project):
     """
     A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
     argument, and it will save and prepare the file for processing
     :return:
     """
     minidump = request.files.get("upload_file_minidump")
-    return ops.minidump_upload(db.session, project_id, request.values, minidump.stream.read())
+    return ops.minidump_upload(db.session, project.id, dict(request.values), minidump.stream.read())
 
 @api.route('/api/symbol/upload', methods=["POST"])
 @file_key_required("symbol_file")
