@@ -14,8 +14,8 @@ Built for open-source projects that use Google Crashpad, and want to host their 
     - [ ] Handle `gzip` minidump upload
   - [x] `/api/synbol/upload` Upload Symbols for project under endpoint, secured by `api_key`
 - Web
-  - [ ] List of all symbols for project
-  - [ ] Upload minidump (publicly)
+  - [x] List of all symbols for project
+  - [x] Upload minidump (publicly)
   - [x] Upload symbols (authenticated users only)
 - Backend
   - [x] Ensure minidump can be decoded before producing readable minidump

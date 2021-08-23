@@ -3,21 +3,35 @@
 {% block content %}
 	<h1 class="text-center">Upload Minidump</h1>
 	<hr>
-	<div class="centering-grid">
-		<div class="centering-grid-item">
-			<select id="project-select" class="form-select" onChange="javascript:set_minidump_upload_enabled(true);" autocomplete="off">
-				<option disabled selected>Select Project</option>
-				{% for proj in projects %}
-					<option value="{{ proj.id }}">{{ proj.project_name }}</option>
-				{% endfor %}
-			</select>
+	<form class="" method="POST" action="{{ url_for("views.upload") }}" enctype="multipart/form-data">
+		{{ form.csrf_token }}
+
+		<!-- Drop down to select project -->
+		<div class="centering-grid">
+			<div class="centering-grid-item">
+				<select id="project-select" class="centering-grid-item form-select" name="{{ form.project.name }}" onChange="javascript:set_minidump_upload_enabled(true);" autocomplete="off">
+					<option disabled selected>Select Project</option>
+					{% for option in form.project %}
+						{{ option }}
+					{% endfor %}
+				</select>
+			</div>
 		</div>
-	</div>
-	<hr>
-	<div class="centering-grid">
-		<div class="centering-grid-item">
-			<label class="form-label" for="minidump-upload">Select minidump file</label>
-			<input id="minidump-upload" type="file" class="form-control" disabled/>
+		<hr>
+
+		<!-- Drop down to select  -->
+		<div class="centering-grid">
+			<div class="centering-grid-item">
+				<div class="mb-3">
+					{{ form.minidump.label(class="form-label") }}
+					{{ form.minidump(class="form-control", disabled="true", id="minidump-upload") }}
+				</div>
+				<div class="text-center">
+					<button type="submit" class="btn btn-outline-dark">Upload</button>
+				</div>
+			</div>
+
 		</div>
-	</div>
+	</form>
+
 {% endblock %}

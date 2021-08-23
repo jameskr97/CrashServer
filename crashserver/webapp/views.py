@@ -5,9 +5,10 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
 
 from crashserver.webapp.models import Minidump, Project, ProjectType, User
-from crashserver.webapp.forms import CreateAppForm
+from crashserver.webapp.forms import CreateAppForm, UploadMinidumpForm
 from crashserver.utility import misc
 from crashserver.webapp import db
+from crashserver.webapp import operations as ops
 
 views = Blueprint("views", __name__)
 
@@ -86,7 +87,21 @@ def symbols():
     return render_template("symbols/symbols.html", projects=projects)
 
 
-@views.route('/upload')
+@views.route('/upload', methods=["GET", "POST"])
 def upload():
+    form = UploadMinidumpForm()
+
+    if request.method == "POST" and form.validate_on_submit():
+        res = ops.minidump_upload(db.session, form.project.data, None, form.minidump.data.stream.read())
+        if res.status_code != 200:
+            flash(res.json["error"], category="danger")
+            return redirect(url_for('views.upload'))
+        else:
+            return redirect(url_for('views.crash_detail', crash_id=res.json["id"]))
+    else:
+        misc.flash_form_errors(form)
+
     projects = Project.query.with_entities(Project.id, Project.project_name).all()
-    return render_template("upload.html", projects=projects)
+    for p in projects:
+        form.add_project_choice(str(p.id), p.project_name)
+    return render_template("upload.html", form=form, projects=projects)

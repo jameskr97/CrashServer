@@ -4,7 +4,10 @@ the filesystem and the database on each api request
 """
 import dataclasses
 
-from crashserver.webapp.models import Symbol, BuildMetadata
+import flask
+import magic
+
+from crashserver.webapp.models import Symbol, BuildMetadata, Minidump, Annotation
 from crashserver import tasks
 
 
@@ -82,3 +85,30 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
     }
 
     return res, 200
+
+
+def minidump_upload(session, project_id: str, annotations: dict, minidump_file: bytearray):
+
+    # Verify file is actually a minidump based on magic number
+    # Validate magic number
+    magic_number = magic.from_buffer(minidump_file, mime=True)
+    if magic_number != "application/x-dmp":
+        return flask.make_response({"error": "Bad Minidump"}, 400)
+
+    # Add minidump to database
+    new_dump = Minidump(project_id=project_id)
+    new_dump.store_minidump(minidump_file)
+    session.add(new_dump)
+    session.flush()
+
+    # Add annotations to database, after removing guid and api_key
+    if annotations:
+        annotations.pop("guid", None)
+        annotations.pop("api_key", None)
+        for key, value in annotations.items():
+            new_dump.annotations.append(Annotation(key=key, value=value))
+
+    session.commit()
+    tasks.decode_minidump(new_dump.id)
+
+    return flask.make_response({"status": "success", "id": str(new_dump.id)}, 200)
