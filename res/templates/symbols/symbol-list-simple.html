@@ -1,0 +1,45 @@
+{% macro symbol_count_list(os, icon) %}
+	<li class="list-group-item"><i class="fab {{ icon }} fa-fw"></i>{{ stats["sym_count"][os] }} {{ os|capitalize }} Symbols</li>
+{% endmacro %}
+
+<div class="row">
+	<!-- DESKTOP SIDE TABS  -->
+	<div class="col-md-4 col-lg-3 col-sm-12">
+		<h2>{{ project.project_name }}</h2>
+		<ul class="list-group">
+			{{ symbol_count_list("mac", "fa-apple") }}
+			{{ symbol_count_list("linux", "fa-linux") }}
+			{{ symbol_count_list("windows", "fa-windows") }}
+		</ul>
+
+		<!-- Only add extra space if on mobile -->
+		<div class="d-md-none col-sm-12"><br></div>
+	</div>
+
+	<div id="symbol-list" class="col-md-8 col-lg-9">
+		<table class="table">
+			<thead>
+			<tr>
+				<th scope="col"></th> <!-- Operating System -->
+				<th scope="col">Module ID</th>
+				<th scope="col">Build ID</th>
+				<th scope="col">Architecture</th>
+				<th scope="col">File Size</th>
+				<th scope="col">Date Uploaded</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for symbol in symbols %}
+				<tr class="monospace-font">
+					<td><i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i></td>
+					<td>{{ symbol.build.module_id }}</td>
+					<td>{{ symbol.build.build_id }}</td>
+					<td>{{ symbol.arch }}</td>
+					<td><code>{{ HumanBytes.format(symbol.file_size_bytes) }}</code></td>
+					<td>{{ symbol.date_created.strftime("%F %T") }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>

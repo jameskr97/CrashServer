@@ -1,0 +1,90 @@
+{% macro symbol_count_list(os, icon) %}
+	{% if stats["sym_count"][os] != 0 %}
+		<li class="list-group-item"><i class="fab {{ icon }} fa-fw"></i>{{ stats["sym_count"][os] }} {{ os|capitalize }} Symbols</li>
+	{% endif %}
+{% endmacro %}
+
+<div class="row">
+	<!-- DESKTOP SIDE TABS  -->
+	<div class="col-md-4 col-lg-3 col-sm-12">
+		<h2>{{ project.project_name }}</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><i class="fas fa-code-branch fa-fw"></i>{{ sym_dict.keys()|length }} Different Versions</li>
+			{{ symbol_count_list("mac", "fa-apple") }}
+			{{ symbol_count_list("linux", "fa-linux") }}
+			{{ symbol_count_list("windows", "fa-windows") }}
+		</ul>
+
+		<!-- Only add extra space if on mobile -->
+		<div class="d-md-none col-sm-12"><br></div>
+	</div>
+
+	<div id="symbol-list" class="col-md-8 col-lg-9">
+		<div class="accordion" id="version-list">
+			{% for version in sym_dict %}
+				{% set toggle_id = version|replace(".", "_") %}
+				<div class="accordion-item">
+					<h2 class="accordion-header">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#version_{{ toggle_id }}">
+							Version {{ version }}
+						</button>
+					</h2>
+				</div>
+				<div id="version_{{ toggle_id }}" class="accordion-collapse collapse" data-bs-parent="#version-list">
+					<div class="accordion-body table-responsive">
+						<div class="row">
+
+							<!-- MOBILE LIST ITEM CONTENT -->
+							<div id="mobile-version-list" class="d-md-none">
+								{% for symbol in sym_dict[version] %}
+									<div class="mobile-version-info">
+										<h6>
+											<i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i>
+											{{ symbol.build.module_id }} | {{ symbol.arch }}
+										</h6>
+										<p>
+											File Size: <code>{{ HumanBytes.format(symbol.file_size_bytes) }}</code>
+										</p>
+										<p>
+											Uploaded on: {{ symbol.date_created.strftime("%c") }}
+											{#											Uploaded on: {{ symbol.date_created.strftime("%F %T %Z") }}#}
+										</p>
+									</div>
+								{% endfor %}
+							</div>
+
+							<!-- DESKTOP LIST ITEM CONTENT -->
+							<div class="d-none d-md-block">
+								<table class="table">
+									<thead>
+									<tr>
+										<th scope="col"></th> <!-- Operating System -->
+										<th scope="col">Module ID</th>
+										<th scope="col">Build ID</th>
+										<th scope="col">Architecture</th>
+										<th scope="col">File Size</th>
+										<th scope="col">Date Uploaded</th>
+									</tr>
+									</thead>
+									<tbody>
+									{% for symbol in sym_dict[version] %}
+										<tr class="monospace-font">
+											<td><i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i></td>
+											<td>{{ symbol.build.module_id }}</td>
+											<td>{{ symbol.build.build_id }}</td>
+											<td>{{ symbol.arch }}</td>
+											<td><code>{{ HumanBytes.format(symbol.file_size_bytes) }}</code></td>
+											<td>{{ symbol.date_created.strftime("%F %T") }}</td>
+										</tr>
+									{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			{% endfor %}
+		</div> <!-- END OF ACCORDION -->
+	</div> <!-- END OF SYMBOL-LISt -->
+</div>

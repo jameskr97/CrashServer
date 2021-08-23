@@ -1,8 +1,12 @@
+from distutils.version import StrictVersion
+import itertools
+import operator
+
 from flask import Blueprint, request, render_template
 import magic
 
 from crashserver.utility.decorators import file_key_required, api_key_required, check_project_versioned
-from crashserver.webapp.models import Minidump, Annotation, Symbol, Project
+from crashserver.webapp.models import Minidump, Annotation, Symbol, Project, ProjectType
 import crashserver.webapp.operations as ops
 import crashserver.tasks as tasks
 from crashserver.webapp import db
@@ -61,5 +65,33 @@ def upload_symbol(project, version):
 
 @api.route('/webapi/symbols/<project_id>')
 def get_symbols(project_id):
-    data = db.session.query(Symbol).filter_by(project_id=project_id).all()
-    return {"html": render_template("symbols/symbol-list.html", data=data)}, 200
+    project = db.session.query(Project).get(project_id)
+    proj_symbols = db.session.query(Symbol).filter_by(project_id=project_id).all()
+
+    # Get counts for os symbols
+    def sym_count(os: str): return db.session.query(Symbol).filter_by(project_id=project_id, os=os).count()
+    stats = {"sym_count": {
+            "linux": sym_count("linux"),
+            "mac": sym_count("mac"),
+            "windows": sym_count("windows"),
+        }}
+    if project.project_type == ProjectType.VERSIONED:
+
+        # Creates callable that returns 'app_version' from object when you get_attr(object)
+        # sym_dict is  in the format of {app_version: [Symbol objects of that version]}
+        get_attr = operator.attrgetter('app_version')
+        sorted_list = sorted(proj_symbols, key=lambda x: StrictVersion(str(get_attr(x))), reverse=True)
+        sym_dict = {version: sorted(list(group), key=operator.attrgetter('os')) for version, group in itertools.groupby(sorted_list, get_attr)}
+        stats = {
+            "sym_count": {
+                "linux": sym_count("linux"),
+                "mac": sym_count("mac"),
+                "windows": sym_count("windows"),
+            }
+        }
+        return {"html": render_template("symbols/symbol-list-versioned.html", project=project, sym_dict=sym_dict, stats=stats)}, 200
+
+    elif project.project_type == ProjectType.SIMPLE:
+        return {"html": render_template("symbols/symbol-list-simple.html", project=project, symbols=proj_symbols, stats=stats)}, 200
+
+

@@ -1,9 +1,9 @@
 {% extends "base/base.html" %}
 
-{% macro main_page() %}
-	<div  class="centering-grid">
+{% macro project_selector() %}
+	<div class="centering-grid">
 		<div class="centering-grid-item">
-			<select id="project-select" class="form-select" onChange="javascript:get_symbol_list(this.value);" autocomplete="off">
+			<select id="project-select" class="form-select" onChange="javascript:update_symbol_list(this.value);" autocomplete="off">
 				<option disabled selected>Select Project</option>
 				{% for proj in projects %}
 					<option value="{{ proj.id }}">{{ proj.project_name }}</option>
@@ -11,19 +11,23 @@
 			</select>
 		</div>
 	</div>
+{% endmacro %}
+
+{% macro main_page() %}
+	{{ project_selector() }}
 	<hr>
 	<table class="table">
 		<thead>
-			<tr>
-				<th scope="col">Crash ID</th>
-				<th scope="col">Build ID</th>
-				<th scope="col">Operating System</th>
-				<th scope="col">Architecture</th>
-				<th scope="col">File Size</th>
-				<th scope="col">Date Uploaded</th>
-			</tr>
+		<tr>
+			<th scope="col">Crash ID</th>
+			<th scope="col">Build ID</th>
+			<th scope="col">Operating System</th>
+			<th scope="col">Architecture</th>
+			<th scope="col">File Size</th>
+			<th scope="col">Date Uploaded</th>
+		</tr>
 		</thead>
-	  <tbody></tbody> <!-- Contents of symbols/symbol-list.html, populated by javascript api query -->
+		<tbody></tbody>
 	</table>
 {% endmacro %}
 
@@ -38,9 +42,16 @@
 {% block content %}
 	<h1 class="text-center">Symbols</h1>
 	<hr>
-	{% if projects %}
-		{{ main_page() }}
-	{% else %}
-		{{ no_projects() }}
-	{% endif %}
+	{{ project_selector() }}
+	<hr>
+
+	<!-- Contents of symbols/symbol-list.html, populated by javascript api query -->
+	<div id="symbol-content-area">
+	</div>
+
+	{#		{% if projects %}#}
+	{#			{{ main_page() }}#}
+	{#		{% else %}#}
+	{#			{{ no_projects() }}#}
+	{#		{% endif %}#}
 {% endblock %}

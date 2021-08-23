@@ -8,7 +8,7 @@ from flask import Flask
 import toml
 
 from crashserver.utility.humanbytes import HumanBytes
-from crashserver.utility import sysinfo
+from crashserver.utility import sysinfo, misc
 
 
 def init_app() -> Flask:
@@ -37,6 +37,7 @@ def init_app() -> Flask:
     # Configure jinja2
     app.add_template_global(HumanBytes, "HumanBytes")
     app.add_template_global(sysinfo, "sysinfo")
+    app.add_template_global(misc.get_font_awesome_os_icon, "get_font_awesome_os_icon")
 
     # Prepare database
     sql_params = config_data["postgres"]
