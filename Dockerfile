@@ -1,27 +1,41 @@
-# Dockerfile created with reccomendations from the following repos:
+# Dockerfile created with reccomendations from the following links:
 # - https://github.com/hexops/dockerfile
 # - https://github.com/juan131/dockerfile-best-practices
 # - https://www.youtube.com/watch?v=74rOYNmxfL8
-FROM python:3.7.11-slim-buster
+# - https://stackoverflow.com/questions/53835198/integrating-python-poetry-with-docker
+FROM python:3.7.11-slim-buster as builder
+
+# Install poetry for building
+WORKDIR /build
+ENV POETRY_VERSION=1.0.0
+RUN pip install "poetry==$POETRY_VERSION"
+RUN python -m venv /venv
+
+COPY poetry.lock pyproject.toml ./
+RUN poetry export -f requirements.txt | /venv/bin/pip install -r /dev/stdin
+
+# Copy source code, change owner, then build
+COPY README.md .
+COPY main.py .
+COPY crashserver/ crashserver/
+COPY res/ res/
+RUN poetry build && /venv/bin/pip install dist/*.whl
+
+FROM python:3.7.11-slim as runner
 
 # Create non-root user and group
 RUN addgroup --gid 10001 --system nonroot &&\
     adduser  --uid 10000 --system --ingroup nonroot --home /home/nonroot nonroot
 
-# Copy source code and change owner
-WORKDIR /crashserver_app
-COPY requirements.txt .
-COPY main.py .
-COPY crashserver/ crashserver/
-COPY res/ res/
+# Copy environment, change owner, and install system dependencies
+WORKDIR /app
+COPY .docker ./
 COPY config/ config/
-RUN chown nonroot:nonroot /crashserver_app
+RUN chown nonroot:nonroot /app
 
-# libmagic is needed to check if an uploaded file is actually a minidump.
+COPY --from=builder --chown=nonroot:nonroot /venv /venv
 RUN apt update && apt upgrade && apt install libmagic1 -y --no-install-recommends
-RUN pip install --no-cache-dir -r requirements.txt
 
 USER nonroot
-EXPOSE 8888
-CMD ["gunicorn", "main:app", "-b", "0.0.0.0:8888"]
+CMD ["./docker-entrypoint.sh"]
 
