@@ -18,7 +18,6 @@ RUN poetry export -f requirements.txt | /venv/bin/pip install -r /dev/stdin
 COPY README.md .
 COPY main.py .
 COPY crashserver/ crashserver/
-COPY res/ res/
 RUN poetry build && /venv/bin/pip install dist/*.whl
 
 FROM python:3.7.11-slim as runner
@@ -31,10 +30,11 @@ RUN addgroup --gid 10001 --system nonroot &&\
 WORKDIR /app
 COPY .docker ./
 COPY config/ config/
+COPY res/ res/
 RUN chown nonroot:nonroot /app
 
 COPY --from=builder --chown=nonroot:nonroot /venv /venv
-RUN apt update && apt upgrade && apt install libmagic1 -y --no-install-recommends
+RUN apt update && apt install libmagic1 -y --no-install-recommends
 
 USER nonroot
 CMD ["./docker-entrypoint.sh"]
