@@ -1,0 +1,25 @@
+name: Docker Container Build
+on: push
+
+jobs:
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout CrashServer
+        uses: actions/checkout@v2
+
+      - name: Build App Image
+        run: docker build -t jameskr97/crashserver:dev .
+
+  lint-with-blackd:
+    name: Black Formatter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout CrashServer
+        uses: actions/checkout@v2
+
+      - name: Run Black Formatter
+        uses: rickstaa/action-black@v1
+        with:
+          black_args: ". --check"
