@@ -1,0 +1,30 @@
+name: Code Linting
+on: push
+
+jobs:
+  lint-with-blackd:
+    name: Black Formatter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout CrashServer
+        uses: actions/checkout@v2
+
+      - name: Run Black Formatter
+        uses: rickstaa/action-black@v1
+        with:
+          black_args: ". --check"
+
+  check-image-build:
+    name: Build Container Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout CrashServer
+        uses: actions/checkout@v2
+
+      - name: Build CrashServer Container
+        id: build
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
