@@ -1,4 +1,5 @@
 from distutils.version import StrictVersion
+import charset_normalizer as char_norm
 import itertools
 import operator
 
@@ -34,13 +35,20 @@ def upload_minidump(project):
 @api_key_required()
 @check_project_versioned()
 def upload_symbol(project, version):
-    # Get relevant module info from first line of file
     symbol_file = request.files.get("symbol_file")
-    symbol_data = ops.SymbolData.from_module_line(symbol_file.stream.readline().decode("utf-8"))
+
+    # Use charset_normalizer to get a readable version of the text.
+    first_line_bytes = symbol_file.stream.read()
+    char_res = char_norm.from_bytes(first_line_bytes)
+    decoded = char_res.best().output()
+    first_line_str = decoded[: decoded.find("\n".encode())].decode("utf-8")
+
+    # Get relevant module info from first line of file
+    symbol_data = ops.SymbolData.from_module_line(first_line_str)
     symbol_data.app_version = version
     symbol_file.stream.seek(0)
 
-    return ops.symbol_upload(db.session, project.id, symbol_file.stream.read(), symbol_data)
+    return ops.symbol_upload(db.session, project.id, decoded, symbol_data)
 
 
 @api.route("/webapi/symbols/<project_id>")

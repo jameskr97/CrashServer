@@ -29,6 +29,7 @@ huey = "^2.4.0"
 psycopg2-binary = "^2.9.1"
 python-magic = "^0.4.24"
 toml = "^0.10.2"
+charset-normalizer = "^2.0.4"
 
 [tool.poetry.dev-dependencies]
 [tool.poetry.scripts]
