@@ -1,4 +1,4 @@
-name: Code Linting
+name: Crash Server CI
 on: push
 
 jobs:
