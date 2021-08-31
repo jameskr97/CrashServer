@@ -1,3 +1,4 @@
+import pathlib
 import shutil
 import os
 
@@ -22,3 +23,10 @@ def get_directory_size(start_path):
 
 def get_disk_space(path):
     return shutil.disk_usage(path)
+
+
+def get_filename_from_path(path):
+    if path:
+        path = path.replace("\\", "/")
+        return pathlib.Path(path).name
+    return None
