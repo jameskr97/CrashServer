@@ -1,3 +1,5 @@
+import dataclasses
+
 from flask import flash
 
 
@@ -15,3 +17,27 @@ def get_font_awesome_os_icon(os: str):
     if os == "linux":
         return "fab fa-linux"
     return ""
+
+
+@dataclasses.dataclass
+class SymbolData:
+    """
+    These attributes uniquely identify any symbol file. It is used over the Symbol db model as the db model is
+    organized different to keep data duplication to a minimum
+    """
+
+    os: str = ""
+    arch: str = ""
+    build_id: str = ""
+    module_id: str = ""
+    app_version: str = None
+
+    @staticmethod
+    def from_module_line(module_line: str):
+        metadata = module_line.strip().split(" ")
+        return SymbolData(
+            os=metadata[1],
+            arch=metadata[2],
+            build_id=metadata[3],
+            module_id=metadata[4],
+        )

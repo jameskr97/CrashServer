@@ -11,6 +11,7 @@ from crashserver.utility.decorators import (
     check_project_versioned,
 )
 from crashserver.webapp.models import Symbol, Project, ProjectType
+from crashserver.utility.misc import SymbolData
 import crashserver.webapp.operations as ops
 from crashserver.webapp import db
 
@@ -44,7 +45,7 @@ def upload_symbol(project, version):
     first_line_str = decoded[: decoded.find("\n".encode())].decode("utf-8")
 
     # Get relevant module info from first line of file
-    symbol_data = ops.SymbolData.from_module_line(first_line_str)
+    symbol_data = SymbolData.from_module_line(first_line_str)
     symbol_data.app_version = version
     symbol_file.stream.seek(0)
 

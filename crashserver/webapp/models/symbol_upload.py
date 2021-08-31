@@ -3,8 +3,8 @@ import hashlib
 
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
-from flask import current_app
 
+from crashserver.utility.misc import SymbolData
 from crashserver.webapp import operations as ops
 from crashserver.webapp import settings
 from crashserver.webapp import db
@@ -45,7 +45,7 @@ class SymbolUploadV2(db.Model):
         file_content = file_content[file_content.find("MODULE".encode()) :]
 
         first_line = file_content[: file_content.find("\n".encode())].decode("utf-8")
-        symbol_data = ops.SymbolData.from_module_line(first_line)
+        symbol_data = SymbolData.from_module_line(first_line)
         self.build_id = symbol_data.build_id
         self.module_id = symbol_data.module_id
         self.arch = symbol_data.arch

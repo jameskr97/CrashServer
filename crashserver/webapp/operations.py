@@ -8,32 +8,8 @@ import flask
 import magic
 
 from crashserver.webapp.models import Symbol, BuildMetadata, Minidump, Annotation
+from crashserver.utility.misc import SymbolData
 from crashserver import tasks
-
-
-# %% Models
-@dataclasses.dataclass
-class SymbolData:
-    """
-    These attributes uniquely identify any symbol file. It is used over the Symbol db model as the db model is
-    organized different to keep data duplication to a minimum
-    """
-
-    os: str = ""
-    arch: str = ""
-    build_id: str = ""
-    module_id: str = ""
-    app_version: str = None
-
-    @staticmethod
-    def from_module_line(module_line: str):
-        metadata = module_line.strip().split(" ")
-        return SymbolData(
-            os=metadata[1],
-            arch=metadata[2],
-            build_id=metadata[3],
-            module_id=metadata[4],
-        )
 
 
 def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: SymbolData):
