@@ -43,6 +43,7 @@ class SymCache(db.Model):
 
     def store_and_convert_symbol(self, file_content: bytes):
         dump_syms = str(Path("res/bin/linux/dump_syms").absolute())
+        self.file_size_bytes = len(file_content)
 
         # Store PDB
         pdb_location = settings.storage.symcache / Path(self.url_path)
@@ -57,10 +58,10 @@ class SymCache(db.Model):
             # Write symbol data
             subprocess.run([dump_syms, pdb_location], stdout=f)
 
-            # Read first line
-            f.seek(0)
-            first_line = f.readline().decode("utf-8")
-            data = misc.SymbolData.from_module_line(first_line)
+        with open(symfile, "rb") as f:
+            f.seek(0)  # go to first line
+            first_line = f.readline().decode("utf-8")  # read first line and decode
+            data = misc.SymbolData.from_module_line(first_line)  # process
             self.os = data.os
             self.arch = data.arch
             self.file_location = "{0}/{1}/{2}".format(self.module_id, self.build_id, filename)
