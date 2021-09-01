@@ -4,13 +4,16 @@ monkey.patch_all()
 from pathlib import Path
 import subprocess
 import logging
+import json
+import os
 
 from huey.contrib.mini import MiniHuey
+import requests
 
-from crashserver.utility import processor
-from crashserver.webapp.models import Minidump, Project, Symbol, BuildMetadata
+from crashserver.webapp.models import Minidump, BuildMetadata, SymCache
 from crashserver.webapp import db, init_app
-
+from crashserver.utility import processor
+from crashserver.config import settings
 
 logger = logging.getLogger("CrashServer")
 
@@ -18,20 +21,45 @@ huey = MiniHuey()
 huey.start()
 
 
+def download_windows_symbol(module_id: str, build_id: str):
+    cached_sym = db.session.query(SymCache).filter_by(module_id=module_id, build_id=build_id).first()
+
+    if cached_sym:
+        logger.warning("Cache hit for symbol {}:{} - Skipping download.".format(module_id, build_id))
+        return
+
+    cached_sym = SymCache(module_id=module_id, build_id=build_id)
+    logger.warning("Cache miss for symbol {}:{} - Attempting to download".format(module_id, build_id))
+
+    url = "https://msdl.microsoft.com/download/symbols/" + cached_sym.url_path
+    res = requests.get(url)
+    if res.status_code != 200:
+        logger.warning("{}:{} is not available on Windows Symbol Server".format(module_id, build_id))
+        return
+
+    cached_sym.store_and_convert_symbol(res.content)
+    db.session.add(cached_sym)
+    db.session.commit()
+
+
 @huey.task()
 def decode_minidump(crash_id):
     app = init_app()
     with app.app_context():
-        binary = str(Path("res/bin/linux/minidump_stackwalk").absolute())
+        stackwalk = str(Path("res/bin/linux/minidump_stackwalk").absolute())
+        stackwalker = str(Path("res/bin/linux/stackwalker").absolute())
 
-        # Get minidump metadata
+        # Symbolicate without symbols to get metadata
         minidump = db.session.query(Minidump).get(crash_id)
         dumpfile = str(Path(minidump.project.minidump_location) / minidump.filename)
-        machine = subprocess.run([binary, "-m", dumpfile], capture_output=True)
-        machine_text = machine.stdout.decode("utf-8").split("\n")
-        metadata = processor.process_machine_minidump(machine_text)
+        machine = subprocess.run([stackwalker, dumpfile], capture_output=True)
+        json_stack = json.loads(machine.stdout.decode("utf-8"))
+        crash_data = processor.ProcessedCrash.generate(json_stack)
 
-        minidump.build = db.session.query(BuildMetadata).filter(BuildMetadata.build_id == metadata.build_id).first()
+        # Check if symbols exist for the main program
+        minidump.build = (
+            db.session.query(BuildMetadata).filter(BuildMetadata.build_id == crash_data.main_module.debug_id).first()
+        )
 
         # The symbol file needed to decode this minidump does not exist.
         # Make a record in the CompileMetadata table with {build,module}_id. There will be a
@@ -39,22 +67,31 @@ def decode_minidump(crash_id):
         if minidump.build is None:
             minidump.build = BuildMetadata(
                 project_id=minidump.project_id,
-                module_id=metadata.module_id,
-                build_id=metadata.build_id,
+                module_id=crash_data.main_module.debug_file,
+                build_id=crash_data.main_module.debug_id,
             )
             db.session.flush()
 
+        # No symbols? Notify and return
         if not minidump.build.symbol:
-            logger.info("Unable to symbolicate minidump id {}. Symbols do not exist.".format(crash_id))
-        else:
-            raw = subprocess.run(
-                [binary, dumpfile, minidump.project.symbol_location],
-                capture_output=True,
-            )
-            machine = subprocess.run(
-                [binary, "-m", dumpfile, minidump.project.symbol_location],
-                capture_output=True,
-            )
-            minidump.machine_stacktrace = machine.stdout.decode("utf-8")
-            minidump.raw_stacktrace = raw.stdout.decode("utf-8")
+            logger.info("Unable to symbolize. Symbols do not exist for minidump ID: {}.".format(crash_id))
+            db.session.commit()
+            return
+
+        # If we get here, then the symbol exists, and we should ensure we have all possible windows symbols before decoding
+        # TODO(james): This is good as a prototype, but should be in a separate HTTP symbol supplier module/class
+        for module in crash_data.modules_no_symbols:
+            download_windows_symbol(module.debug_file, module.debug_id)
+        logger.info("Symbol Download Complete")
+
+        original = subprocess.run(
+            [stackwalk, dumpfile, minidump.project.symbol_location, settings.storage.symcache],
+            capture_output=True,
+        )
+        json_stackwalk = subprocess.run(
+            [stackwalker, dumpfile, minidump.project.symbol_location, settings.storage.symcache],
+            capture_output=True,
+        )
+        minidump.raw_stacktrace = original.stdout.decode("utf-8")
+        minidump.json_stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
         db.session.commit()
