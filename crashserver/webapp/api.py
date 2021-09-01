@@ -21,7 +21,7 @@ api = Blueprint("api", __name__)
 
 
 @api.route("/api/minidump/upload", methods=["POST"])
-@limiter.limit()
+@limiter.limit("10 per hour")
 @file_key_required("upload_file_minidump")
 @api_key_required()
 def upload_minidump(project):
