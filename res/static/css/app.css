@@ -133,3 +133,8 @@ body {
 #mobile-version-list p {
     margin-bottom: 0px;
 }
+
+/* Crash Detail Page */
+.crash-thread-badge {
+    margin-left: 10px;
+}

@@ -1,62 +1,127 @@
 {% extends "base/base.html" %}
-
-{% macro main_page() %}
-	<ul class="nav nav-tabs" id="myTab" role="tablist">
-	  <li class="nav-item" role="presentation">
-		<button class="nav-link active" id="raw" data-bs-toggle="tab" data-bs-target="#raw-trace" type="button" role="tab">Raw Minidump</button>
-	  </li>
-	  <li class="nav-item" role="presentation">
-		<button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#machine-trace" type="button" role="tab">Machine Minidump</button>
-	  </li>
-	</ul>
-	<div class="tab-content" id="trace-tabs">
-	  <div class="tab-pane fade show active" id="raw-trace" role="tabpanel">
-		  <pre>
-			  <code>
-{{ minidump.raw_stacktrace }}
-			  </code>
-		  </pre>
-	  </div>
-	  <div class="tab-pane fade" id="machine-trace" role="tabpanel">
-		  <pre>
-			  <code>
-{{ minidump.machine_stacktrace }}
-			  </code>
-		  </pre>
-	  </div>
-	</div>
-{% endmacro %}
+{% set json = minidump.json %}
 
 {% macro still_processing() %}
-<h2 class="text-center">Processing minidump...</h2>
-<div class="container">
-	<div class="d-flex justify-content-center">
-		<div class="spinner-grow text-center" role="status">
-			<span class="visually-hidden">Processing minidump...</span>
+	<h2 class="text-center">Processing minidump...</h2>
+	<div class="container">
+		<div class="d-flex justify-content-center">
+			<div class="spinner-grow text-center" role="status">
+				<span class="visually-hidden">Processing minidump...</span>
+			</div>
 		</div>
 	</div>
-</div>
-{#		// TODO(james): This is not the solution to keep, but it's a solution for now #}
-<meta http-equiv="refresh" content="3" />
+	{#		// TODO(james): This is not the solution to keep, but it's a solution for now #}
+	<meta http-equiv="refresh" content="3"/>
 {% endmacro %}
 
 {% macro no_symbols() %}
-<div class="centering-grid">
-	<div class="centering-grid-item">
-		<h2 class="text-center">Symbols for this minidump haven't been uploaded yet.</h2>
+	<div class="centering-grid">
+		<div class="centering-grid-item">
+			<h2 class="text-center">Symbols for this minidump haven't been uploaded yet.</h2>
+		</div>
 	</div>
-</div>
+{% endmacro %}
+
+{% macro main_detail_page() %}
+	<div class="row">
+		<!-- DESKTOP SIDE TABS  -->
+		<div class="col-md-4 col-lg-3 col-sm-12">
+			<h2><i class="fab {{ get_font_awesome_os_icon(minidump.build.symbol.os) }} fa-fw"></i>{{ minidump.build.symbol.os|capitalize }}</h2>
+			<ul>
+				<li>Process PID: {{ json.pid }}</li>
+				<li>OS Version: {{ json.system.os_version }}</li>
+				<li>Architecture: {{ json.system.cpu_arch }}</li>
+				<li>CPU Core Count: {{ json.system.cpu_core_count }}</li>
+				<li>CPU Info: {{ json.system.cpu_info }}</li>
+			</ul>
+			<hr>
+
+			<!-- Only add extra space if on mobile -->
+			<div class="d-md-none col-sm-12"><br></div>
+			<h2><i class="fas fa-cubes"></i> Modules</h2>
+			<ul>
+				{% for module in json.modules %}
+					<li>{{ module.debug_file }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+
+		<!-- DESKTOP MAIN CONTENT AREA  -->
+		<div class="col-md-8 col-lg-9">
+
+			<!-- START OF MAIN ACCORDION -->
+			<div class="accordion" id="thread-list">
+				{% for thread in json.threads %}
+
+					<!-- START OF MAIN ACCORDION HEADER -->
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+									data-bs-target="#thread_{{ thread.thread_index }}">
+
+								Thread #{{ thread.thread_index }}
+								{% if thread.thread_index == 0 %}
+									<span class="crash-thread-badge badge bg-danger">Crashing Thread</span>
+								{% endif %}
+							</button>
+						</h2>
+					</div>
+
+					<div id="thread_{{ thread.thread_index }}" class="accordion-collapse collapse" data-bs-parent="#thread-list">
+						<!-- START OF MAIN ACCORDION BODY -->
+
+						<!-- START OF INNER ACCORDION -->
+						<div class="accordion-body table-responsive">
+							<div class="accordion" id="frame-list">
+								{% for frame in thread.frames %}
+									<!-- START OF INNER ACCORDION HEADER -->
+									<div class="accordion-item">
+										<h2 class="accordion-header">
+											<button class="monospace-font accordion-button collapsed {{ "show" if frame.frame_index == 0 }}" type="button" data-bs-toggle="collapse"
+													data-bs-target="#frame_{{ frame.frame_index }}">
+												#{{ frame.frame_index }}
+												{% if frame.file %}
+													- [{{ sysinfo.get_filename_from_path(frame.file) }}:{{ frame.line }}]
+												{% else %}
+													- [{{ frame.module }}]
+												{% endif %}
+												- {{ frame.func }}
+											</button>
+										</h2>
+									</div>
+
+									<!-- START OF INNER ACCORDION BODY -->
+									<div id="frame_{{ frame.frame_index }}" class="accordion-collapse collapse" data-bs-parent="#frame-list">
+										<div class="accordion-body table-responsive">
+											<div class="accordion" id="frame-list">
+
+											</div>
+										</div>
+									</div><!-- END OF INNER ACCORDION BODY -->
+
+								{% endfor %}
+							</div>
+						</div>
+					</div>
+
+				{% endfor %}
+			</div> <!-- END OF ACCORDION -->
+		</div> <!-- END OF SYMBOL-LIST -->
+	</div> <!-- END OF ROW -->
 {% endmacro %}
 
 {% block content %}
 	<h1 class="text-center">Detailed Crash Report</h1>
 	<hr>
-	<h2>{{ minidump.project.project_name }}</h2>
-	<p>Uploaded on {{ minidump.date_created.strftime("%F %T %Z") }}</p>
+	<h3>{{ minidump.project.project_name }} <span class="badge bg-danger">{{ json.crash_reason.crash_type }}</span>
+	</h3>
+	<p>
+		<span class="badge bg-primary">Date Occurred: {{ minidump.date_created.strftime("%F %T %Z") }}</span>
+		<span class="badge bg-secondary">Crash Location: {{ json.crash_reason.crash_address }}</span>
+	</p>
 	<hr>
-
-	{% if minidump.raw_stacktrace != None %}
-		{{ main_page() }}
+	{% if minidump.json_stacktrace != None %}
+		{{ main_detail_page() }}
 	{% elif minidump.build.symbol == None %}
 		{{ no_symbols() }}
 	{% else %}
