@@ -99,5 +99,5 @@ def init_web_app() -> Flask:
 
 db = SQLAlchemy()
 login = LoginManager()
-limiter = Limiter(key_func=get_remote_address, default_limits=["50 per day", "10 per hour"])
+limiter = Limiter(key_func=get_remote_address)
 app = init_web_app()
