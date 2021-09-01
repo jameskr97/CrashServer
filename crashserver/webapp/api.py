@@ -5,6 +5,8 @@ import operator
 
 from flask import Blueprint, request, render_template
 
+from crashserver.webapp import limiter
+
 from crashserver.utility.decorators import (
     file_key_required,
     api_key_required,
@@ -19,6 +21,7 @@ api = Blueprint("api", __name__)
 
 
 @api.route("/api/minidump/upload", methods=["POST"])
+@limiter.limit()
 @file_key_required("upload_file_minidump")
 @api_key_required()
 def upload_minidump(project):

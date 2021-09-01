@@ -3,6 +3,8 @@ from pathlib import Path
 from sqlalchemy_utils import create_database, database_exists
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask import Flask
 
 from crashserver.utility.humanbytes import HumanBytes
@@ -91,9 +93,11 @@ def init_web_app() -> Flask:
     init_database(app)
     init_views(app)
     init_login(app)
+    limiter.init_app(app)
     return app
 
 
 db = SQLAlchemy()
 login = LoginManager()
+limiter = Limiter(key_func=get_remote_address, default_limits=["50 per day", "10 per hour"])
 app = init_web_app()
