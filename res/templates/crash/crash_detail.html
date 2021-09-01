@@ -23,6 +23,13 @@
 {% endmacro %}
 
 {% macro main_detail_page() %}
+	<h3>{{ minidump.project.project_name }}</h3>
+	<p>
+		<span class="badge bg-danger">Crash Reason: {{ json.crash_reason.crash_type }}</span>
+		<span class="badge bg-primary">Date Uploaded: {{ minidump.date_created.strftime("%F %T %Z") }}</span>
+		<span class="badge bg-secondary">Crash Location: {{ json.crash_reason.crash_address }}</span>
+	</p>
+	<hr>
 	<div class="row">
 		<!-- DESKTOP SIDE TABS  -->
 		<div class="col-md-4 col-lg-3 col-sm-12">
@@ -38,18 +45,23 @@
 
 			<!-- Only add extra space if on mobile -->
 			<div class="d-md-none col-sm-12"><br></div>
-			<h2><i class="fas fa-cubes"></i> Modules</h2>
-			<ul>
-				{% for module in json.modules %}
-					<li>{{ module.debug_file }}</li>
-				{% endfor %}
-			</ul>
+
+			<!-- Only disable modules on desktop -->
+			<div class="d-none d-md-block">
+				<h2><i class="fas fa-cubes"></i> Modules</h2>
+				<ul>
+					{% for module in json.modules %}
+						<li>{{ module.debug_file }}</li>
+					{% endfor %}
+				</ul>
+			</div>
 		</div>
 
 		<!-- DESKTOP MAIN CONTENT AREA  -->
 		<div class="col-md-8 col-lg-9">
 
 			<!-- START OF MAIN ACCORDION -->
+			<h4><i class="fas fa-stream"></i> {{ json.threads|count }} Threads</h4>
 			<div class="accordion" id="thread-list">
 				{% for thread in json.threads %}
 
@@ -67,41 +79,20 @@
 						</h2>
 					</div>
 
-					<div id="thread_{{ thread.thread_index }}" class="accordion-collapse collapse" data-bs-parent="#thread-list">
-						<!-- START OF MAIN ACCORDION BODY -->
-
-						<!-- START OF INNER ACCORDION -->
-						<div class="accordion-body table-responsive">
-							<div class="accordion" id="frame-list">
-								{% for frame in thread.frames %}
-									<!-- START OF INNER ACCORDION HEADER -->
-									<div class="accordion-item">
-										<h2 class="accordion-header">
-											<button class="monospace-font accordion-button collapsed {{ "show" if frame.frame_index == 0 }}" type="button" data-bs-toggle="collapse"
-													data-bs-target="#frame_{{ frame.frame_index }}">
-												#{{ frame.frame_index }}
-												{% if frame.file %}
-													- [{{ sysinfo.get_filename_from_path(frame.file) }}:{{ frame.line }}]
-												{% else %}
-													- [{{ frame.module }}]
-												{% endif %}
-												- {{ frame.func }}
-											</button>
-										</h2>
-									</div>
-
-									<!-- START OF INNER ACCORDION BODY -->
-									<div id="frame_{{ frame.frame_index }}" class="accordion-collapse collapse" data-bs-parent="#frame-list">
-										<div class="accordion-body table-responsive">
-											<div class="accordion" id="frame-list">
-
-											</div>
-										</div>
-									</div><!-- END OF INNER ACCORDION BODY -->
-
-								{% endfor %}
-							</div>
-						</div>
+					<!-- START OF MAIN ACCORDION BODY -->
+					<div id="thread_{{ thread.thread_index }}" class="accordion-collapse collapse monospace-font" data-bs-parent="#thread-list">
+							<ol style="overflow: auto; white-space: nowrap">
+							{% for frame in thread.frames %}
+								<li>
+									{% if frame.file %}
+										- [{{ sysinfo.get_filename_from_path(frame.file) }}:{{ frame.line }}]
+									{% else %}
+										- [{{ frame.module }}]
+									{% endif %}
+									- {{ frame.func }}
+								</li>
+							{% endfor %}
+						</ol>
 					</div>
 
 				{% endfor %}
@@ -112,13 +103,6 @@
 
 {% block content %}
 	<h1 class="text-center">Detailed Crash Report</h1>
-	<hr>
-	<h3>{{ minidump.project.project_name }} <span class="badge bg-danger">{{ json.crash_reason.crash_type }}</span>
-	</h3>
-	<p>
-		<span class="badge bg-primary">Date Occurred: {{ minidump.date_created.strftime("%F %T %Z") }}</span>
-		<span class="badge bg-secondary">Crash Location: {{ json.crash_reason.crash_address }}</span>
-	</p>
 	<hr>
 	{% if minidump.json_stacktrace != None %}
 		{{ main_detail_page() }}
