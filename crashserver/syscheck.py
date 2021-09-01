@@ -1,4 +1,5 @@
 import logging
+import os
 
 import crashserver.config as config
 
@@ -7,7 +8,8 @@ logger = logging.getLogger("CrashServer").getChild("SystemCheck")
 
 def validate_all_settings():
     sys_db = valid_postgres_settings()
-    if not sys_db:
+    is_bin_init = validate_binary_executable_bit()
+    if not all([sys_db, is_bin_init]):
         logger.fatal("Startup check failed. Terminating.")
         exit(1)
     else:
@@ -35,3 +37,15 @@ def valid_postgres_settings():
 
     logger.info(f"Credentials verified for postgresql://{db.user}@{db.host}:{db.port}/{db.name}")
     return True
+
+
+def validate_binary_executable_bit():
+    exe_path = "res/bin/linux"
+    exe_files = ["dump_syms", "stackwalker", "minidump_stackwalk"]
+    validated = True
+    for f in exe_files:
+        full_path = os.path.join(exe_path, f)
+        if not os.access(full_path, os.R_OK | os.X_OK):  # Allow this user to read and execute the files
+            validated = False
+            logger.fatal(f"Unable to read or write {full_path}.")
+    return validated
