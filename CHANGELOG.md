@@ -5,20 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0-alpha] - 2021-09-01
 ### Added
 
 - View recently uploaded symbols at `/crash-reports` endpoint
 - View uploaded symbols by project at `/symbols` endpoint
 - Upload minidumps via publicly-accessible `/upload` webpage
+- Upload minidump via `/api/minidump/upload` endpoint, with minidump specific api-key
+  - Minidump uploads are limited to 10 per hour, per remote ip-address
+- Upload symbols via `/api/symbol/upload` endpoint, with symbol specific api-key
 - Login system (no registration) for admins to be able to
   - Create projects
-  - Access project api keys
-  - Purge minidumps
-  - Delete projects
-  - Enable/disable `sym-upload-{v1,v2}` protocols
-  - View other users
+  - View project data
   - View system information
-- Upload symbols via `/api/symbol/upload` endpoint
-- Upload minidump via `/api/minidump/upload` endpoint
+- Admin panel after login is mostly non-functioning, and is still a WIP at this release
 - Asynchronously decode any uploaded minidump
 - Only decode minidumps if symbol is available
