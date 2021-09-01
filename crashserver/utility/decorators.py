@@ -6,7 +6,7 @@ from crashserver.webapp.models import Project, ProjectType
 from crashserver.webapp import db
 
 
-def api_key_required(url_arg_key="api_key", pass_project=True):
+def api_key_required(key_type="minidump", url_arg_key="api_key", pass_project=True):
     """
     Requires that the `api_key` url argument has been included in request.
     Queries the database for a matching api_key, and passes the project in as the first parameter
@@ -24,7 +24,12 @@ def api_key_required(url_arg_key="api_key", pass_project=True):
                 return {"error": "Endpoint requires %s" % url_arg_key}, 400
 
             # Get the project
-            res = db.session.query(Project).filter_by(api_key=flask.request.args[url_arg_key]).first()
+            res = None
+            if key_type == "minidump":
+                res = db.session.query(Project).filter_by(minidump_api_key=flask.request.args[url_arg_key]).first()
+            elif key_type == "symbol":
+                res = db.session.query(Project).filter_by(symbol_api_key=flask.request.args[url_arg_key]).first()
+
             if res is None:
                 return {"error": "Bad %s" % url_arg_key}, 400
 

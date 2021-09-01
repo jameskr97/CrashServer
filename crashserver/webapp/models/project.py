@@ -38,7 +38,8 @@ class Project(db.Model):
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     project_name = db.Column(db.Text(), nullable=False)
     project_type = db.Column(db.Enum(ProjectType), nullable=False)
-    api_key = db.Column(db.String(length=32), nullable=False)
+    minidump_api_key = db.Column(db.String(length=32), nullable=False)
+    symbol_api_key = db.Column(db.String(length=32), nullable=False)
 
     # Relationships
     minidump = db.relationship("Minidump", viewonly=True)

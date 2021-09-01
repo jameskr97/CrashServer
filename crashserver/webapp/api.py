@@ -36,7 +36,7 @@ def upload_minidump(project):
 
 @api.route("/api/symbol/upload", methods=["POST"])
 @file_key_required("symbol_file")
-@api_key_required()
+@api_key_required("symbol")
 @check_project_versioned()
 def upload_symbol(project, version):
     symbol_file = request.files.get("symbol_file")

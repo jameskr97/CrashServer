@@ -13,10 +13,11 @@ from crashserver.webapp import operations as ops
 views = Blueprint("views", __name__)
 
 
-# @views.route("/")
-# def home():
-#     apps = Project.query.with_entities(Project.id, Project.project_name).all()
-#     return render_template("home.html", apps=apps)
+@views.route("/")
+def home():
+    return redirect(url_for("views.crash"))
+    # apps = Project.query.with_entities(Project.id, Project.project_name).all()
+    # return render_template("home.html", apps=apps)
 
 
 @views.route("/settings")
@@ -43,9 +44,12 @@ def project_create():
 
         # Create the project
         # TODO(james): Ensure apikey doesn't exist?
+        def random_key():
+            return str(uuid.UUID(bytes=os.urandom(16), version=4)).replace("-", "")
+
         new_project = Project(project_name=form.title.data)
-        new_api_key = str(uuid.UUID(bytes=os.urandom(16), version=4)).replace("-", "")
-        new_project.api_key = new_api_key
+        new_project.minidump_api_key = random_key()
+        new_project.symbol_api_key = random_key()
         new_project.project_type = ProjectType.get_type_from_str(form.project_type.data)
 
         db.session.add(new_project)

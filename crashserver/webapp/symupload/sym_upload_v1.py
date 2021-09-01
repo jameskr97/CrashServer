@@ -22,7 +22,7 @@ sym_upload_v1 = Blueprint("sym-upload-v1", __name__)
 
 @sym_upload_v1.route("", methods=["POST"])
 @file_key_required("symbol_file")
-@api_key_required()
+@api_key_required("symbol")
 @check_project_versioned()
 def upload(project, version):
     """

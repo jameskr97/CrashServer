@@ -72,7 +72,7 @@ sym_upload_v2 = Blueprint("sym-upload-v2", __name__)
 
 
 @sym_upload_v2.route("/v1/symbols/<module_id>/<build_id>:checkStatus")
-@api_key_required("key", pass_project=False)
+@api_key_required("symbol", "key", pass_project=False)
 def check_status(module_id, build_id):
     build = db.session.query(BuildMetadata).filter_by(build_id=build_id.strip(), module_id=module_id.strip()).first()
 
@@ -85,7 +85,7 @@ def check_status(module_id, build_id):
 
 
 @sym_upload_v2.route("/v1/uploads:create", methods=["POST"])
-@api_key_required("key")
+@api_key_required("symbol", "key")
 def create(project):
     symbol_ref = SymbolUploadV2(project_id=project.id)
     db.session.add(symbol_ref)
@@ -109,7 +109,7 @@ def upload_location():
 
 
 @sym_upload_v2.route("/v1/uploads/<upload_key>:complete", methods=["POST"])
-@api_key_required("key")
+@api_key_required("symbol", "key")
 def is_upload_complete(project, upload_key):
     logger.info("Attempting to upload new symbol file")
 
