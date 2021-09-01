@@ -24,5 +24,5 @@ class BuildMetadata(db.Model):
     symbol = db.relationship("Symbol", uselist=False, back_populates="build")
     unprocessed_dumps = db.relationship(
         "Minidump",
-        primaryjoin="and_(Minidump.build_metadata_id==BuildMetadata.id," "Minidump.machine_stacktrace==None)",
+        primaryjoin="and_(Minidump.build_metadata_id==BuildMetadata.id," "Minidump.json_stacktrace==None)",
     )

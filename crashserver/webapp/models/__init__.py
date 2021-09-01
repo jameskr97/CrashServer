@@ -1,3 +1,4 @@
+from .symcache import SymCache
 from .annotation import Annotation
 from .build_metadata import BuildMetadata
 from .minidump import Minidump
@@ -14,4 +15,5 @@ __all__ = [
     "Symbol",
     "SymbolUploadV2",
     "User",
+    "SymCache",
 ]

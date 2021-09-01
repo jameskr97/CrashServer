@@ -2,55 +2,169 @@ from dataclasses import dataclass
 
 
 @dataclass
-class CrashMetadata:
-    # pylint: disable=too-many-instance-attributes
-    """
-    Data from the machine readable minidump to get additional info, and determine if we can decode the dump
-    """
-    # OS Line
-    os_platform: str = ""
-    os_version: str = ""
+class DumpModule:
+    base_address: str
+    end_address: str
+    code_id: str
+    debug_file: str  # filename | empty string
+    debug_id: str  # [[:xdigit:]]{33} | empty string
+    filename: str
+    version: str
+    missing_symbols: bool
 
-    # CPU Line
-    cpu_arch: str = ""
-    cpu_version: str = ""
+    @staticmethod
+    def generate_list(json: dict):
+        res = []
+
+        for mod in json:
+            res.append(
+                DumpModule(
+                    base_address=mod.get("base_addr"),
+                    end_address=mod.get("end_addr"),
+                    code_id=mod.get("code_id"),
+                    debug_file=mod.get("debug_file"),
+                    debug_id=mod.get("debug_id"),
+                    filename=mod.get("filename"),
+                    version=mod.get("version"),
+                    # Default false, as the key won't be there if it's true
+                    missing_symbols=mod.get("missing_symbols", False),
+                )
+            )
+        return res
+
+
+@dataclass
+class SystemInfo:
+    os_name: str = ""
+    os_version: str = ""  # Linux | Windows NT | Mac OS X
+    cpu_arch: str = ""  # x86 | amd64 | arm | ppc | sparc
     cpu_core_count: int = 0
+    cpu_info: str = ""
+    cpu_version_microcode: str = ""
 
-    # Crash line
-    crash_reason: str = ""
-    crash_address: str = ""
+    @staticmethod
+    def generate(json: dict):
+        return SystemInfo(
+            os_name=json.get("os"),
+            os_version=json.get("os_ver"),
+            cpu_arch=json.get("cpu_arch"),
+            cpu_info=json.get("cpu_info"),
+            cpu_core_count=json.get("cpu_count"),
+            cpu_version_microcode=json.get("cpu_microcode_version", ""),
+        )
 
-    # Module line ending in "|1"
-    module_id: str = ""
-    build_id: str = ""
+
+@dataclass
+class CrashReason:
+    crash_type: str
+    crash_address: str
+    crashing_thread: int
+    assertion: str
+
+    @staticmethod
+    def generate(json: dict):
+        return CrashReason(
+            crash_type=json.get("type"),
+            crash_address=json.get("address", "Unknown"),
+            crashing_thread=json.get("crashing_thread"),
+            assertion=json.get("assertion"),
+        )
 
 
-def process_machine_minidump(machine_text):
-    """
-    Processes `minidump_stackwalk` command run with the `-m` parameter.
-    :param machine_text: The stdout output from the `minidump_stackwalk` command.
-    :return: CrashMetadata object with all processed data
-    """
-    res = CrashMetadata()
+@dataclass
+class ThreadFrame:
+    frame_index: int
+    file: str
+    func: str
+    func_offset: str
+    line: int
+    module: str
+    module_offset: str
+    offset: str
+    registers: dict
+    trust: str  # none | scan | cfi_scan | frame_pointer | cfi | context | prewalked
 
-    for line in machine_text:
-        line = line.strip()
-        split_data = line.split("|")
-        if line.startswith("OS"):
-            res.os_platform = split_data[1]
-            res.os_version = split_data[2]
+    @staticmethod
+    def generate_list(frames: list):
+        res = []
+        for frame in frames:
+            res.append(
+                ThreadFrame(
+                    frame_index=frame.get("frame"),
+                    file=frame.get("file"),
+                    func=frame.get("function"),
+                    func_offset=frame.get("function_offset"),
+                    line=frame.get("line"),
+                    module=frame.get("module"),
+                    module_offset=frame.get("module_offset"),
+                    offset=frame.get("offset"),
+                    registers={},
+                    trust=frame.get("trust"),
+                )
+            )
 
-        elif line.startswith("CPU"):
-            res.cpu_arch = split_data[1]
-            res.cpu_version = split_data[2]
-            res.cpu_core_count = int(split_data[3])
+        res.sort(key=lambda x: x.frame_index)
+        return res
 
-        elif line.startswith("Crash"):
-            res.crash_reason = split_data[1]
-            res.crash_address = split_data[2]
 
-        elif not res.module_id and line.startswith("Module") and line.endswith("1"):
-            res.module_id = split_data[3]
-            res.build_id = split_data[4]
+@dataclass
+class StackThread:
+    thread_index: int
+    total_frames: int
+    frames: [ThreadFrame]
 
-    return res
+    @staticmethod
+    def generate_list(threads: list):
+        res = []
+
+        for i in range(len(threads)):
+            res.append(
+                StackThread(
+                    thread_index=i,
+                    total_frames=threads[i].get("frame_count"),
+                    frames=ThreadFrame.generate_list(threads[i].get("frames")),
+                )
+            )
+
+        res.sort(key=lambda x: x.thread_index)
+        return res
+
+
+@dataclass
+class ProcessedCrash:
+    crash_reason: CrashReason
+    system: SystemInfo
+    modules: [DumpModule]
+    threads: [StackThread]
+
+    main_module_index: int
+    read_success: bool
+    pid: int
+
+    @property
+    def modules_no_symbols(self) -> [DumpModule]:
+        return [m for m in self.modules if m.missing_symbols]
+
+    @property
+    def main_module(self) -> DumpModule:
+        return self.modules[self.main_module_index]
+
+    @staticmethod
+    def generate(json: dict):
+        res_reason = CrashReason.generate(json.get("crash_info"))
+        res_threads = StackThread.generate_list(json.get("threads"))
+
+        # Update first frame of crashing thread with registers.
+        # The registers should always be in the first frame of the crashing thread
+        crash_registers = json.get("crashing_thread").get("frames")[0]["registers"]
+        res_threads[res_reason.crashing_thread].frames[0].registers = crash_registers
+
+        return ProcessedCrash(
+            read_success=True,
+            crash_reason=res_reason,
+            system=SystemInfo.generate(json.get("system_info", {})),
+            modules=DumpModule.generate_list(json.get("modules", {})),
+            threads=res_threads,
+            main_module_index=json.get("main_module"),
+            pid=json.get("pid"),
+        )

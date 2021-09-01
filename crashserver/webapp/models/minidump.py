@@ -1,10 +1,10 @@
 from pathlib import Path
 import uuid
 
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func, text
-from flask import current_app
 
+from crashserver.utility import processor
 from crashserver.config import settings
 from crashserver.webapp import db
 
@@ -36,7 +36,7 @@ class Minidump(db.Model):
     filename = db.Column(db.Text(), nullable=False)
     client_guid = db.Column(UUID(as_uuid=True), nullable=True)
     raw_stacktrace = db.Column(db.Text(), nullable=True)
-    machine_stacktrace = db.Column(db.Text(), nullable=True)
+    json_stacktrace = db.Column(JSONB, nullable=True)
 
     # Relationships
     project = db.relationship("Project")
@@ -52,3 +52,7 @@ class Minidump(db.Model):
             f.write(file_contents)
 
         self.filename = filename
+
+    @property
+    def json(self):
+        return processor.ProcessedCrash.generate(self.json_stacktrace)
