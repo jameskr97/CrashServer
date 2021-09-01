@@ -13,10 +13,10 @@ from crashserver.webapp import operations as ops
 views = Blueprint("views", __name__)
 
 
-@views.route("/")
-def home():
-    apps = Project.query.with_entities(Project.id, Project.project_name).all()
-    return render_template("home.html", apps=apps)
+# @views.route("/")
+# def home():
+#     apps = Project.query.with_entities(Project.id, Project.project_name).all()
+#     return render_template("home.html", apps=apps)
 
 
 @views.route("/settings")
@@ -67,6 +67,7 @@ def project_dashboard(id: str):
     return render_template("app/dashboard.html", project=proj)
 
 
+@views.route("/")
 @views.route("/crash-reports")
 def crash():
     res = (
