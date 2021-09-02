@@ -26,6 +26,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(254), nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
+    def __init__(self, email):
+        self.email = email
+
     def set_password(self, password):
         self.password = generate_password_hash(password, method="pbkdf2:sha512:310000")
 
