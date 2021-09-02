@@ -30,8 +30,15 @@
 					<button type="submit" class="btn btn-outline-dark">Upload</button>
 				</div>
 			</div>
-
 		</div>
 	</form>
-
+    <script type="text/javascript">
+        // This is specifically to allow upload after a previously failed upload.
+        // The select field will have the entry from before the post, but this being enabled or disabled is determined
+        // by javascript. Here, we make sure the user can upload again after that failure.
+        document.addEventListener("DOMContentLoaded", function() {
+            let proj = document.getElementById("project-select")
+            set_minidump_upload_enabled(!proj.options[proj.selectedIndex].disabled)
+        });
+    </script>
 {% endblock %}
