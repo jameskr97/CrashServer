@@ -109,45 +109,18 @@
 						<div class="tab-pane active" role="tabpanel" id="account-content">
 							<h4>My Account</h4>
 							<hr>
-							<h5>My Info</h5>
-							<div class="row mb-3">
-								<label for="username" class="col-sm-2 col-form-label">Username</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control" id="username">
-								</div>
-							</div>
-							<div class="row mb-3">
-								<label for="email-address" class="col-sm-2 col-form-label">Email Address</label>
-								<div class="col-sm-10">
-									<input type="email" class="form-control" id="email-address">
-								</div>
-							</div>
+                            <form action="{{ url_for("views.settings") }}" method="POST">
+                                <h5>Change Password</h5>
+                                {{ account_form.csrf_token }}
+                                {{ generate_form_input(account_form.current_pass) }}
+                                {{ generate_form_input(account_form.new_pass) }}
+                                {{ generate_form_input(account_form.new_pass_verify) }}
+                                <hr>
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-outline-dark">Submit</button>
+                                </div>
+                            </form>
 
-							<hr>
-							<h5>Change Password</h5>
-							<div class="row mb-3">
-								<label for="pw-current" class="col-sm-2 col-form-label">Current Password</label>
-								<div class="col-sm-10">
-									<input type="email" class="form-control" id="pw-current">
-								</div>
-							</div>
-							<div class="row mb-3">
-								<label for="pw-new" class="col-sm-2 col-form-label">New Password</label>
-								<div class="col-sm-10">
-									<input type="email" class="form-control" id="pw-new">
-								</div>
-							</div>
-							<div class="row mb-3">
-								<label for="pw-new-verify" class="col-sm-2 col-form-label">Verify Password</label>
-								<div class="col-sm-10">
-									<input type="email" class="form-control" id="pw-new-verify">
-								</div>
-							</div>
-
-							<hr>
-							<div class="text-center">
-								<button type="submit" class="btn btn-outline-dark">Submit</button>
-							</div>
 						</div>
 
 						<!-- USERS TAB -->

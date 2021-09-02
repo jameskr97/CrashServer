@@ -2,13 +2,14 @@ import os
 import uuid
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from crashserver.webapp.models import Minidump, Project, ProjectType, User
-from crashserver.webapp.forms import CreateAppForm, UploadMinidumpForm
+from crashserver.webapp.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount
+from crashserver.webapp import operations as ops
+from crashserver.config import settings as config
 from crashserver.utility import misc
 from crashserver.webapp import db
-from crashserver.webapp import operations as ops
 
 views = Blueprint("views", __name__)
 
@@ -20,13 +21,22 @@ def home():
     # return render_template("home.html", apps=apps)
 
 
-@views.route("/settings")
+@views.route("/settings", methods=["GET", "POST"])
 @login_required
 def settings():
     users = db.session.query(User).all()
     projects = db.session.query(Project).all()
     [p.create_directories() for p in projects]
-    return render_template("app/settings.html", users=users, projects=projects)
+
+    form = UpdateAccount(current_user)
+    if request.method == "POST" and form.validate():
+        current_user.set_password(form.new_pass.data)
+        db.session.commit()
+        flash("Password Updated")
+    else:
+        misc.flash_form_errors(form)
+
+    return render_template("app/settings.html", account_form=form, users=users, projects=projects, settings=config)
 
 
 @views.route("/project/create", methods=["GET", "POST"])
