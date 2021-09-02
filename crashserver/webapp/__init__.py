@@ -23,8 +23,10 @@ def init_app() -> Flask:
     static = resources_root / "static"
 
     # Create config directories
-    Path(settings.storage.minidump).absolute().mkdir(parents=True, exist_ok=True)
-    Path(settings.storage.symbol).absolute().mkdir(parents=True, exist_ok=True)
+    for app_dir in settings.storage.keys():
+        p = Path(settings.storage[app_dir])
+        if not p.exists():
+            p.absolute().mkdir(parents=True, exist_ok=True)
 
     # Create app and inital parameters
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))
