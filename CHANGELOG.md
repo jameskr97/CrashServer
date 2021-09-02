@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Allow for deep linking via `#` in url on the settings page
 - CLI commands for creating and deleting user accounts
+- Notify user if there are no symbols uploaded when trying to upload a minidump
 
 ## [0.1.1-alpha] - 2021-09-02
 ### Added

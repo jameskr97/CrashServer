@@ -109,3 +109,9 @@ def get_symbols(project_id):
                 stats=stats,
             )
         }, 200
+
+
+@api.route("/webapi/symbols/count/<project_id>")
+def get_symbols_count(project_id):
+    proj_symbols = db.session.query(Symbol).filter_by(project_id=project_id).all()
+    return {"count": len(proj_symbols)}, 200

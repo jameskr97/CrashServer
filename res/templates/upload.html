@@ -1,44 +1,64 @@
 {% extends "base/base.html" %}
 
 {% block content %}
-	<h1 class="text-center">Upload Minidump</h1>
-	<hr>
-	<form class="" method="POST" action="{{ url_for("views.upload") }}" enctype="multipart/form-data">
-		{{ form.csrf_token }}
+    <h1 class="text-center">Upload Minidump</h1>
+    <hr>
+    <form class="" method="POST" action="{{ url_for("views.upload") }}" enctype="multipart/form-data">
+        {{ form.csrf_token }}
 
-		<!-- Drop down to select project -->
-		<div class="centering-grid">
-			<div class="centering-grid-item">
-				<select id="project-select" class="centering-grid-item form-select" name="{{ form.project.name }}" onChange="javascript:set_minidump_upload_enabled(true);" autocomplete="off">
-					<option disabled selected>Select Project</option>
-					{% for option in form.project %}
-						{{ option }}
-					{% endfor %}
-				</select>
-			</div>
-		</div>
-		<hr>
+        <!-- Drop down to select project -->
+        <div class="centering-grid">
+            <div class="centering-grid-item">
+                <select id="project-select" class="centering-grid-item form-select" name="{{ form.project.name }}"
+                        onChange="javascript:set_minidump_upload_enabled(true);" autocomplete="off">
+                    <option disabled selected>Select Project</option>
+                    {% for option in form.project %}
+                        {{ option }}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <hr>
 
-		<!-- Drop down to select  -->
-		<div class="centering-grid">
-			<div class="centering-grid-item">
-				<div class="mb-3">
-					{{ form.minidump.label(class="form-label") }}
-					{{ form.minidump(class="form-control", disabled="true", id="minidump-upload") }}
-				</div>
-				<div class="text-center">
-					<button type="submit" class="btn btn-outline-dark">Upload</button>
-				</div>
-			</div>
-		</div>
-	</form>
+        <!-- Drop down to select  -->
+        <div class="centering-grid">
+            <div id="no-symbols-msg" class="d-none centering-grid-item alert alert-danger" role="alert">
+                There aren't any symbols for this project! You can upload a minidump, but it won't be decoded
+                until symbols are uploaded.
+            </div>
+
+            <div class="centering-grid-item">
+                <div class="mb-3">
+                    {{ form.minidump.label(class="form-label") }}
+                    {{ form.minidump(class="form-control", disabled="true", id="minidump-upload") }}
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-outline-dark">Upload</button>
+                </div>
+            </div>
+        </div>
+    </form>
     <script type="text/javascript">
         // This is specifically to allow upload after a previously failed upload.
         // The select field will have the entry from before the post, but this being enabled or disabled is determined
         // by javascript. Here, we make sure the user can upload again after that failure.
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             let proj = document.getElementById("project-select")
             set_minidump_upload_enabled(!proj.options[proj.selectedIndex].disabled)
-        });
+        })
+
+        document.getElementById("project-select").addEventListener("change", async function (){
+            set_minidump_upload_enabled(true); // Always true, because you can't select the default disabled value
+
+            // Ask the server how many symbols this project has
+            let symbol_count = await fetch("/webapi/symbols/count/" + this.value)
+                .then(data => data.json()).then(data => data["count"])
+
+            // If we have no symbols for this project
+            if(symbol_count === 0)
+                document.getElementById("no-symbols-msg").classList.remove("d-none")
+        })
+
+
     </script>
 {% endblock %}
