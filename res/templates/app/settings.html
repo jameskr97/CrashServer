@@ -10,10 +10,10 @@
 {% macro project_disk_space(title, path) %}
 	{% set disk = sysinfo.get_disk_space(path) %}
 	<div class="row settings-storage-row">
-		<div class="col-sm-4">{{ title }}</div>
-		<div class="col-sm-8">
+		<div class="col-sm-3">{{ title }}</div>
+		<div class="col-sm-9">
 			<div class="progress">
-				<div class="progress-bar" style="width: {{ (disk.used / disk.total) * 100 }}%"></div>
+				<div class="progress-bar" style="width: {{ (disk.used / disk.total) * 100 }}%">{{ HumanBytes.format(disk.used) }}</div>
 				<div class="progress-bar" style="width: 100%; background-color: gray"></div>
 			</div>
 		</div>
@@ -68,6 +68,17 @@
 			</div>
 		</div>
 	</div>
+{% endmacro %}
+
+{% macro generate_form_input(form_item, placeholder) %}
+    <div class="row mb-1">
+        <div class="col-md-2">
+            {{ form_item.label(class="col-form-label") }}
+        </div>
+        <div class="col-md-10">
+            {{ form_item(class="col-sm-10 form-control", placeholder=placeholder) }}
+        </div>
+    </div>
 {% endmacro %}
 
 {% block content %}
