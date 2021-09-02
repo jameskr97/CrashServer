@@ -36,6 +36,18 @@
 			| {{ p.minidump|length }} Minidumps ({{ HumanBytes.format(p.total_minidump_size) }})
 		</p>
 		<hr>
+        <h5>API Keys</h5>
+        {{ settings_info_line("Symbol Key", p.symbol_api_key) }}
+        {{ settings_info_line("Minidump Key", p.minidump_api_key) }}
+        <hr>
+        <h5><code>symupload</code> examples</h5>
+        Windows:
+        <ul>
+            <li>sym-upload-v1: <code>symupload app.exe https://{{ settings.flask.domain }}/symupload?api_key={{ p.symbol_api_key }}</code></li>
+            <li>sym-upload-v2: <code>symupload -p app.exe https://{{ settings.flask.domain }}/symupload {{ p.symbol_api_key }}</code></li>
+        </ul>
+
+        <hr>
 		<h5 style="margin-top: 10px;">Disk Space</h5>
 		{{ project_disk_space("Minidump Storage", p.minidump_location) }}
 		{{ project_disk_space("Symbol Storage", p.symbol_location) }}
