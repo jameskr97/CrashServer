@@ -32,6 +32,7 @@ toml = "^0.10.2"
 charset-normalizer = "^2.0.4"
 Flask-Limiter = "^1.4"
 requests = "^2.26.0"
+click = "^8.0.1"
 
 [tool.poetry.dev-dependencies]
 [tool.poetry.scripts]
