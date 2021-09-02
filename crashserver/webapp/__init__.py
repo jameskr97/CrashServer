@@ -29,6 +29,7 @@ def init_app() -> Flask:
     # Create app and inital parameters
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))
     app.config["SECRET_KEY"] = settings.flask.secret_key
+    app.config["SERVER_NAME"] = settings.flask.domain
 
     # Configure jinja2
     app.add_template_global(HumanBytes, "HumanBytes")
