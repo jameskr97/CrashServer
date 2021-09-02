@@ -6,9 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0-alpha] - 2021-09-01
+## [0.1.1-alpha] - 2021-09-02
 ### Added
+- Show API keys at settings page for each project.
+- Allow password to be changed when form is posted 
+- Add more config information at settings page about tab
+- Ensure all storage directories are created at program startup
 
+### Fixed
+- Upload page not allowing upload after a wrong file was previously uploaded
+
+## [0.1.0-alpha] - 2021-09-01
+### Added
 - View recently uploaded symbols at `/crash-reports` endpoint
 - View uploaded symbols by project at `/symbols` endpoint
 - Upload minidumps via publicly-accessible `/upload` webpage
