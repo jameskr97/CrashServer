@@ -1,10 +1,24 @@
 {% extends "base/base.html" %}
 
-{% macro project_entry(title, url, button_title) %}
+{% macro project_entry(project, button_title) %}
 <div class="home-row">
-	<img src="https://via.placeholder.com/100" alt="">
-	<span class="home-app-title">{{ title }}</span>
-	<a class="home-app-button" href="{{ url }}">
+    <div style="grid-row: 1" class="home-app-title">{{ project.project_name }}</div>
+
+    <div class="sub-item">
+        <h3>
+            <i class="fas fa-stream"></i>
+            {{ project.symbols|count }} Symbols
+        </h3>
+    </div>
+
+    <div class="sub-item">
+        <h3>
+            <i class="fas fa-archive"></i>
+            {{ project.minidumps|count }} Minidumps
+        </h3>
+    </div>
+
+	<a class="home-app-button" href="{{ url_for("views.project_dashboard", id=project.id) }}">
 		<button type="button" class="btn btn-outline-dark">{{ button_title }}</button>
 	</a>
 </div>
@@ -13,9 +27,9 @@
 {% block content %}
 	<h1 class="text-center">Symbol Storage and Minidump Decode</h1>
 	<hr>
-	<div class="grid">
+	<div class="home-grid">
 		{% for app in apps %}
-			{{ project_entry(app.project_name, url_for("views.project_dashboard", id=app.id), "View") }}
+			{{ project_entry(app, "View") }}
 		{% endfor %}
 	</div>
 

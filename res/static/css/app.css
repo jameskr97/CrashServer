@@ -13,15 +13,16 @@ body {
     padding-top: 15px;
 }
 
-.grid {
+.home-grid {
     display: grid;
     grid-auto-rows: 100px;
     grid-row-gap: 10px;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    /*grid-template-columns: 1fr 1fr;*/
     grid-column-gap: 30px;
 }
 
-. h2 {
+h2 {
     display: inline;
 }
 
@@ -31,10 +32,14 @@ body {
 
 /* Homepage specific CSS */
 .home-row {
-    display: flex;
-    flex-basis: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     border: 2px solid rgba(33, 37, 41, 0.14);
     border-radius: 10px;
+}
+
+.home-row .sub-item {
+    padding-left: 10px;
 }
 
 .home-row img {
@@ -46,13 +51,16 @@ body {
     font-size: 26px;
     vertical-align: center;
     margin-top: 5px;
-    margin-left: 10px
+    margin-left: 20px
 }
 
 .home-app-button {
     margin-left: auto;
     margin-right: 25px;
     align-self: center;
+    grid-column-start: 6;
+    grid-row-start: 1;
+    grid-row-end: span 2;
 }
 
 .centering-grid {
