@@ -60,6 +60,9 @@ def get_symbols(project_id):
     project = db.session.query(Project).get(project_id)
     proj_symbols = db.session.query(Symbol).filter_by(project_id=project_id).all()
 
+    if len(proj_symbols) == 0:
+        return {"html": render_template("symbols/symbol-list-no-syms.html")}, 200
+
     # Get counts for os symbols
     def sym_count(os: str):
         return db.session.query(Symbol).filter_by(project_id=project_id, os=os).count()
