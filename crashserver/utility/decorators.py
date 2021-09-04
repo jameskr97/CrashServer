@@ -50,10 +50,10 @@ def check_project_versioned():
 
             # Check if project is versioned
             if project.project_type == ProjectType.VERSIONED:
-                if "version" not in flask.request.args.keys():
+                version = flask.request.args.get("version")
+                if not version:
                     return {"error": "Project requires 'version' parameter for symbol upload"}, 400
                 else:
-                    version = flask.request.args["version"]
                     return func(project, version, *args, **kwargs)
 
             # Do nothing, pass-through
