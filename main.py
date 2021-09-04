@@ -13,6 +13,7 @@ from gunicorn.app.base import BaseApplication
 from gunicorn.glogging import Logger
 from loguru import logger
 
+from crashserver.config import settings
 from crashserver.webapp import app
 from crashserver import syscheck
 
@@ -41,7 +42,6 @@ class InterceptHandler(logging.Handler):
         while frame.f_code.co_filename == logging.__file__:
             frame = frame.f_back
             depth += 1
-
         logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
 
@@ -88,13 +88,19 @@ if __name__ == "__main__":
         if name not in seen:
             seen.add(name.split(".")[0])
             logging.getLogger(name).handlers = [intercept_handler]
-
     config = {
         "handlers": [
             {
                 "sink": sys.stdout,
                 "format": "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green><lvl>[{level}]</lvl><blue>[{name}]</blue>: "
                 "<bold>{message}</bold>",
+            },
+            {
+                "sink": os.path.join(settings.storage.logs, "access.log"),
+                "format": "{message}",
+                # I wish there was an easier way to determine the original
+                # python logger that was used before the loguru override
+                "filter": lambda record: record["name"] == "gunicorn.glogging" and record["function"] == "access",
             },
         ],
     }
@@ -104,13 +110,11 @@ if __name__ == "__main__":
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Activate proxy pass detection to get real ip
 
     # Configure and run gunicorn
-    from crashserver.config import settings
-
     options = {
         "bind": f"0.0.0.0:{settings.flask.web_port}",
         "workers": WORKERS,
-        # "accesslog": "-",
-        # "errorlog": "-",
+        "accesslog": "-",
+        "errorlog": "-",
         "logger_class": StubbedGunicornLogger,
     }
     StandaloneApplication(app, options).run()
