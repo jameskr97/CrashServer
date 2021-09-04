@@ -34,6 +34,7 @@ Flask-Limiter = "^1.4"
 requests = "^2.26.0"
 click = "^8.0.1"
 cloup = "^0.11.0"
+loguru = "^0.5.3"
 
 [tool.poetry.dev-dependencies]
 [tool.poetry.scripts]
