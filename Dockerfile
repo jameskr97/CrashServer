@@ -28,14 +28,20 @@ RUN addgroup --gid 10001 --system nonroot &&\
 
 # Copy environment, change owner, and install system dependencies
 WORKDIR /app
-COPY .docker ./
+COPY main.py ./
 COPY config/ config/
 COPY res/ res/
 RUN chown nonroot:nonroot /app
 
+# Install linux dependencies
 COPY --from=builder --chown=nonroot:nonroot /venv /venv
 RUN apt update && apt install libmagic1 -y --no-install-recommends
 
+# Activate virtualenv
+ENV VIRTUAL_ENV=/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 USER nonroot
-CMD ["./docker-entrypoint.sh"]
+CMD ["python3", "./main.py"]
 

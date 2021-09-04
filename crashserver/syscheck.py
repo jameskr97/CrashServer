@@ -1,16 +1,14 @@
-import logging
+from loguru import logger
 import os
 
 import crashserver.config as config
-
-logger = logging.getLogger("CrashServer").getChild("SystemCheck")
 
 
 def validate_all_settings():
     sys_db = valid_postgres_settings()
     is_bin_init = validate_binary_executable_bit()
     if not all([sys_db, is_bin_init]):
-        logger.fatal("Startup check failed. Terminating.")
+        logger.error("Startup check failed. Terminating.")
         exit(1)
     else:
         logger.info("Startup check complete.")
