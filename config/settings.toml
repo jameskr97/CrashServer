@@ -4,7 +4,6 @@
     [default.flask]
     # Set to a cryptographic random string
     secret_key  = "changeme"
-    domain      = "https://example.com"
     web_port    = 8888
 
     # Currently, only postgres is supported
