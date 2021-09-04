@@ -1,9 +1,9 @@
-from distutils.version import LooseVersion
-import charset_normalizer as char_norm
 import itertools
 import operator
 
 from flask import Blueprint, request, render_template
+import charset_normalizer as char_norm
+import natsort
 
 from crashserver.webapp import limiter
 
@@ -79,7 +79,7 @@ def get_symbols(project_id):
         # Creates callable that returns 'app_version' from object when you get_attr(object)
         # sym_dict is  in the format of {app_version: [Symbol objects of that version]}
         get_attr = operator.attrgetter("app_version")
-        sorted_list = sorted(proj_symbols, key=lambda x: LooseVersion(str(get_attr(x))), reverse=True)
+        sorted_list = natsort.natsorted(proj_symbols, key=lambda x: get_attr(x), reverse=True)
         sym_dict = {
             version: sorted(list(group), key=operator.attrgetter("os"))
             for version, group in itertools.groupby(sorted_list, get_attr)
