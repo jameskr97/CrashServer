@@ -89,11 +89,19 @@ if __name__ == "__main__":
             seen.add(name.split(".")[0])
             logging.getLogger(name).handlers = [intercept_handler]
 
-    # Ensure application has a sane environment
-    syscheck.validate_all_settings()
+    config = {
+        "handlers": [
+            {
+                "sink": sys.stdout,
+                "format": "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green><lvl>[{level}]</lvl><blue>[{name}]</blue>: "
+                "<bold>{message}</bold>",
+            },
+        ],
+    }
+    logger.configure(**config)
 
-    # Activate proxy pass detection to get real ip
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+    syscheck.validate_all_settings()  # Ensure application has a sane environment
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Activate proxy pass detection to get real ip
 
     # Configure and run gunicorn
     from crashserver.config import settings
