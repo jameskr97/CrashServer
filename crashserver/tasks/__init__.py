@@ -5,7 +5,6 @@ from pathlib import Path
 import subprocess
 import logging
 import json
-import os
 
 from huey.contrib.mini import MiniHuey
 import requests
@@ -13,7 +12,7 @@ import requests
 from crashserver.webapp.models import Minidump, BuildMetadata, SymCache
 from crashserver.webapp import db, init_app
 from crashserver.utility import processor
-from crashserver.config import settings
+from crashserver import config
 
 logger = logging.getLogger("CrashServer")
 
@@ -84,14 +83,15 @@ def decode_minidump(crash_id):
             download_windows_symbol(module.debug_file, module.debug_id)
         logger.info("Symbol Download Complete")
 
-        original = subprocess.run(
-            [stackwalk, dumpfile, minidump.project.symbol_location, settings.storage.symcache],
-            capture_output=True,
-        )
-        json_stackwalk = subprocess.run(
-            [stackwalker, dumpfile, minidump.project.symbol_location, settings.storage.symcache],
-            capture_output=True,
-        )
+        def process(binary):
+            return subprocess.run(
+                [binary, dumpfile, minidump.project.symbol_location, config.get_appdata_directory("symcache")],
+                capture_output=True,
+            )
+
+        original = process(stackwalk)
+        json_stackwalk = process(stackwalker)
+
         minidump.raw_stacktrace = original.stdout.decode("utf-8")
         minidump.json_stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
         db.session.commit()

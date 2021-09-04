@@ -9,7 +9,7 @@ from flask import Flask
 
 from crashserver.utility.humanbytes import HumanBytes
 from crashserver.utility import sysinfo, misc
-from crashserver.config import settings
+from crashserver.config import settings, get_appdata_directory
 
 
 def init_app() -> Flask:
@@ -22,11 +22,8 @@ def init_app() -> Flask:
     templates = resources_root / "templates"
     static = resources_root / "static"
 
-    # Create config directories
-    for app_dir in settings.storage.keys():
-        p = Path(settings.storage[app_dir])
-        if not p.exists():
-            p.absolute().mkdir(parents=True, exist_ok=True)
+    # Create essential directories
+    [get_appdata_directory(p) for p in ["symbol", "symcache", "minidump", "sym_upload_v2"]]
 
     # Create app and inital parameters
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))

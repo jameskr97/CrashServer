@@ -6,8 +6,8 @@ from sqlalchemy.sql import func, text
 
 from crashserver.utility.misc import SymbolData
 from crashserver.webapp import operations as ops
-from crashserver.webapp import settings
 from crashserver.webapp import db
+from crashserver import config
 
 
 class SymbolUploadV2(db.Model):
@@ -34,7 +34,7 @@ class SymbolUploadV2(db.Model):
 
     @property
     def file_location(self):
-        return Path(settings.storage.sym_upload, "{}.sym".format(self.id))
+        return config.get_appdata_directory("sym_upload_v2") / "{}.sym".format(self.id)
 
     @property
     def symbol_data(self):

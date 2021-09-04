@@ -7,7 +7,7 @@ from flask import current_app
 
 from crashserver.webapp import db
 from crashserver.utility import sysinfo
-from crashserver.config import settings
+from crashserver import config
 
 
 class ProjectType(enum.Enum):
@@ -51,11 +51,11 @@ class Project(db.Model):
 
     @property
     def symbol_location(self):
-        return pathlib.Path(settings.storage.symbol, str(self.id)).absolute()
+        return config.get_appdata_directory("symbol") / str(self.id)
 
     @property
     def minidump_location(self):
-        return pathlib.Path(settings.storage.minidump, str(self.id)).absolute()
+        return config.get_appdata_directory("minidump") / str(self.id)
 
     @property
     def total_minidump_size(self):

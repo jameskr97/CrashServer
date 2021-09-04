@@ -248,10 +248,8 @@
 							{{ settings_info_line("Server Port", settings.flask.web_port) }}
 							<hr>
 							<h5>Data Storage</h5>
-                            {{ settings_info_line("Minidump Path", settings.storage.minidump) }}
-							{{ settings_info_line("Symbol Path", settings.storage.symbol) }}
-							{{ settings_info_line("Symbol Cache Path", settings.storage.symcache) }}
-							{{ settings_info_line("Symbol Upload Path", settings.storage.sym_upload) }}
+                            {{ settings_info_line("AppData Path", settings.storage.data_root) }}
+                            {{ settings_info_line("Log Path", settings.storage.logs) }}
 						</div>
 
 					</div> <!-- END OF SETTINGS CONTENT-->

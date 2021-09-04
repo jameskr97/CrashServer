@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
 from crashserver.utility import misc
-from crashserver.config import settings
+from crashserver import config
 from crashserver.webapp import db
 
 
@@ -46,7 +46,7 @@ class SymCache(db.Model):
         self.file_size_bytes = len(file_content)
 
         # Store PDB
-        pdb_location = settings.storage.symcache / Path(self.url_path)
+        pdb_location = config.get_appdata_directory("symcache") / Path(self.url_path)
         pdb_location.parent.mkdir(exist_ok=True, parents=True)
         with open(pdb_location, "wb") as f:
             f.write(file_content)

@@ -21,7 +21,5 @@
     # Sym Upload is for the `sym-upload-v2` protocol. It's used as a staging directory
     # before the file is added to the database or deleted.
     [default.storage]
-    symbol      = "data/symbols"
-    minidump    = "data/minidumps"
-    sym_upload  = "data/sym_upload_v2"
-    symcache    = "data/symcache"
+    appdata     = "/storage"
+    logs        = "/logs"
