@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow for deep linking via `#` in url on the settings page
 - CLI commands for creating and deleting user accounts
 - Notify user if there are no symbols uploaded when trying to upload a minidump
+- gunicorn is run from a python application script instead of the command line
+- gunicorn access logs are written to the /logs directory
 
 ### Changed
 - Switched from python logging module to [loguru](https://github.com/Delgan/loguru)
+
+### Removed
+- Removed config for domain.
 
 ## [0.1.1-alpha] - 2021-09-02
 ### Added
