@@ -250,6 +250,10 @@
 							<h5>Data Storage</h5>
                             {{ settings_info_line("AppData Path", settings.storage.data_root) }}
                             {{ settings_info_line("Log Path", settings.storage.logs) }}
+							<hr>
+							<h5>Host Information</h5>
+							{{ settings_info_line("Hostname", HostInfo.get_hostname()) }}
+							{{ settings_info_line("Is Docker?", HostInfo.is_inside_docker()) }}
 						</div>
 
 					</div> <!-- END OF SETTINGS CONTENT-->

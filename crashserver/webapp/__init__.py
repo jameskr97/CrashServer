@@ -8,6 +8,7 @@ from flask_limiter.util import get_remote_address
 from flask import Flask
 
 from crashserver.utility.humanbytes import HumanBytes
+from crashserver.utility.hostinfo import HostInfo
 from crashserver.utility import sysinfo, misc
 from crashserver.config import settings, get_appdata_directory
 
@@ -32,6 +33,7 @@ def init_app() -> Flask:
     # Configure jinja2
     app.add_template_global(HumanBytes, "HumanBytes")
     app.add_template_global(sysinfo, "sysinfo")
+    app.add_template_global(HostInfo, "HostInfo")
     app.add_template_global(misc.get_font_awesome_os_icon, "get_font_awesome_os_icon")
 
     # Prepare database

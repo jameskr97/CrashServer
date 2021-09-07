@@ -42,6 +42,7 @@ ENV VIRTUAL_ENV=/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV ENV_FOR_DYNACONF=docker
+ENV DOCKER=1
 
 USER nonroot
 CMD ["python3", "./main.py"]
