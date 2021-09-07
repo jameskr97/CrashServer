@@ -248,12 +248,13 @@
 							{{ settings_info_line("Server Port", settings.flask.web_port) }}
 							<hr>
 							<h5>Data Storage</h5>
-                            {{ settings_info_line("AppData Path", settings.storage.data_root) }}
+                            {{ settings_info_line("AppData Path", settings.storage.appdata) }}
                             {{ settings_info_line("Log Path", settings.storage.logs) }}
 							<hr>
 							<h5>Host Information</h5>
+							{{ settings_info_line("App Version", HostInfo.get_python_version()) }}
 							{{ settings_info_line("Hostname", HostInfo.get_hostname()) }}
-							{{ settings_info_line("Is Docker?", HostInfo.is_inside_docker()) }}
+							{{ settings_info_line('Under Docker?', "Yes" if HostInfo.is_inside_docker() else "No") }}
 						</div>
 
 					</div> <!-- END OF SETTINGS CONTENT-->
