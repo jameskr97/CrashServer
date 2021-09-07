@@ -1,5 +1,7 @@
-from loguru import logger
+import stat
 import os
+
+from loguru import logger
 
 import crashserver.config as config
 
@@ -30,7 +32,7 @@ def valid_postgres_settings():
         with engine.begin():
             pass
     except Exception as ex:
-        logger.fatal("Database connection failed: %s", str(ex.args[0]).strip())
+        logger.error("Database connection failed: {}", str(ex.args[0]).strip())
         return False
 
     logger.info(f"Credentials verified for postgresql://{db.user}@{db.host}:{db.port}/{db.name}")
@@ -43,7 +45,18 @@ def validate_binary_executable_bit():
     validated = True
     for f in exe_files:
         full_path = os.path.join(exe_path, f)
-        if not os.access(full_path, os.R_OK | os.X_OK):  # Allow this user to read and execute the files
-            validated = False
-            logger.fatal(f"Unable to read or write {full_path}.")
+        can_rx = os.access(full_path, os.R_OK | os.X_OK)
+
+        # If we cant read/execute, attempt to add read/execute
+        if not can_rx:
+            try:
+                st = os.stat(full_path)
+                os.chmod(full_path, st.st_mode | stat.S_IEXEC)
+                logger.debug(f"File {full_path} given executable bit.")
+            except PermissionError:
+                logger.error(
+                    f"Unable to read or write {full_path}. Unable to add executable bit. "
+                    "PermissionError: Operation not permitted"
+                )
+                validated = False
     return validated
