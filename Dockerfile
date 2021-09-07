@@ -3,7 +3,7 @@
 # - https://github.com/juan131/dockerfile-best-practices
 # - https://www.youtube.com/watch?v=74rOYNmxfL8
 # - https://stackoverflow.com/questions/53835198/integrating-python-poetry-with-docker
-FROM python:3.7.11-slim-buster as builder
+FROM python:3.9.7-slim-bullseye as builder
 
 # Install poetry for building
 WORKDIR /build
@@ -20,7 +20,7 @@ COPY main.py .
 COPY crashserver/ crashserver/
 RUN poetry build && /venv/bin/pip install dist/*.whl
 
-FROM python:3.7.11-slim as runner
+FROM python:3.9.7-slim-bullseye as runner
 
 # Create non-root user and group
 RUN addgroup --gid 10001 --system nonroot &&\
