@@ -15,10 +15,11 @@
     name    = "crashserver"
 
     # Local storage directories
-    # Symbols are what make CrashServer work! Keep them safe.
-    # Minidumps are ephemeral, once decoded, they are not needed anymore.
-    # Sym Upload is for the `sym-upload-v2` protocol. It's used as a staging directory
-    # before the file is added to the database or deleted.
     [default.storage]
+    appdata     = "data/appdata"
+    logs        = "data/logs"
+
+[docker]
+    [docker.storage]
     appdata     = "/storage"
     logs        = "/logs"

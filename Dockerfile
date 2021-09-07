@@ -41,6 +41,7 @@ RUN apt update && apt install libmagic1 -y --no-install-recommends
 ENV VIRTUAL_ENV=/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV ENV_FOR_DYNACONF=docker
 
 USER nonroot
 CMD ["python3", "./main.py"]
