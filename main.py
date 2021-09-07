@@ -3,7 +3,7 @@ CrashServer
 
 Logging Setup from: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
 """
-
+import importlib.metadata as meta
 import logging
 import sys
 import os
@@ -14,7 +14,6 @@ from gunicorn.glogging import Logger
 from loguru import logger
 
 from crashserver.config import settings
-from crashserver.webapp import app
 from crashserver import syscheck
 
 LOG_LEVEL = "INFO"  # logging.getLevelName(os.environ.get("LOG_LEVEL", "DEBUG"))
@@ -78,6 +77,9 @@ class StandaloneApplication(BaseApplication):
 
 
 if __name__ == "__main__":
+    # Change to directory of this file
+    os.chdir(os.path.abspath(os.path.dirname(__file__)))
+
     # Intercept and initialize loggers
     logger.remove()  # Remove default logger
     intercept_handler = InterceptHandler()
@@ -106,7 +108,11 @@ if __name__ == "__main__":
     }
     logger.configure(**config)
 
+    logger.info("Starting CrashServer v{}", meta.version("crashserver"))
     syscheck.validate_all_settings()  # Ensure application has a sane environment
+
+    from crashserver.webapp import app
+
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Activate proxy pass detection to get real ip
 
     # Configure and run gunicorn
@@ -116,5 +122,6 @@ if __name__ == "__main__":
         "accesslog": "-",
         "errorlog": "-",
         "logger_class": StubbedGunicornLogger,
+        "worker_class": "gevent",
     }
     StandaloneApplication(app, options).run()
