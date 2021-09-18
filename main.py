@@ -90,12 +90,19 @@ if __name__ == "__main__":
         if name not in seen:
             seen.add(name.split(".")[0])
             logging.getLogger(name).handlers = [intercept_handler]
+    LOG_FORMAT = (
+        "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green><lvl>[{level}]</lvl><blue>[{name}]</blue>: <bold>{message}</bold>"
+    )
     config = {
         "handlers": [
             {
                 "sink": sys.stdout,
-                "format": "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green><lvl>[{level}]</lvl><blue>[{name}]</blue>: "
-                "<bold>{message}</bold>",
+                "format": LOG_FORMAT,
+            },
+            {
+                "sink": os.path.join(settings.storage.logs, "app.log"),
+                "filter": lambda record: any(part in record["name"] for part in ["crashserver", "__main__"]),
+                "format": LOG_FORMAT,
             },
             {
                 "sink": os.path.join(settings.storage.logs, "access.log"),
