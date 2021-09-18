@@ -3,18 +3,16 @@ from gevent import monkey
 monkey.patch_all()
 from pathlib import Path
 import subprocess
-import logging
 import json
 
 from huey.contrib.mini import MiniHuey
+from loguru import logger
 import requests
 
 from crashserver.webapp.models import Minidump, BuildMetadata, SymCache
 from crashserver.webapp import db, init_app
 from crashserver.utility import processor
 from crashserver import config
-
-logger = logging.getLogger("CrashServer")
 
 huey = MiniHuey()
 huey.start()

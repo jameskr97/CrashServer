@@ -57,17 +57,16 @@ v2 protocol calls the following functions:
         - "RESULT_UNSPECIFIED"  - I have no idea what this value is, or when to use this value. It's not referenced in
                                   the symupload, and is equivalent to "OK" when sent.
 """
-import logging
 import os
 
 from flask import Blueprint, request, url_for
+from loguru import logger
 
 from crashserver.webapp.models import SymbolUploadV2, BuildMetadata
 from crashserver.utility.decorators import url_arg_required, api_key_required
 from crashserver.webapp import operations as ops
 from crashserver.webapp import db
 
-logger = logging.getLogger("CrashServer").getChild("sym-upload-v2")
 sym_upload_v2 = Blueprint("sym-upload-v2", __name__)
 
 
