@@ -1,5 +1,11 @@
 from pathlib import Path
 
+# fmt: off
+from gevent import monkey
+monkey.patch_all()
+# fmt: on
+
+from huey.contrib.mini import MiniHuey
 from sqlalchemy_utils import create_database, database_exists
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -98,6 +104,7 @@ def init_web_app() -> Flask:
     return app
 
 
+huey = MiniHuey()
 db = SQLAlchemy()
 login = LoginManager()
 limiter = Limiter(key_func=get_remote_address)

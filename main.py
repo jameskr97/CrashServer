@@ -118,9 +118,10 @@ if __name__ == "__main__":
     logger.info("Starting CrashServer v{}", meta.version("crashserver"))
     syscheck.validate_all_settings()  # Ensure application has a sane environment
 
-    from crashserver.webapp import app
+    from crashserver.webapp import app, huey
 
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Activate proxy pass detection to get real ip
+    huey.start()  # Move huey initialization to main file
 
     # Configure and run gunicorn
     options = {
