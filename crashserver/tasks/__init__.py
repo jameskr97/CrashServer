@@ -5,17 +5,13 @@ from pathlib import Path
 import subprocess
 import json
 
-from huey.contrib.mini import MiniHuey
 from loguru import logger
 import requests
 
 from crashserver.webapp.models import Minidump, BuildMetadata, SymCache
-from crashserver.webapp import db, init_app
+from crashserver.webapp import db, init_app, huey
 from crashserver.utility import processor
 from crashserver import config
-
-huey = MiniHuey()
-huey.start()
 
 
 def download_windows_symbol(module_id: str, build_id: str):
@@ -47,6 +43,7 @@ def decode_minidump(crash_id):
         stackwalker = str(Path("res/bin/linux/stackwalker").absolute())
 
         # Symbolicate without symbols to get metadata
+        # TODO: Proper error handling for if executable fails
         minidump = db.session.query(Minidump).get(crash_id)
         dumpfile = str(Path(minidump.project.minidump_location) / minidump.filename)
         machine = subprocess.run([stackwalker, dumpfile], capture_output=True)
@@ -71,15 +68,17 @@ def decode_minidump(crash_id):
 
         # No symbols? Notify and return
         if not minidump.build.symbol:
-            logger.info("Unable to symbolize. Symbols do not exist for minidump ID: {}.".format(crash_id))
+            logger.info("Symbols do not exist for minidump ID: {}. Skipping symbolization.", crash_id)
             db.session.commit()
             return
 
         # If we get here, then the symbol exists, and we should ensure we have all possible windows symbols before decoding
         # TODO(james): This is good as a prototype, but should be in a separate HTTP symbol supplier module/class
-        for module in crash_data.modules_no_symbols:
-            download_windows_symbol(module.debug_file, module.debug_id)
-        logger.info("Symbol Download Complete")
+        if minidump.build.symbol.os == "windows":
+            logger.info("Attempting to download windows symbols for minidump {}", minidump.id)
+            for module in crash_data.modules_no_symbols:
+                download_windows_symbol(module.debug_file, module.debug_id)
+            logger.info("Symbol Download Complete for {}", minidump.id)
 
         def process(binary):
             return subprocess.run(
@@ -93,3 +92,4 @@ def decode_minidump(crash_id):
         minidump.raw_stacktrace = original.stdout.decode("utf-8")
         minidump.json_stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
         db.session.commit()
+        logger.info("Minidump {} decoded", minidump.id)

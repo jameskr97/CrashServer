@@ -2,8 +2,7 @@
 symbol.py: Operations which coordinate transactions between
 the filesystem and the database on each api request
 """
-import dataclasses
-
+from loguru import logger
 import flask
 import magic
 
@@ -50,6 +49,7 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
         session.add(build)
 
     if build.symbol:
+        logger.error("Symbol rejected. Symbol already uploaded.")
         return {"error": "Symbol file already uploaded"}, 203
 
     build.symbol = Symbol(
@@ -62,7 +62,9 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
     session.commit()
 
     # Send all minidump id's to task processor to for decoding
-    for dump in build.unprocessed_dumps:
+    to_process = build.unprocessed_dumps
+    logger.info("Attempting to reprocess {} unprocessed minidump", len(to_process))
+    for dump in to_process:
         tasks.decode_minidump(dump.id)
 
     res = {
@@ -73,7 +75,7 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
         "module_id": build.module_id,
         "date_created": build.symbol.date_created.isoformat(),
     }
-
+    logger.info("Symbols received for {}", project_id)
     return res, 200
 
 
@@ -83,22 +85,23 @@ def minidump_upload(session, project_id: str, annotations: dict, minidump_file: 
     # Validate magic number
     magic_number = magic.from_buffer(minidump_file, mime=True)
     if magic_number != "application/x-dmp":
+        logger.error("Minidump rejected from {}. File detected as {}", flask.request.remote_addr, magic_number)
         return flask.make_response({"error": "Bad Minidump"}, 400)
 
     # Add minidump to database
     new_dump = Minidump(project_id=project_id)
+    new_dump.client_guid = annotations.pop("guid", None)
     new_dump.store_minidump(minidump_file)
     session.add(new_dump)
     session.flush()
 
-    # Add annotations to database, after removing guid and api_key
     if annotations:
-        annotations.pop("guid", None)
-        annotations.pop("api_key", None)
+        annotations.pop("api_key", None)  # Remove API key from being added as annotation
         for key, value in annotations.items():
             new_dump.annotations.append(Annotation(key=key, value=value))
 
     session.commit()
+    logger.info("Minidump received from {}.", flask.request.remote_addr)
     tasks.decode_minidump(new_dump.id)
 
     return flask.make_response({"status": "success", "id": str(new_dump.id)}, 200)
