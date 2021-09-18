@@ -8,11 +8,9 @@ FROM python:3.9.7-slim-bullseye as builder
 # Install poetry for building
 WORKDIR /build
 ENV POETRY_VERSION=1.0.0
-RUN pip install "poetry==$POETRY_VERSION"
-RUN python -m venv /venv
 
 COPY poetry.lock pyproject.toml ./
-RUN poetry export -f requirements.txt | /venv/bin/pip install -r /dev/stdin
+RUN pip install "poetry==$POETRY_VERSION" && python -m venv /venv && poetry export -f requirements.txt | /venv/bin/pip install -r /dev/stdin
 
 # Copy source code, change owner, then build
 COPY README.md .
@@ -35,7 +33,7 @@ RUN chown nonroot:nonroot /app
 
 # Install linux dependencies
 COPY --from=builder --chown=nonroot:nonroot /venv /venv
-RUN apt update && apt install libmagic1 -y --no-install-recommends
+RUN apt update && apt install libmagic1 libcurl3-gnutls -y --no-install-recommends
 
 # Activate virtualenv
 ENV VIRTUAL_ENV=/venv
