@@ -6,6 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0.2] - 2021-09-18
+### Added
+- More log messages on minidump processing
+- `/logs/app.log` for application logs
+
+### Fixed
+- Dockerfile to download essential library `libcurl3-gnutls` for stackwalker
+
+
+## [0.2.0.1] - 2021-09-07
+### Added
+- Module to get system specific information
+
+### Changed
+- Switched from python logging module to [loguru](https://github.com/Delgan/loguru)
+
 ## [0.2.0] - 2021-09-05
 ### Added
 - Allow for deep linking via `#` in url on the settings page
@@ -15,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - gunicorn access logs are written to the /logs directory
 
 ### Changed
-- Switched from python logging module to [loguru](https://github.com/Delgan/loguru)
 - Disallow empty version argument when uploading symbol for versioned project
 
 ### Removed
