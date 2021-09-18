@@ -22,10 +22,6 @@ body {
     grid-column-gap: 30px;
 }
 
-h2 {
-    display: inline;
-}
-
 .fa-fw {
     margin-right: 3px;
 }
