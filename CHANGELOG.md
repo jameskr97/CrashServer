@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0.3] - 2021-09-19
+### Fixed
+- Flush symbol after stored in database to get "symbol_location" from project
+
+### Changed
+- Symbol "doesn't exist", and "already uploaded" log messages
+
 ## [0.2.0.2] - 2021-09-18
 ### Added
 - More log messages on minidump processing

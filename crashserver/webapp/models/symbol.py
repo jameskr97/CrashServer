@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 from flask import current_app
 
-from crashserver.config import settings
+from crashserver import config
 from crashserver.webapp import db
 
 
@@ -36,7 +36,7 @@ class Symbol(db.Model):
     def store_file(self, file_content: bytes):
         filesystem_module_id = self.build.module_id.split(".")[0]
         dir_location = Path(self.build.module_id, self.build.build_id, filesystem_module_id + ".sym")
-        sym_loc = self.project.symbol_location / dir_location
+        sym_loc = config.get_appdata_directory("symbol") / str(self.project_id) / dir_location
         sym_loc.parent.mkdir(parents=True, exist_ok=True)
 
         with open(sym_loc.absolute(), "wb") as f:

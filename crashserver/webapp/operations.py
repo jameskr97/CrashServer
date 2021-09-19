@@ -58,7 +58,6 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
         arch=symbol_data.arch,
         app_version=symbol_data.app_version,
     )
-    session.flush()
     build.symbol.store_file(symbol_file)
     session.commit()
 
