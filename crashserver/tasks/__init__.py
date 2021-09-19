@@ -68,7 +68,11 @@ def decode_minidump(crash_id):
 
         # No symbols? Notify and return
         if not minidump.build.symbol:
-            logger.info("Symbols do not exist for minidump ID: {}. Skipping symbolization.", crash_id)
+            logger.info(
+                "Symbol {} does not exist. Skipping symbolization for Minidump ID {}",
+                crash_data.main_module.debug_id,
+                crash_id,
+            )
             db.session.commit()
             return
 
