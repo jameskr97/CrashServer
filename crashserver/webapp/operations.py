@@ -49,7 +49,7 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
         session.add(build)
 
     if build.symbol:
-        logger.error("Symbol rejected. Symbol already uploaded.")
+        logger.error("Symbol {} already uploaded. Subsequent upload rejected.", symbol_data.build_id)
         return {"error": "Symbol file already uploaded"}, 203
 
     build.symbol = Symbol(
@@ -58,6 +58,7 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
         arch=symbol_data.arch,
         app_version=symbol_data.app_version,
     )
+    session.flush()
     build.symbol.store_file(symbol_file)
     session.commit()
 
