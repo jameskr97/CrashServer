@@ -142,3 +142,23 @@ body {
 .crash-thread-badge {
     margin-left: 10px;
 }
+
+.stack-header-btn {
+    width: 100%;
+    text-align: left;
+    background-color: #fff;
+    color: #000;
+    border: 0;
+    border-radius: 0;
+    user-select: text;
+    padding-left: 0;
+}
+
+.frame-code-view {
+    padding: 10px;
+}
+
+.frame-code-loader-view {
+    display: flex;
+    align-items: center;
+}

@@ -22,6 +22,17 @@
 	</div>
 {% endmacro %}
 
+{% macro stack_frame_title(frame) %}
+	{% if frame.file %}
+		<i class="fas fa-code"></i>
+		- [{{ sysinfo.get_filename_from_path(frame.file) }}:{{ frame.line }}]
+	{% else %}
+		<i class="far fa-eye-slash"></i>
+		- [{{ frame.module }}]
+	{% endif %}
+	- {{ frame.func }}
+{% endmacro %}
+
 {% macro main_detail_page() %}
 	<h3>{{ minidump.project.project_name }}</h3>
 	<p>
@@ -85,17 +96,33 @@
 					</div>
 
 					<!-- START OF MAIN ACCORDION BODY -->
-					<div id="thread_{{ thread.thread_index }}" class="accordion-collapse collapse monospace-font" data-bs-parent="#thread-list">
-							<ol style="overflow: auto; white-space: nowrap">
-							{% for frame in thread.frames %}
-								<li>
-									{% if frame.file %}
-										- [{{ sysinfo.get_filename_from_path(frame.file) }}:{{ frame.line }}]
+					<div id="thread_{{ thread.thread_index }}" class="accordion accordion-collapse collapse" data-bs-parent="#thread-list">
+						<ol style="overflow: auto; white-space: nowrap">
+							{% for i in range(thread.frames|length) %}
+								{% set frame = thread.frames[i] %}
+
+								<!-- START OF INNER FRAME ACCORDION HEADER -->
+								<li class="accordion-header monospace-font">
+									{% if not frame.file %}
+										{{ stack_frame_title(frame) }}
 									{% else %}
-										- [{{ frame.module }}]
+										<button class="stack-header-btn collapsed" type="button" data-bs-toggle="collapse"
+												data-bs-target="#thread_{{ thread.thread_index }}_{{ i }}">
+											{{ stack_frame_title(frame) }}
+										</button>
 									{% endif %}
-									- {{ frame.func }}
 								</li>
+
+
+								<!-- START OF INNER FRAME ACCORDION BODY -->
+								{% if frame.file %}
+									<div id="thread_{{ thread.thread_index }}_{{ i }}" class="frame-code-view accordion-collapse collapse" data-bs-parent="#thread_{{ thread.thread_index }}_frame">
+										<div class="frame-code-loader-view">
+											<span style="margin-right: 5px" class="spinner-border text-dark" role="status"></span>
+											<span>Loading Code Snippet...</span>
+										</div>
+									</div>
+								{% endif %}
 							{% endfor %}
 						</ol>
 					</div>
