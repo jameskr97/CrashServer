@@ -75,6 +75,11 @@
 								{% if thread.thread_index == 0 %}
 									<span class="crash-thread-badge badge bg-danger">Crashing Thread</span>
 								{% endif %}
+
+								<!-- Add tag for windows worker threads -->
+								{% if thread.frames[-1].func == "TppWorkerThread" %}
+									<span class="crash-thread-badge badge bg-info">Worker Thread</span>
+								{% endif %}
 							</button>
 						</h2>
 					</div>
