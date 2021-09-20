@@ -41,6 +41,7 @@ def init_app() -> Flask:
     app.add_template_global(sysinfo, "sysinfo")
     app.add_template_global(HostInfo, "HostInfo")
     app.add_template_global(misc.get_font_awesome_os_icon, "get_font_awesome_os_icon")
+    app.add_template_global(settings, "settings")
 
     # Prepare database
     db_user, db_pass = settings.db.user, settings.db.passwd
