@@ -36,36 +36,36 @@
 			| {{ p.minidump|length }} Minidumps ({{ HumanBytes.format(p.total_minidump_size) }})
 		</p>
 		<hr>
-        <h5>API Keys</h5>
-        {{ settings_info_line("Symbol Key", p.symbol_api_key) }}
-        {{ settings_info_line("Minidump Key", p.minidump_api_key) }}
-        <hr>
-        <h5><code>symupload</code> examples</h5>
-        Windows:
-        <ul>
-            <li>sym-upload-v1: <code>symupload app.exe https://{{ settings.flask.domain }}/symupload?api_key={{ p.symbol_api_key }}</code></li>
-            <li>sym-upload-v2: <code>symupload -p app.exe https://{{ settings.flask.domain }}/symupload {{ p.symbol_api_key }}</code></li>
-        </ul>
+		<h5>API Keys</h5>
+		{{ settings_info_line("Symbol Key", p.symbol_api_key) }}
+		{{ settings_info_line("Minidump Key", p.minidump_api_key) }}
+		<hr>
+		<h5><code>symupload</code> examples</h5>
+		Windows:
+		<ul>
+			<li>sym-upload-v1: <code>symupload app.exe https://{{ settings.flask.domain }}/symupload?api_key={{ p.symbol_api_key }}</code></li>
+			<li>sym-upload-v2: <code>symupload -p app.exe https://{{ settings.flask.domain }}/symupload {{ p.symbol_api_key }}</code></li>
+		</ul>
 
-        <hr>
+		<hr>
 		<h5 style="margin-top: 10px;">Disk Space</h5>
 		{{ project_disk_space("Minidump Storage", p.minidump_location) }}
 		{{ project_disk_space("Symbol Storage", p.symbol_location) }}
 		<hr>
 
 		<!-- MOBILE BUTTONS -->
-		<div class="row d-md-none">
+		<div id="mobile-buttons" class="row d-md-none">
 			<div class="col-12">
-				<button type="button" class="btn btn-primary"><i class="fas fa-edit"></i></button>
+				<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><i class="fas fa-edit"></i></button>
 				<button type="button" class="btn btn-warning"><i class="fas fa-eraser"></i></button>
 				<button type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
 			</div>
 		</div>
 
 		<!-- DESKTOP FULLSCREEN BUTTONS -->
-		<div class="row">
+		<div id="desktop-buttons" class="row">
 			<div class="col-12 d-none d-md-block">
-				<button type="button" class="btn btn-primary">
+				<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#project-rename-modal">
 					Rename
 					<span class="d-none d-lg-inline">Project</span>
 				</button>
@@ -79,18 +79,45 @@
 				</button>
 			</div>
 		</div>
+
+		<!-- BUTTON MODALS -->
+		<!-- LOGIN MODALS TODO: Is this generating too many modals for what is needed? -->
+		<div class="modal fade" id="project-rename-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Rename Project</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form method="POST" action="{{ url_for('api.rename_project') }}">
+							<input type="hidden" id="rename-project-id" name="project_id" value="{{ p.id }}">
+							<div class="mb-3">
+								<label for="rename-proj-name" class="form-label">Project Name</label>
+								<input id="rename-proj-name" type="text" class="form-control" name="project_name" placeholder="{{ p.project_name }}"/>
+							</div>
+
+							<div class="modal-footer d-block">
+								<button type="submit" class="btn btn-primary float-end">Rename</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
 	</div>
 {% endmacro %}
 
 {% macro generate_form_input(form_item, placeholder) %}
-    <div class="row mb-1">
-        <div class="col-md-2">
-            {{ form_item.label(class="col-form-label") }}
-        </div>
-        <div class="col-md-10">
-            {{ form_item(class="col-sm-10 form-control", placeholder=placeholder) }}
-        </div>
-    </div>
+	<div class="row mb-1">
+		<div class="col-md-2">
+			{{ form_item.label(class="col-form-label") }}
+		</div>
+		<div class="col-md-10">
+			{{ form_item(class="col-sm-10 form-control", placeholder=placeholder) }}
+		</div>
+	</div>
 {% endmacro %}
 
 {% block content %}
@@ -132,17 +159,17 @@
 						<div class="tab-pane active" role="tabpanel" id="account-content">
 							<h4>My Account</h4>
 							<hr>
-                            <form action="{{ url_for("views.settings") }}" method="POST">
-                                <h5>Change Password</h5>
-                                {{ account_form.csrf_token }}
-                                {{ generate_form_input(account_form.current_pass) }}
-                                {{ generate_form_input(account_form.new_pass) }}
-                                {{ generate_form_input(account_form.new_pass_verify) }}
-                                <hr>
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-outline-dark">Submit</button>
-                                </div>
-                            </form>
+							<form action="{{ url_for("views.settings") }}" method="POST">
+								<h5>Change Password</h5>
+								{{ account_form.csrf_token }}
+								{{ generate_form_input(account_form.current_pass) }}
+								{{ generate_form_input(account_form.new_pass) }}
+								{{ generate_form_input(account_form.new_pass_verify) }}
+								<hr>
+								<div class="text-center">
+									<button type="submit" class="btn btn-outline-dark">Submit</button>
+								</div>
+							</form>
 
 						</div>
 
@@ -202,9 +229,7 @@
 									<li>Disable public access to any project expect the selected project.</li>
 								</ul>
 
-								<p>
-									Enabling will not delete any projects or symbols.
-								</p>
+								<p>Enabling will not delete any projects or symbols.</p>
 								<div class="form-check">
 									<input class="form-check-input" type="checkbox" value="" id="single-project-mode">
 									<label class="form-check-label" for="single-project-mode">
@@ -248,8 +273,8 @@
 							{{ settings_info_line("Server Port", settings.flask.web_port) }}
 							<hr>
 							<h5>Data Storage</h5>
-                            {{ settings_info_line("AppData Path", settings.storage.appdata) }}
-                            {{ settings_info_line("Log Path", settings.storage.logs) }}
+							{{ settings_info_line("AppData Path", settings.storage.appdata) }}
+							{{ settings_info_line("Log Path", settings.storage.logs) }}
 							<hr>
 							<h5>Host Information</h5>
 							{{ settings_info_line("App Version", HostInfo.get_python_version()) }}

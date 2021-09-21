@@ -1,8 +1,10 @@
 import itertools
 import operator
 
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, flash, redirect
 import charset_normalizer as char_norm
+from loguru import logger
+from flask_login import login_required
 import natsort
 
 from crashserver.webapp import limiter
@@ -115,3 +117,23 @@ def get_symbols(project_id):
 def get_symbols_count(project_id):
     proj_symbols = db.session.query(Symbol).filter_by(project_id=project_id).all()
     return {"count": len(proj_symbols)}, 200
+
+@api.route("/webapi/project/rename/", methods=["POST"])
+@login_required
+def rename_project():
+    project_id = request.form.get("project_id")
+    new_name = request.form.get("project_name")
+    res: Project = db.session.query(Project).filter_by(id=project_id).first()
+
+    if res is None:
+        flash("Unable to find Project ID?", category="warning")
+        logger.warning("Unable to rename project. Bad project ID: {}".format(project_id))
+    else:
+        message = "Project '{}' renamed to '{}'".format(res.project_name, new_name)
+        res.project_name = new_name
+        db.session.commit()
+
+        logger.info(message)
+        flash(message)
+
+    return redirect(request.referrer)
