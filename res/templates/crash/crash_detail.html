@@ -24,16 +24,15 @@
 
 {% macro stack_frame_title(frame) %}
 	{% if frame.file %}
-		<i class="fas fa-code"></i>
 		- [{{ sysinfo.get_filename_from_path(frame.file) }}:{{ frame.line }}]
 	{% else %}
-		<i class="far fa-eye-slash"></i>
 		- [{{ frame.module }}]
 	{% endif %}
 	- {{ frame.func }}
 {% endmacro %}
 
 {% macro main_detail_page() %}
+	<link href="{{ url_for('static', filename='css/prism.css') }}" rel="stylesheet">
 	<h3>{{ minidump.project.project_name }}</h3>
 	<p>
 		<span class="badge bg-danger">Crash Reason: {{ json.crash_reason.crash_type }}</span>
@@ -103,26 +102,28 @@
 
 								<!-- START OF INNER FRAME ACCORDION HEADER -->
 								<li class="accordion-header monospace-font">
-									{% if not frame.file %}
-										{{ stack_frame_title(frame) }}
-									{% else %}
+									{% if frame.file %}
 										<button class="stack-header-btn collapsed" type="button" data-bs-toggle="collapse"
-												data-bs-target="#thread_{{ thread.thread_index }}_{{ i }}">
+												data-bs-target="#thread_{{ thread.thread_index }}_{{ i }}"
+												onclick="get_code_snippet(this, '{{ minidump.project_id }}' ,'{{ frame.file|urlencode }}', {{ frame.line }})">
 											{{ stack_frame_title(frame) }}
 										</button>
+									{% else %}
+										{{ stack_frame_title(frame) }}
 									{% endif %}
 								</li>
 
 
 								<!-- START OF INNER FRAME ACCORDION BODY -->
 								{% if frame.file %}
-									<div id="thread_{{ thread.thread_index }}_{{ i }}" class="frame-code-view accordion-collapse collapse" data-bs-parent="#thread_{{ thread.thread_index }}_frame">
+									<div id="thread_{{ thread.thread_index }}_{{ i }}" class="frame-code-view accordion-collapse collapse"
+										 data-bs-parent="#thread_{{ thread.thread_index }}_frame">
 										<div class="frame-code-loader-view">
 											<span style="margin-right: 5px" class="spinner-border text-dark" role="status"></span>
 											<span>Loading Code Snippet...</span>
 										</div>
 									</div>
-								{% endif %}
+								{% endif %} <!-- END OF INNER FRAME ACCORDION BODY -->
 							{% endfor %}
 						</ol>
 					</div>
