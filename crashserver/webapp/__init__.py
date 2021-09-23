@@ -1,22 +1,18 @@
 from pathlib import Path
 
-# fmt: off
-from gevent import monkey
-monkey.patch_all()
-# fmt: on
-
-from huey.contrib.mini import MiniHuey
 from sqlalchemy_utils import create_database, database_exists
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask import Flask
+import redis
+import rq
 
 from crashserver.utility.humanbytes import HumanBytes
 from crashserver.utility.hostinfo import HostInfo
 from crashserver.utility import sysinfo, misc
-from crashserver.config import settings, get_appdata_directory
+from crashserver.config import settings, get_appdata_directory, get_redis_url
 
 
 def init_app() -> Flask:
@@ -105,8 +101,8 @@ def init_web_app() -> Flask:
     return app
 
 
-huey = MiniHuey()
 db = SQLAlchemy()
+queue = rq.Queue("crashserver", connection=redis.Redis.from_url(get_redis_url()))
 login = LoginManager()
 limiter = Limiter(key_func=get_remote_address)
 app = init_web_app()
