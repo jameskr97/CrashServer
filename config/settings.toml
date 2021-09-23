@@ -20,7 +20,7 @@
 
     # Local storage directories
     [default.storage]
-    appdata     = "data/appdata"
+    appdata     = "data/storage"
     logs        = "data/logs"
 
 [docker]
