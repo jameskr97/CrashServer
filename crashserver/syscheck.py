@@ -2,14 +2,20 @@ import stat
 import os
 
 from loguru import logger
+from redis import Redis
 
 import crashserver.config as config
 
 
 def validate_all_settings():
-    sys_db = valid_postgres_settings()
-    is_bin_init = validate_binary_executable_bit()
-    if not all([sys_db, is_bin_init]):
+    success = all(
+        [
+            valid_postgres_settings(),
+            valid_redis_settings(),
+            validate_binary_executable_bit(),
+        ]
+    )
+    if not success:
         logger.error("Startup check failed. Terminating.")
         exit(1)
     else:
@@ -37,6 +43,19 @@ def valid_postgres_settings():
 
     logger.info(f"Credentials verified for postgresql://{db.user}@{db.host}:{db.port}/{db.name}")
     return True
+
+
+def valid_redis_settings():
+    """
+    Attempt to connect to redis host with the credentials from application settings.
+    :return: True if successful, otherwise false.
+    """
+    cfg = config.settings.redis
+    r = Redis(host=cfg.host, port=cfg.port)
+    try:
+        return r.ping()
+    except Exception:
+        return False
 
 
 def validate_binary_executable_bit():
