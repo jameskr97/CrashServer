@@ -1,6 +1,3 @@
-from gevent import monkey
-
-monkey.patch_all()
 from pathlib import Path
 import subprocess
 import json
@@ -9,7 +6,7 @@ from loguru import logger
 import requests
 
 from crashserver.webapp.models import Minidump, BuildMetadata, SymCache
-from crashserver.webapp import db, init_app, huey
+from crashserver.webapp import db, init_app
 from crashserver.utility import processor
 from crashserver import config
 
@@ -35,7 +32,6 @@ def download_windows_symbol(module_id: str, build_id: str):
     db.session.commit()
 
 
-@huey.task()
 def decode_minidump(crash_id):
     app = init_app()
     with app.app_context():
