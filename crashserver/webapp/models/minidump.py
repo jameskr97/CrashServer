@@ -1,4 +1,3 @@
-from pathlib import Path
 import uuid
 
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -42,6 +41,13 @@ class Minidump(db.Model):
     project = db.relationship("Project")
     build = db.relationship("BuildMetadata", back_populates="unprocessed_dumps")
     annotations = db.relationship("Annotation")
+    symbol = db.relationship(
+        "Symbol",
+        primaryjoin="Minidump.build_metadata_id == BuildMetadata.id",
+        secondary="join(BuildMetadata, Symbol, BuildMetadata.id == Symbol.build_metadata_id)",
+        viewonly=True,
+        uselist=False,
+    )
 
     def store_minidump(self, file_contents: bytes):
         filename = "minidump-%s.dmp" % str(uuid.uuid4().hex)
