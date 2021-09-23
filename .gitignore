@@ -7,3 +7,4 @@
 
 # Application related
 .env
+data/

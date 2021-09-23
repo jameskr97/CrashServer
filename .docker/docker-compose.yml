@@ -1,0 +1,71 @@
+# Development docker-compose.yml
+# Run `docker-compose up -d` in the directory, and the following things will happen
+# 1. A postgres and redis container will be created. These are required backend services.
+# 2. Two containers will be created based on the `Dockerfile.dev` in the root of the project.
+#    This dockerfile allow the source code in the root of the project to be used with the rest
+#    of the docker environment. You can modify the source, and since the flask development
+#    server is used, the changes will be updated immediately.
+# 3. A folder called `data` will be created in the root directory. All appdata and log output
+#    will be stored within this directory
+
+version: "3.0"
+
+networks:
+    crashnet:
+        driver: bridge
+
+services:
+    redis:
+        image: redis:6.2.5
+        container_name: redis
+        networks: [crashnet]
+
+    postgres:
+        image: postgres
+        container_name: postgres
+        networks: [crashnet]
+        volumes: [db_data:/var/lib/postgresql/data]
+        ports: ["5432:5432"]
+        env_file: [".env.docker"]
+
+    crashserver-app:
+        build:
+            context: ..
+            dockerfile: Dockerfile.dev
+        container_name: crashserver-app
+        command: flask run
+        user: 1000:1000
+        networks: [crashnet]
+        depends_on: [postgres, crashserver-worker]
+        ports: ["8888:8888"]
+        env_file: [".env.docker"]
+        volumes:
+            # Source related
+            - ../crashserver:/app/crashserver
+            - ../res:/app/res
+            - ../config:/app/config
+
+            # App Data
+            - ../data/logs:/logs
+            - ../data/storage:/storage
+        environment:
+            FLASK_APP: crashserver/webapp:app
+            FLASK_RUN_HOST: 0.0.0.0
+            FLASK_RUN_PORT: 8888
+            FLASK_DEBUG: 1
+
+    crashserver-worker:
+        container_name: crashserver-worker
+        build:
+            context: ..
+            dockerfile: Dockerfile.dev
+        command: rq worker -u redis://redis crashserver
+        user: 1000:1000
+        depends_on: [redis]
+        networks: [crashnet]
+        env_file: [".env.docker"]
+        volumes: ["../data/storage:/storage"]
+
+
+volumes:
+    db_data:
