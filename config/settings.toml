@@ -10,9 +10,13 @@
     [default.db]
     user    = "postgres"
     passwd  = "password"
-    host    = "localhost"
+    host    = "db"
     port    = 5432
     name    = "crashserver"
+
+    [default.redis]
+    host = "redis"
+    port = 6379
 
     # Local storage directories
     [default.storage]

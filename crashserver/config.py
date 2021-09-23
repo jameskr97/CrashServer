@@ -14,3 +14,7 @@ def get_appdata_directory(path: str) -> Path:
     if not p.exists():
         p.mkdir(exist_ok=True, parents=True)
     return p
+
+
+def get_redis_url():
+    return f"redis://{settings.redis.host}:{settings.redis.port}"
