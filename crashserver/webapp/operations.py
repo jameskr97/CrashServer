@@ -8,7 +8,7 @@ import magic
 
 from crashserver.webapp.models import Symbol, BuildMetadata, Minidump, Annotation, Project
 from crashserver.utility.misc import SymbolData
-from crashserver import tasks
+from crashserver.webapp import queue
 
 
 def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: SymbolData):
@@ -60,12 +60,16 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
     )
     build.symbol.store_file(symbol_file)
     session.commit()
+    logger.info(
+        f"Symbols received for {project.project_name} [{project.id}]. Version => {symbol_data.app_version}, OS => {symbol_data.os}:{symbol_data.arch}"
+    )
 
     # Send all minidump id's to task processor to for decoding
     to_process = build.unprocessed_dumps
-    logger.info("Attempting to reprocess {} unprocessed minidump", len(to_process))
-    for dump in to_process:
-        tasks.decode_minidump(dump.id)
+    if to_process:
+        logger.info("Attempting to reprocess {} unprocessed minidump", len(to_process))
+        for dump in to_process:
+            queue.enqueue("crashserver.tasks.decode_minidump", str(dump.id))
 
     res = {
         "id": build.symbol.id,
@@ -75,7 +79,6 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
         "module_id": build.module_id,
         "date_created": build.symbol.date_created.isoformat(),
     }
-    logger.info("Symbols received for {}", project_id)
     return res, 200
 
 
@@ -102,6 +105,6 @@ def minidump_upload(session, project_id: str, annotations: dict, minidump_file: 
 
     session.commit()
     logger.info("Minidump received from {}.", flask.request.remote_addr)
-    tasks.decode_minidump(new_dump.id)
+    queue.enqueue("crashserver.tasks.decode_minidump", str(new_dump.id))
 
     return flask.make_response({"status": "success", "id": str(new_dump.id)}, 200)
