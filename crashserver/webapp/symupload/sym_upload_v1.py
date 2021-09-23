@@ -39,4 +39,4 @@ def upload(project, version):
     )
 
     file_content = request.files.get("symbol_file").stream.read()
-    return ops.symbol_upload(db.session, project.id, file_content, data)
+    return ops.symbol_upload(db.session, project, file_content, data)

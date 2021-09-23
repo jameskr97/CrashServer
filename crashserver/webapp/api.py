@@ -54,7 +54,7 @@ def upload_symbol(project, version):
     symbol_data.app_version = version
     symbol_file.stream.seek(0)
 
-    return ops.symbol_upload(db.session, project.id, decoded, symbol_data)
+    return ops.symbol_upload(db.session, project, decoded, symbol_data)
 
 
 @api.route("/webapi/symbols/<project_id>")
@@ -117,6 +117,7 @@ def get_symbols(project_id):
 def get_symbols_count(project_id):
     proj_symbols = db.session.query(Symbol).filter_by(project_id=project_id).all()
     return {"count": len(proj_symbols)}, 200
+
 
 @api.route("/webapi/project/rename/", methods=["POST"])
 @login_required

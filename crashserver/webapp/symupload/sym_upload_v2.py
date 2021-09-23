@@ -130,7 +130,7 @@ def is_upload_complete(project, upload_key):
 
     # Save the file!
     file_data = symbol_ref.load_file()
-    ops.symbol_upload(db.session, project.id, file_data, symbol_ref.symbol_data)
+    ops.symbol_upload(db.session, project, file_data, symbol_ref.symbol_data)
 
     # Delete upload
     os.remove(symbol_ref.file_location)

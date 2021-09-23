@@ -6,12 +6,12 @@ from loguru import logger
 import flask
 import magic
 
-from crashserver.webapp.models import Symbol, BuildMetadata, Minidump, Annotation
+from crashserver.webapp.models import Symbol, BuildMetadata, Minidump, Annotation, Project
 from crashserver.utility.misc import SymbolData
 from crashserver import tasks
 
 
-def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: SymbolData):
+def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: SymbolData):
     """
     Store the symbol in the correct location, and track it in the database.
 
@@ -32,7 +32,7 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
     build = (
         session.query(BuildMetadata)
         .filter_by(
-            project_id=project_id,
+            project_id=project.id,
             build_id=symbol_data.build_id,
             module_id=symbol_data.module_id,
         )
@@ -42,7 +42,7 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
         # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded
         # before the symbol file was uploaded), then create a new BuildMetadata, flush, and relate to symbol
         build = BuildMetadata(
-            project_id=project_id,
+            project_id=project.id,
             module_id=symbol_data.module_id,
             build_id=symbol_data.build_id,
         )
@@ -53,7 +53,7 @@ def symbol_upload(session, project_id: str, symbol_file: bytes, symbol_data: Sym
         return {"error": "Symbol file already uploaded"}, 203
 
     build.symbol = Symbol(
-        project_id=project_id,
+        project_id=project.id,
         os=symbol_data.os,
         arch=symbol_data.arch,
         app_version=symbol_data.app_version,
