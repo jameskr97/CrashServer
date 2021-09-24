@@ -69,6 +69,7 @@ def decode_minidump(crash_id):
                 crash_data.main_module.debug_id,
                 crash_id,
             )
+            minidump.task.complete = True
             db.session.commit()
             return
 
@@ -91,5 +92,6 @@ def decode_minidump(crash_id):
 
         minidump.raw_stacktrace = original.stdout.decode("utf-8")
         minidump.json_stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
+        minidump.task.complete = True
         db.session.commit()
         logger.info("Minidump {} decoded", minidump.id)

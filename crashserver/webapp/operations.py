@@ -103,8 +103,8 @@ def minidump_upload(session, project_id: str, annotations: dict, minidump_file: 
         for key, value in annotations.items():
             new_dump.annotations.append(Annotation(key=key, value=value))
 
+    new_dump.decode_task()
     session.commit()
     logger.info("Minidump received from {}.", flask.request.remote_addr)
-    queue.enqueue("crashserver.tasks.decode_minidump", str(new_dump.id))
 
     return flask.make_response({"status": "success", "id": str(new_dump.id)}, 200)

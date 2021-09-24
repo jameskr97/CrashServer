@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func, text
 
 from crashserver.utility import processor
-from crashserver.webapp import db
+from crashserver.webapp import db, queue
 from crashserver import config
 
 
@@ -41,6 +41,7 @@ class Minidump(db.Model):
     project = db.relationship("Project")
     build = db.relationship("BuildMetadata", back_populates="unprocessed_dumps")
     annotations = db.relationship("Annotation")
+    task = db.relationship("MinidumpTask", uselist=False)
     symbol = db.relationship(
         "Symbol",
         primaryjoin="Minidump.build_metadata_id == BuildMetadata.id",
@@ -59,6 +60,20 @@ class Minidump(db.Model):
 
         self.filename = filename
 
+    def decode_task(self, *args, **kwargs):
+        from crashserver.webapp.models import MinidumpTask
+
+        rq_job = queue.enqueue("crashserver.tasks." + "decode_minidump", self.id, *args, **kwargs)
+        task = MinidumpTask(id=rq_job.get_id(), task_name="decode_minidump", minidump_id=self.id)
+        db.session.add(task)
+        return task
+
     @property
     def json(self):
         return processor.ProcessedCrash.generate(self.json_stacktrace)
+
+    def symbols_exist(self):
+        return self.symbol is not None
+
+    def currently_processing(self):
+        return self.task is not None

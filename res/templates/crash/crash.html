@@ -4,15 +4,23 @@
 	<tr>
 		<td scope="row">{{ project }}</td>
 		<td>
-			{% if not dump.json %}
-				<i class="fa-fw fas fa-question"></i>
-				<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ dump.filename }}</a>
-				<span class="crash-thread-badge badge bg-secondary">Not Decoded</span>
-			{% else %}
+			{% if dump.json %}
 				<i class="fa-fw fab {{ get_font_awesome_os_icon(dump.build.symbol.os) }} fa-fw"></i>
 				<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ dump.filename }}</a>
 				<span class="crash-thread-badge badge bg-danger">{{ dump.json.crash_reason.crash_type }}</span>
+			{% else %}
+				{% if not dump.task.complete %}
+					<i class="fa-fw fas fa-question"></i>
+					<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ dump.filename }}</a>
+					<span class="crash-thread-badge badge bg-secondary">Processing...</span>
+					<span class="spinner-border spinner-border-sm"></span>
+				{% else %}
+					<i class="fa-fw fas fa-question"></i>
+					<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ dump.filename }}</a>
+					<span class="crash-thread-badge badge bg-secondary">Missing Symbols</span>
+				{% endif %}
 			{% endif %}
+
 		</td>
 		<td>{{ dump.date_created.strftime('%F %X %Z') }}</td>
 	</tr>
