@@ -13,7 +13,7 @@
 		<div class="col-sm-3">{{ title }}</div>
 		<div class="col-sm-9">
 			<div class="progress">
-				<div class="progress-bar" style="width: {{ (disk.used / disk.total) * 100 }}%">{{ HumanBytes.format(disk.used) }}</div>
+				<div class="progress-bar" style="width: {{ (disk.used / disk.total) * 100 }}%">{{ humanize.naturalsize(disk.used) }}</div>
 				<div class="progress-bar" style="width: 100%; background-color: gray"></div>
 			</div>
 		</div>
@@ -32,8 +32,8 @@
 		<h4 style="display: inline">{{ p.project_name }}</h4>
 		<p style="display: inline">
 			| {{ p.project_type.value|capitalize }}
-			| {{ p.symbol|length }} Symbols ({{ HumanBytes.format(p.total_symbol_size) }})
-			| {{ p.minidump|length }} Minidumps ({{ HumanBytes.format(p.total_minidump_size) }})
+			| {{ p.symbol|length }} Symbols ({{ humanize.naturalsize(p.total_symbol_size) }})
+			| {{ p.minidump|length }} Minidumps ({{ humanize.naturalsize(p.total_minidump_size) }})
 		</p>
 		<hr>
 		<h5>API Keys</h5>

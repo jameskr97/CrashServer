@@ -1,6 +1,8 @@
 import dataclasses
 
 from flask import flash
+import datetime
+import humanize
 
 
 def flash_form_errors(form):
@@ -17,6 +19,11 @@ def get_font_awesome_os_icon(os: str):
     if os == "linux":
         return "fab fa-linux"
     return ""
+
+
+def naturaltime(time) -> str:
+    now = datetime.datetime.now(tz=time.tzinfo)
+    return humanize.naturaltime(now - time)
 
 
 @dataclasses.dataclass

@@ -35,7 +35,7 @@
 					<td>{{ symbol.build.module_id }}</td>
 					<td>{{ symbol.build.build_id }}</td>
 					<td>{{ symbol.arch }}</td>
-					<td><code>{{ HumanBytes.format(symbol.file_size_bytes) }}</code></td>
+					<td><code>{{ humanize.naturalsize(symbol.file_size_bytes) }}</code></td>
 					<td>{{ symbol.date_created.strftime("%F %T") }}</td>
 				</tr>
 			{% endfor %}
