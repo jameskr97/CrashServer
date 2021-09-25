@@ -8,7 +8,6 @@ import magic
 
 from crashserver.webapp.models import Symbol, BuildMetadata, Minidump, Annotation, Project
 from crashserver.utility.misc import SymbolData
-from crashserver.webapp import queue
 
 
 def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: SymbolData):
