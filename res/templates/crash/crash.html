@@ -1,69 +1,124 @@
 {% extends "base/base.html" %}
 
-{% macro GenRow(dump, project) %}
+{% macro GenDesktopRow(dump, project) %}
 	<tr>
 		<td scope="row">{{ project }}</td>
 		<td>
 			{% if dump.json %}
 				<i class="fa-fw fab {{ get_font_awesome_os_icon(dump.build.symbol.os) }} fa-fw"></i>
-				<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ dump.filename }}</a>
+				<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">View</a>
 				<span class="crash-thread-badge badge bg-danger">{{ dump.json.crash_reason.crash_type }}</span>
 			{% else %}
+				<i class="fa-fw fas fa-question"></i>
+				<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">View</a>
 				{% if not dump.task.complete %}
-					<i class="fa-fw fas fa-question"></i>
-					<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ dump.filename }}</a>
 					<span class="crash-thread-badge badge bg-secondary">Processing...</span>
 					<span class="spinner-border spinner-border-sm"></span>
 				{% else %}
-					<i class="fa-fw fas fa-question"></i>
-					<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ dump.filename }}</a>
 					<span class="crash-thread-badge badge bg-secondary">Missing Symbols</span>
 				{% endif %}
 			{% endif %}
 
 		</td>
-		<td>{{ dump.date_created.strftime('%F %X %Z') }}</td>
+		<td>
+			<span title="{{ dump.date_created.strftime('%F %X %Z') }}">
+				Uploaded {{ humantime(dump.date_created) }}
+			</span>
+		</td>
 	</tr>
+{% endmacro %}
+
+{% macro GenMobileRow(dump, project) %}
+	<div style="padding: 3px" class="crash-mobile-item mobile-version-info">
+		<div>
+			{% if not dump.json %}
+				<i class="fa-fw fas fa-question fa-sm"></i>
+			{% else %}
+				<i class="fa-fw fab fa-sm {{ get_font_awesome_os_icon(dump.symbol.os) }}"></i>
+			{% endif %}
+			{{ project }}
+			<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">View</a>
+		</div>
+		<div style="overflow: hidden; white-space: nowrap;">
+			{% if dump.json %}
+				<div style="display: inline" class="crash-thread-badge badge bg-danger">{{ dump.json.crash_reason.crash_type }}</div>
+			{% else %}
+				{% if not dump.task.complete %}
+					<span class="crash-thread-badge badge bg-secondary">Processing...</span>
+					<span class="spinner-border spinner-border-sm"></span>
+				{% else %}
+					<span class="crash-thread-badge badge bg-secondary">Missing Symbols</span>
+				{% endif %}
+			{% endif %}
+		</div>
+		<div style="white-space: nowrap;">
+			<span title="{{ dump.date_created.strftime('%F %X %Z') }}" class="float-end">
+				{{ humantime(dump.date_created) }}
+			</span>
+		</div>
+	</div>
 {% endmacro %}
 
 {% block content %}
 	<h1 class="text-center">Crash Reports</h1>
 	<hr>
-	<table class="table">
-		<thead>
-		<tr>
-			<th scope="col">App</th>
-			<th scope="col">Minidump</th>
-			<th scope="col">Date Uploaded</th>
-		</tr>
-		</thead>
-		<tbody>
-		{% for row in dumps.items %}
-			{{ GenRow(row[0], row[1]) }}
-		{% endfor %}
-		</tbody>
-	</table>
-
-	<!-- PAGINATION TABS -->
-	<nav>
-		<ul class="pagination justify-content-end">
-			<!-- FOR EACH PAGE WE WANT TO RENDER A TAB FOR -->
-			{% for page in dumps.iter_pages() %}
-
-				<!-- IF WE ACTUALLY WANT IT TO BE A PAGE (VS AN ELLIPSIS) -->
-				{% if page %}
-					<!-- IF THE PAGE WE ITERATE THROUGH DOES NOT MATCH THE PAGE WE ARE ON -->
-					{% if page != dumps.page %}
-						<li class="page-item"><a class="page-link" href="{{ url_for("views.crash", page=page) }}">{{ page }}</a></li>
-					{% else %}
-						<li class="page-item disabled"><strong class="page-link">{{ page }}</strong></li>
-					{% endif %}
-
-				{% else %}
-					<li class="page-item"><span class="ellipsis page-link">…</span></li>
-				{% endif %}
+	{% if dumps.items %}
+		<!-- Mobile List -->
+		<div id="mobile-version-list" class="d-md-none">
+			{% for row in dumps.items %}
+				{{ GenMobileRow(row[0], row[1]) }}
 			{% endfor %}
-		</ul>
-	</nav>
+		</div>
+
+		<!-- Desktop List -->
+		<div class="col-md-12 d-none d-md-block">
+			<table class="table">
+				<thead>
+				<tr>
+					<th scope="col">App</th>
+					<th scope="col">Minidump</th>
+					<th scope="col">Date Uploaded</th>
+				</tr>
+				</thead>
+				<tbody>
+				{% for row in dumps.items %}
+					{{ GenDesktopRow(row[0], row[1]) }}
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+
+		<!-- PAGINATION TABS -->
+		<nav>
+			<ul class="pagination justify-content-end">
+				<!-- FOR EACH PAGE WE WANT TO RENDER A TAB FOR -->
+				{% for page in dumps.iter_pages() %}
+
+					<!-- IF WE ACTUALLY WANT IT TO BE A PAGE (VS AN ELLIPSIS) -->
+					{% if page %}
+						<!-- IF THE PAGE WE ITERATE THROUGH DOES NOT MATCH THE PAGE WE ARE ON -->
+						{% if page != dumps.page %}
+							<li class="page-item"><a class="page-link" href="{{ url_for("views.crash", page=page) }}">{{ page }}</a></li>
+						{% else %}
+							<li class="page-item disabled"><strong class="page-link">{{ page }}</strong></li>
+						{% endif %}
+
+					{% else %}
+						<li class="page-item"><span class="ellipsis page-link">…</span></li>
+					{% endif %}
+				{% endfor %}
+			</ul>
+		</nav>
+
+	{% else %}
+		<div class="row">
+			<div class="centering-grid">
+				<div class="centering-grid-item">
+					<h1 class="text-center"><i class="far fa-sad-cry"></i></h1>
+					<h1 class="text-center">No minidumps have been uploaded yet.</h1>
+				</div>
+			</div>
+		</div>
+	{% endif %}
 
 {% endblock %}

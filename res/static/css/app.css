@@ -140,7 +140,7 @@ body {
 
 /* Crash Detail Page */
 .crash-thread-badge {
-    margin-left: 10px;
+    margin-left: 3px;
 }
 
 .stack-header-btn {
@@ -162,4 +162,10 @@ body {
 .frame-code-loader-view {
     display: flex;
     align-items: center;
+}
+
+.crash-mobile-item {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-column-gap: 2px;
 }

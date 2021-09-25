@@ -137,11 +137,11 @@
 {% block content %}
 	<h1 class="text-center">Detailed Crash Report</h1>
 	<hr>
-	{% if minidump.json_stacktrace != None %}
+	{% if minidump.json_stacktrace %}
 		{{ main_detail_page() }}
-	{% elif minidump.build.symbol == None %}
-		{{ no_symbols() }}
-	{% else %}
+	{% elif not minidump.task.complete %}
 		{{ still_processing() }}
+	{% else %}
+		{{ no_symbols() }}
 	{% endif %}
 {% endblock %}

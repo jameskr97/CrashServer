@@ -1,11 +1,12 @@
 import uuid
 
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID, JSONB, INET
 from sqlalchemy.sql import func, text
 
 from crashserver.utility import processor
 from crashserver.webapp import db, queue
 from crashserver import config
+from loguru import logger
 
 
 class Minidump(db.Model):
@@ -64,7 +65,12 @@ class Minidump(db.Model):
         from crashserver.webapp.models import MinidumpTask
 
         rq_job = queue.enqueue("crashserver.tasks." + "decode_minidump", self.id, *args, **kwargs)
-        task = MinidumpTask(id=rq_job.get_id(), task_name="decode_minidump", minidump_id=self.id)
+        task = db.session.query(MinidumpTask).filter_by(minidump_id=self.id).first()
+        if not task:
+            task = MinidumpTask(task_name="decode_minidump", minidump_id=self.id)
+        task.id = rq_job.get_id()
+        task.complete = False
+        logger.info(task)
         db.session.add(task)
         return task
 

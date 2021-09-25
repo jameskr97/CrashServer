@@ -1,11 +1,12 @@
 import itertools
 import operator
 
-from flask import Blueprint, request, render_template, flash, redirect
+from flask import Blueprint, request, render_template, flash, redirect, make_response
 import charset_normalizer as char_norm
 from loguru import logger
 from flask_login import login_required
 import natsort
+import magic
 
 from crashserver.webapp import limiter
 
@@ -43,9 +44,15 @@ def upload_minidump(project):
 def upload_symbol(project, version):
     symbol_file = request.files.get("symbol_file")
 
+    # Ensure the uploaded file is plain text
+    symbol_file_bytes = symbol_file.stream.read()
+    magic_number = magic.from_buffer(symbol_file_bytes, mime=True)
+    if magic_number != "text/plain":
+        logger.error("Symbol rejected from {}. File detected as {}", request.remote_addr, magic_number)
+        return make_response({"error": "Bad symbol file."}, 400)
+
     # Use charset_normalizer to get a readable version of the text.
-    first_line_bytes = symbol_file.stream.read()
-    char_res = char_norm.from_bytes(first_line_bytes)
+    char_res = char_norm.from_bytes(symbol_file_bytes)
     decoded = char_res.best().output()
     first_line_str = decoded[: decoded.find("\n".encode())].decode("utf-8")
 

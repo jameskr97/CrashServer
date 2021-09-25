@@ -59,7 +59,6 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
         app_version=symbol_data.app_version,
     )
     build.symbol.store_file(symbol_file)
-    session.commit()
     logger.info(
         f"Symbols received for {project.project_name} [{project.id}]. Version => {symbol_data.app_version}, OS => {symbol_data.os}:{symbol_data.arch}"
     )
@@ -69,7 +68,8 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
     if to_process:
         logger.info("Attempting to reprocess {} unprocessed minidump", len(to_process))
         for dump in to_process:
-            queue.enqueue("crashserver.tasks.decode_minidump", str(dump.id))
+            dump.decode_task()
+    session.commit()
 
     res = {
         "id": build.symbol.id,
