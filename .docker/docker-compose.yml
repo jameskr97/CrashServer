@@ -34,7 +34,6 @@ services:
             dockerfile: Dockerfile.dev
         container_name: crashserver-app
         command: flask run
-        user: 1000:1000
         networks: [crashnet]
         depends_on: [postgres, crashserver-worker]
         ports: ["8888:8888"]
@@ -60,7 +59,6 @@ services:
             context: ..
             dockerfile: Dockerfile.dev
         command: rq worker -u redis://redis crashserver
-        user: 1000:1000
         depends_on: [redis]
         networks: [crashnet]
         env_file: [".env.docker"]
