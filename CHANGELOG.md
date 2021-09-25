@@ -6,6 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0.4] - 2021-09-25
+### Added
+- Added `.docker` folder, which defines a docker based development environment.
+- Redis+RQ task queue to decode minidumps
+- Added prism.js for code formatting (though feature is WIP)
+
+### Changed
+- Updated Crash Report page to look cleaner and show dump metadata or decode progress.
+- Updated Crash Report page to have a slim view for mobile pages.
+
+### Removed
+- Huey as a task queue
+
+### Fixed
+- Fixed bug preventing from upload webpage from uploading minidumps
+
 ## [0.2.0.3] - 2021-09-19
 ### Fixed
 - Flush symbol after stored in database to get "symbol_location" from project

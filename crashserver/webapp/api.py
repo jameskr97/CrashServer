@@ -44,14 +44,8 @@ def upload_minidump(project):
 def upload_symbol(project, version):
     symbol_file = request.files.get("symbol_file")
 
-    # Ensure the uploaded file is plain text
-    symbol_file_bytes = symbol_file.stream.read()
-    magic_number = magic.from_buffer(symbol_file_bytes, mime=True)
-    if magic_number != "text/plain":
-        logger.error("Symbol rejected from {}. File detected as {}", request.remote_addr, magic_number)
-        return make_response({"error": "Bad symbol file."}, 400)
-
     # Use charset_normalizer to get a readable version of the text.
+    symbol_file_bytes = symbol_file.stream.read()
     char_res = char_norm.from_bytes(symbol_file_bytes)
     decoded = char_res.best().output()
     first_line_str = decoded[: decoded.find("\n".encode())].decode("utf-8")
