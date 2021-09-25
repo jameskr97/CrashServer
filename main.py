@@ -3,6 +3,11 @@ CrashServer
 
 Logging Setup from: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
 """
+# fmt: off
+from gevent import monkey
+monkey.patch_all()
+# fmt: on
+
 import importlib.metadata as meta
 import logging
 import sys
