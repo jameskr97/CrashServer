@@ -82,7 +82,7 @@
 									data-bs-target="#thread_{{ thread.thread_index }}">
 
 								Thread #{{ thread.thread_index }}
-								{% if thread.thread_index == 0 %}
+								{% if thread.thread_index == json.crash_reason.crashing_thread %}
 									<span class="crash-thread-badge badge bg-danger">Crashing Thread</span>
 								{% endif %}
 
