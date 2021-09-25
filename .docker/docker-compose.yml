@@ -33,7 +33,7 @@ services:
             context: ..
             dockerfile: Dockerfile.dev
         container_name: crashserver-app
-        command: flask run
+        command: python3 /app/main.py
         networks: [crashnet]
         depends_on: [postgres, crashserver-worker]
         ports: ["8888:8888"]
@@ -43,6 +43,7 @@ services:
             - ../crashserver:/app/crashserver
             - ../res:/app/res
             - ../config:/app/config
+            - ../main.py:/app/main.py
 
             # App Data
             - ../data/logs:/logs
