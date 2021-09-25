@@ -120,12 +120,17 @@ if __name__ == "__main__":
     }
     logger.configure(**config)
 
-    logger.info("Starting CrashServer v{}", meta.version("crashserver"))
     syscheck.validate_all_settings()  # Ensure application has a sane environment
 
     from crashserver.webapp import app
 
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Activate proxy pass detection to get real ip
+
+    if os.environ.get("FLASK_DEBUG"):
+        app.run(host="0.0.0.0", port=settings.flask.web_port, debug=True)
+        exit(0)
+    else:
+        logger.info("Starting CrashServer v{}", meta.version("crashserver"))
 
     # Configure and run gunicorn
     options = {
