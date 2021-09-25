@@ -2,7 +2,7 @@
 
 {% macro GenDesktopRow(dump, project) %}
 	<tr>
-		<td scope="row">{{ project }}</td>
+		<td>{{ project }}</td>
 		<td>
 			{% if dump.json %}
 				<i class="fa-fw fab {{ get_font_awesome_os_icon(dump.build.symbol.os) }} fa-fw"></i>
