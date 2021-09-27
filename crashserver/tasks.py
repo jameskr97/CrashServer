@@ -35,7 +35,6 @@ def download_windows_symbol(module_id: str, build_id: str):
 def decode_minidump(crash_id):
     app = init_app()
     with app.app_context():
-        stackwalk = str(Path("res/bin/linux/minidump_stackwalk").absolute())
         stackwalker = str(Path("res/bin/linux/stackwalker").absolute())
 
         # Symbolicate without symbols to get metadata
@@ -65,10 +64,12 @@ def decode_minidump(crash_id):
         # No symbols? Notify and return
         if not minidump.build.symbol:
             logger.info(
-                "Symbol {} does not exist. Skipping symbolization for Minidump ID {}",
+                "Symbol {} does not exist. Storing partial stacktrace for Minidump ID {}",
                 crash_data.main_module.debug_id,
                 crash_id,
             )
+            minidump.stacktrace = json_stack
+            minidump.symbolicated = False
             minidump.task.complete = True
             db.session.commit()
             return
@@ -87,11 +88,9 @@ def decode_minidump(crash_id):
                 capture_output=True,
             )
 
-        original = process(stackwalk)
         json_stackwalk = process(stackwalker)
-
-        minidump.raw_stacktrace = original.stdout.decode("utf-8")
-        minidump.json_stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
+        minidump.stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
+        minidump.symbolicated = True
         minidump.task.complete = True
         db.session.commit()
         logger.info("Minidump {} decoded", minidump.id)

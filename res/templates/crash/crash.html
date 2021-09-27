@@ -5,8 +5,11 @@
 		<td>{{ project }}</td>
 		<td>
 			{% if dump.json %}
-				<i class="fa-fw fab {{ get_font_awesome_os_icon(dump.build.symbol.os) }} fa-fw"></i>
+				<i class="fa-fw {{ dump.json.os_icon }} fa-fw"></i>
 				<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">View</a>
+				{% if not dump.symbolicated %}
+					<span class="crash-thread-badge badge bg-secondary">Missing Symbols</span>
+				{% endif %}
 				<span class="crash-thread-badge badge bg-danger">{{ dump.json.crash_reason.crash_type }}</span>
 			{% else %}
 				<i class="fa-fw fas fa-question"></i>
@@ -14,8 +17,6 @@
 				{% if not dump.task.complete %}
 					<span class="crash-thread-badge badge bg-secondary">Processing...</span>
 					<span class="spinner-border spinner-border-sm"></span>
-				{% else %}
-					<span class="crash-thread-badge badge bg-secondary">Missing Symbols</span>
 				{% endif %}
 			{% endif %}
 
@@ -34,7 +35,7 @@
 			{% if not dump.json %}
 				<i class="fa-fw fas fa-question fa-sm"></i>
 			{% else %}
-				<i class="fa-fw fab fa-sm {{ get_font_awesome_os_icon(dump.symbol.os) }}"></i>
+				<i class="fa-fw fab fa-sm {{ dump.json.os_icon }}"></i>
 			{% endif %}
 			{{ project }}
 			<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">View</a>

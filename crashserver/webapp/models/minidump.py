@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET
-from sqlalchemy.sql import func, text
+from sqlalchemy.sql import func, text, expression
 
 from crashserver.utility import processor
 from crashserver.webapp import db, queue
@@ -19,8 +19,7 @@ class Minidump(db.Model):
     date_created: The timestamp of when the minidump was uploaded
     filename: The filename of the guid stored in the MINIDUMP_STORE directory
     client_guid: The guid parameter passed in from the post parameters. Optional.
-    raw_stacktrace: Stacktrace decoded with `./minidump_stackwalk <dmp> <symbols>`
-    machine_stacktrace: Stacktrace decoded with `./minidump_stackwalk -m <dmp> <symbols>`
+    stacktrace: Stacktrace decoded with `./stackwalker <dmp> [<symbol_dirs>]`
     """
 
     __tablename__ = "minidump"
@@ -33,10 +32,10 @@ class Minidump(db.Model):
         default=None,
     )
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    filename = db.Column(db.Text(), nullable=False)
+    symbolicated = db.Column(db.Boolean(), default=expression.false())
     client_guid = db.Column(UUID(as_uuid=True), nullable=True)
-    raw_stacktrace = db.Column(db.Text(), nullable=True)
-    json_stacktrace = db.Column(JSONB, nullable=True)
+    filename = db.Column(db.Text(), nullable=False)
+    stacktrace = db.Column(JSONB, nullable=True)
 
     # Relationships
     project = db.relationship("Project")
@@ -76,7 +75,7 @@ class Minidump(db.Model):
 
     @property
     def json(self):
-        return processor.ProcessedCrash.generate(self.json_stacktrace)
+        return processor.ProcessedCrash.generate(self.stacktrace)
 
     def symbols_exist(self):
         return self.symbol is not None

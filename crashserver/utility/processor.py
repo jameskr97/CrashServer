@@ -149,6 +149,26 @@ class ProcessedCrash:
     def main_module(self) -> DumpModule:
         return self.modules[self.main_module_index]
 
+    @property
+    def os_icon(self):
+        if self.system.os_name == "Windows NT":
+            return "fab fa-windows"
+        if self.system.os_name == "Mac OS X":
+            return "fab fa-apple"
+        if self.system.os_name == "Linux":
+            return "fab fa-linux"
+        return ""
+
+    @property
+    def os_name(self):
+        if self.system.os_name == "Windows NT":
+            return "Windows"
+        if self.system.os_name == "Mac OS X":
+            return "macOS"
+        if self.system.os_name == "Linux":
+            return "Linux"
+        return ""
+
     @staticmethod
     def generate(json: dict):
         res_reason = CrashReason.generate(json.get("crash_info"))

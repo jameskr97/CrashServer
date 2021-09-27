@@ -17,6 +17,7 @@
 {% macro no_symbols() %}
 	<div class="centering-grid">
 		<div class="centering-grid-item">
+			<h1 class="text-center"><i class="far fa-sad-cry"></i></h1>
 			<h2 class="text-center">Symbols for this minidump haven't been uploaded yet.</h2>
 		</div>
 	</div>
@@ -43,7 +44,9 @@
 	<div class="row">
 		<!-- DESKTOP SIDE TABS  -->
 		<div class="col-md-4 col-lg-3 col-sm-12">
-			<h2><i class="fab {{ get_font_awesome_os_icon(minidump.build.symbol.os) }} fa-fw"></i>{{ minidump.build.symbol.os|capitalize }}</h2>
+			<h2>
+				<i class="fab {{ json.os_icon }} fa-fw"></i>{{ json.os_name }}
+			</h2>
 			<ul>
 				<li>Process PID: {{ json.pid }}</li>
 				<li>OS Version: {{ json.system.os_version }}</li>
@@ -59,7 +62,7 @@
 			<!-- Only disable modules on desktop -->
 			<div class="d-none d-md-block">
 				<h2><i class="fas fa-cubes"></i> Modules</h2>
-				<ul>
+				<ul class="overflow-scroll card" style="max-height: 200px">
 					{% for module in json.modules %}
 						<li>{{ module.debug_file }}</li>
 					{% endfor %}
@@ -68,11 +71,16 @@
 		</div>
 
 		<!-- DESKTOP MAIN CONTENT AREA  -->
-		<div class="col-md-8 col-lg-9">
+		<div class="h-100 col-md-8 col-lg-9">
 
 			<!-- START OF MAIN ACCORDION -->
 			<h4><i class="fas fa-stream"></i> {{ json.threads|count }} Threads</h4>
-			<div class="accordion" id="thread-list">
+			<hr>
+
+			{% if not minidump.symbolicated %}
+				{{ no_symbols() }}
+			{% else %}
+				<div class="accordion" id="thread-list">
 				{% for thread in json.threads %}
 
 					<!-- START OF MAIN ACCORDION HEADER -->
@@ -130,6 +138,8 @@
 
 				{% endfor %}
 			</div> <!-- END OF ACCORDION -->
+			{% endif %}
+
 		</div> <!-- END OF SYMBOL-LIST -->
 	</div> <!-- END OF ROW -->
 {% endmacro %}
@@ -137,7 +147,7 @@
 {% block content %}
 	<h1 class="text-center">Detailed Crash Report</h1>
 	<hr>
-	{% if minidump.json_stacktrace %}
+	{% if minidump.stacktrace %}
 		{{ main_detail_page() }}
 	{% elif not minidump.task.complete %}
 		{{ still_processing() }}
