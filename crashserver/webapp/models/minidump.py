@@ -69,7 +69,6 @@ class Minidump(db.Model):
             task = MinidumpTask(task_name="decode_minidump", minidump_id=self.id)
         task.id = rq_job.get_id()
         task.complete = False
-        logger.info(task)
         db.session.add(task)
         return task
 
