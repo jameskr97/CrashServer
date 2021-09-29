@@ -169,3 +169,15 @@ body {
     grid-template-columns: auto auto 1fr;
     grid-column-gap: 2px;
 }
+
+.nav-tabs .crash-detail-tab.active {
+    color: black;
+}
+
+.nav-tabs .crash-detail-tab.disabled {
+    color: grey;
+}
+
+pre {
+    max-height: 30em !important;
+}

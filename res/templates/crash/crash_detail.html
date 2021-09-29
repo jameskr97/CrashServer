@@ -73,21 +73,38 @@
 		<!-- DESKTOP MAIN CONTENT AREA  -->
 		<div class="h-100 col-md-8 col-lg-9">
 
-			<!-- START OF MAIN ACCORDION -->
-			<h4><i class="fas fa-stream"></i> {{ json.threads|count }} Threads</h4>
-			<hr>
+			<!-- START OF MAIN AREA -->
 
-			{% if not minidump.symbolicated %}
-				{{ no_symbols() }}
-			{% else %}
-				<div class="accordion" id="thread-list">
-				{% for thread in json.threads %}
+			<!-- MINIDUMP TABS -->
+			<nav>
+				<div class="nav nav-tabs" id="nav-tab" role="tablist">
+					<button class="crash-detail-tab nav-link active" id="nav-stack-tab" data-bs-toggle="tab" data-bs-target="#nav-stacktrace">
+						<i class="fas fa-stream"></i>
+						{{ json.threads|count }} Thread{{ json.threads|count|pluralize }}
+					</button>
+					<button class="crash-detail-tab nav-link {{ "disabled" if minidump.attachments|count == 0 }}"
+							id="nav-attach-tab" data-bs-toggle="tab" data-bs-target="#nav-attachments">
+						<i class="fas fa-paperclip"></i>
+						{{ minidump.attachments|count }} Attachment{{ minidump.attachments|count|pluralize }}
+					</button>
+				</div>
+			</nav>
+			<br>
+			<!-- MINIDUMP TAB CONTENT AREA -->
+			<div class="tab-content" id="nav-tabContent">
+				<div class="tab-pane fade show active" id="nav-stacktrace" role="tabpanel" aria-labelledby="nav-profile-tab">
 
-					<!-- START OF MAIN ACCORDION HEADER -->
-					<div class="accordion-item">
-						<h2 class="accordion-header">
-							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-									data-bs-target="#thread_{{ thread.thread_index }}">
+					{% if not minidump.symbolicated %}
+						{{ no_symbols() }}
+					{% else %}
+						<div class="accordion" id="thread-list">
+							{% for thread in json.threads %}
+
+								<!-- START OF MAIN ACCORDION HEADER -->
+								<div class="accordion-item">
+									<h2 class="accordion-header">
+										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+												data-bs-target="#thread_{{ thread.thread_index }}">
 
 								Thread #{{ thread.thread_index }}
 								{% if thread.thread_index == json.crash_reason.crashing_thread %}
@@ -102,43 +119,54 @@
 						</h2>
 					</div>
 
-					<!-- START OF MAIN ACCORDION BODY -->
-					<div id="thread_{{ thread.thread_index }}" class="accordion accordion-collapse collapse" data-bs-parent="#thread-list">
-						<ol style="overflow: auto; white-space: nowrap">
-							{% for i in range(thread.frames|length) %}
-								{% set frame = thread.frames[i] %}
+								<!-- START OF MAIN ACCORDION BODY -->
+								<div id="thread_{{ thread.thread_index }}" class="accordion accordion-collapse collapse" data-bs-parent="#thread-list">
+									<ol style="overflow: auto; white-space: nowrap">
+										{% for i in range(thread.frames|length) %}
+											{% set frame = thread.frames[i] %}
 
-								<!-- START OF INNER FRAME ACCORDION HEADER -->
-								<li class="accordion-header monospace-font">
-									{% if frame.file %}
-										<button class="stack-header-btn collapsed" type="button" data-bs-toggle="collapse"
-												data-bs-target="#thread_{{ thread.thread_index }}_{{ i }}"
-												onclick="get_code_snippet(this, '{{ minidump.project_id }}' ,'{{ frame.file|urlencode }}', {{ frame.line }})">
-											{{ stack_frame_title(frame) }}
-										</button>
-									{% else %}
-										{{ stack_frame_title(frame) }}
-									{% endif %}
-								</li>
+											<!-- START OF INNER FRAME ACCORDION HEADER -->
+											<li class="accordion-header monospace-font">
+												{% if frame.file %}
+													<button class="stack-header-btn collapsed" type="button" data-bs-toggle="collapse"
+															data-bs-target="#thread_{{ thread.thread_index }}_{{ i }}"
+															onclick="get_code_snippet(this, '{{ minidump.project_id }}' ,'{{ frame.file|urlencode }}', {{ frame.line }})">
+														{{ stack_frame_title(frame) }}
+													</button>
+												{% else %}
+													{{ stack_frame_title(frame) }}
+												{% endif %}
+											</li>
 
 
-								<!-- START OF INNER FRAME ACCORDION BODY -->
-								{% if frame.file %}
-									<div id="thread_{{ thread.thread_index }}_{{ i }}" class="frame-code-view accordion-collapse collapse"
-										 data-bs-parent="#thread_{{ thread.thread_index }}_frame">
-										<div class="frame-code-loader-view">
-											<span style="margin-right: 5px" class="spinner-border text-dark" role="status"></span>
-											<span>Loading Code Snippet...</span>
-										</div>
-									</div>
-								{% endif %} <!-- END OF INNER FRAME ACCORDION BODY -->
+											<!-- START OF INNER FRAME ACCORDION BODY -->
+											{% if frame.file %}
+												<div id="thread_{{ thread.thread_index }}_{{ i }}" class="frame-code-view accordion-collapse collapse"
+													 data-bs-parent="#thread_{{ thread.thread_index }}_frame">
+													<div class="frame-code-loader-view">
+														<span style="margin-right: 5px" class="spinner-border text-dark" role="status"></span>
+														<span>Loading Code Snippet...</span>
+													</div>
+												</div>
+											{% endif %} <!-- END OF INNER FRAME ACCORDION BODY -->
+										{% endfor %}
+									</ol>
+								</div>
+
 							{% endfor %}
-						</ol>
-					</div>
+						</div> <!-- END OF ACCORDION -->
+					{% endif %}
+				</div>
 
-				{% endfor %}
-			</div> <!-- END OF ACCORDION -->
-			{% endif %}
+				<div class="tab-pane fade" id="nav-attachments" role="tabpanel" aria-labelledby="nav-contact-tab">
+
+					<!-- CODE AREA DIV -->
+					{% for file in minidump.attachments %}
+						<pre class="line-numbers"><code class="language-text">{{ file.file_content }}</code></pre>
+					{% endfor %}
+				</div>
+			</div>
+
 
 		</div> <!-- END OF SYMBOL-LIST -->
 	</div> <!-- END OF ROW -->
