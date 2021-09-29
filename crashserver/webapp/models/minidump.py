@@ -1,3 +1,4 @@
+from pathlib import Path
 import uuid
 
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET
@@ -54,6 +55,10 @@ class Minidump(db.Model):
     )
     attachments = db.relationship("Attachment")
 
+    @property
+    def file_location(self) -> Path:
+        return config.get_appdata_directory("minidump") / str(self.project_id) / self.filename
+
     def store_minidump(self, file_contents: bytes):
         filename = "minidump-%s.dmp" % str(uuid.uuid4().hex)
 
@@ -63,6 +68,19 @@ class Minidump(db.Model):
             f.write(file_contents)
 
         self.filename = filename
+
+    def delete_minidump(self):
+        from crashserver.webapp.models import Annotation, Attachment
+
+        # Get all annotations
+        annotations = db.session.query(Annotation).filter_by(minidump_id=self.id).all()
+        attachments = db.session.query(Attachment).filter_by(minidump_id=self.id).all()
+        [db.session.delete(a) for a in annotations]
+        for a in attachments:
+            a.delete_file()
+            db.session.delete(a)
+
+        self.file_location.unlink(missing_ok=True)
 
     def decode_task(self, *args, **kwargs):
         rq_job = queue.enqueue("crashserver.tasks." + "decode_minidump", self.id, *args, **kwargs)

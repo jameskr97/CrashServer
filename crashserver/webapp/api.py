@@ -15,7 +15,7 @@ from crashserver.utility.decorators import (
     api_key_required,
     check_project_versioned,
 )
-from crashserver.webapp.models import Symbol, Project, ProjectType
+from crashserver.webapp.models import Symbol, Project, ProjectType, Minidump
 from crashserver.utility.misc import SymbolData
 import crashserver.webapp.operations as ops
 from crashserver.webapp import db
@@ -148,3 +148,16 @@ def rename_project():
         flash(message)
 
     return redirect(request.referrer)
+
+
+@api.route("/webapi/minidump/delete/<dump_id>", methods=["DELETE"])
+@login_required
+def delete_minidump(dump_id):
+    dump = db.session.query(Minidump).get(dump_id)
+    if not dump:
+        return {"error", "dump_id is invalid"}, 404
+
+    dump.delete_minidump()
+    db.session.delete(dump)
+    db.session.commit()
+    return "", 200

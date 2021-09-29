@@ -26,6 +26,32 @@
 				Uploaded {{ humantime(dump.date_created) }}
 			</span>
 		</td>
+		{% if current_user.is_authenticated %}
+		<td>
+			<a href="{{ url_for("api.delete_minidump", dump_id=dump.id) }}" data-bs-toggle="modal" data-bs-target="#delete-dump-modal">Delete</a>
+			<div class="modal fade" id="delete-dump-modal">
+			  <div class="modal-dialog">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Delete Confirmation</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				  </div>
+				  <div class="modal-body">
+					  <ul>
+						  <li>The minidump file on disk will be deleted</li>
+						  <li>The crash detail information will no longer be available</li>
+						  <li>All associated attachments will be deleted</li>
+					  </ul>
+				  </div>
+				  <div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button onclick="delete_minidump('{{ dump.id }}')" type="button" class="btn btn-danger">Delete</button>
+				  </div>
+				</div>
+			  </div>
+			</div>
+		</td>
+		{% endif %}
 	</tr>
 {% endmacro %}
 
@@ -80,6 +106,9 @@
 					<th scope="col">App</th>
 					<th scope="col">Minidump</th>
 					<th scope="col">Date Uploaded</th>
+					{% if current_user.is_authenticated %}
+						<th scope="col">Actions</th>
+					{% endif %}
 				</tr>
 				</thead>
 				<tbody>

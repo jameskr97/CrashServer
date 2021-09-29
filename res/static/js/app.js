@@ -4,7 +4,6 @@ function update_symbol_list(id){
         .then(data => document.getElementById("symbol-content-area").innerHTML = data["html"])
 }
 
-
 function settings_registerEvents(){
     // Get all items of concern
     const contentAreas = [...document.getElementById("settings-content").getElementsByClassName("tab-pane")];
@@ -43,4 +42,10 @@ function settings_registerEvents(){
 
 function set_minidump_upload_enabled(bool){
     document.getElementById("minidump-upload").disabled = !bool;
+}
+
+function delete_minidump(id){
+    fetch("/webapi/minidump/delete/" + id, {method: 'DELETE'})
+        .then(data => window.location.reload(false))
+
 }

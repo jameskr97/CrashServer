@@ -1,3 +1,4 @@
+from pathlib import Path
 import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
@@ -49,3 +50,7 @@ class Attachment(db.Model):
 
         self.filename = str(filename)
         self.file_size_bytes = len(file_content)
+
+    def delete_file(self):
+        location = Path(config.get_appdata_directory("attachments") / str(self.project_id) / self.filename)
+        location.unlink(missing_ok=True)
