@@ -92,12 +92,19 @@ def init_login(app: Flask):
     login.login_message_category = "info"
 
 
+def init_jinja_filters(app: Flask):
+    @app.template_filter("pluralize")
+    def pluralize(number, singular="", plural="s"):
+        return singular if number == 1 else plural
+
+
 def init_web_app() -> Flask:
     app = init_app()
     app.app_context().push()
     init_database(app)
     init_views(app)
     init_login(app)
+    init_jinja_filters(app)
     limiter.init_app(app)
     return app
 
