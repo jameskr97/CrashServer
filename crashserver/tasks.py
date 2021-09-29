@@ -15,16 +15,16 @@ def download_windows_symbol(module_id: str, build_id: str):
     cached_sym = db.session.query(SymCache).filter_by(module_id=module_id, build_id=build_id).first()
 
     if cached_sym:
-        logger.warning("Cache hit for symbol {}:{} - Skipping download.".format(module_id, build_id))
+        logger.debug("SymCache Hit for {}:{}".format(module_id, build_id))
         return
 
     cached_sym = SymCache(module_id=module_id, build_id=build_id)
-    logger.warning("Cache miss for symbol {}:{} - Attempting to download".format(module_id, build_id))
+    logger.info("SymCache Miss. Attempting to download {}:{}".format(module_id, build_id))
 
     url = "https://msdl.microsoft.com/download/symbols/" + cached_sym.url_path
     res = requests.get(url)
     if res.status_code != 200:
-        logger.warning("{}:{} is not available on Windows Symbol Server".format(module_id, build_id))
+        logger.warning("Symbol not available on Windows Symbol Server => {}:{}".format(module_id, build_id))
         return
 
     cached_sym.store_and_convert_symbol(res.content)
