@@ -40,6 +40,10 @@ def decode_minidump(crash_id):
         # Symbolicate without symbols to get metadata
         # TODO: Proper error handling for if executable fails
         minidump = db.session.query(Minidump).get(crash_id)
+        if not minidump:
+            logger.error(f"Unable to decode minidump: {minidump}")
+            return
+
         dumpfile = str(Path(minidump.project.minidump_location) / minidump.filename)
         machine = subprocess.run([stackwalker, dumpfile], capture_output=True)
         json_stack = json.loads(machine.stdout.decode("utf-8"))
