@@ -74,7 +74,6 @@
 		<div class="h-100 col-md-8 col-lg-9">
 
 			<!-- START OF MAIN AREA -->
-
 			<!-- MINIDUMP TABS -->
 			<nav>
 				<div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -92,7 +91,7 @@
 			<br>
 			<!-- MINIDUMP TAB CONTENT AREA -->
 			<div class="tab-content" id="nav-tabContent">
-				<div class="tab-pane fade show active" id="nav-stacktrace" role="tabpanel" aria-labelledby="nav-profile-tab">
+				<div class="tab-pane fade show active " id="nav-stacktrace" role="tabpanel" aria-labelledby="nav-profile-tab">
 
 					{% if not minidump.symbolicated %}
 						{{ no_symbols() }}
@@ -106,18 +105,18 @@
 										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
 												data-bs-target="#thread_{{ thread.thread_index }}">
 
-								Thread #{{ thread.thread_index }}
-								{% if thread.thread_index == json.crash_reason.crashing_thread %}
-									<span class="crash-thread-badge badge bg-danger">Crashing Thread</span>
-								{% endif %}
+											Thread #{{ thread.thread_index }}
+											{% if thread.thread_index == json.crash_reason.crashing_thread %}
+												<span class="crash-thread-badge badge bg-danger">Crashing Thread</span>
+											{% endif %}
 
-								<!-- Add tag for windows worker threads -->
-								{% if thread.frames[-1].func == "TppWorkerThread" %}
-									<span class="crash-thread-badge badge bg-info">Worker Thread</span>
-								{% endif %}
-							</button>
-						</h2>
-					</div>
+											<!-- Add tag for windows worker threads -->
+											{% if thread.frames[-1].func == "TppWorkerThread" %}
+												<span class="crash-thread-badge badge bg-info">Worker Thread</span>
+											{% endif %}
+										</button>
+									</h2>
+								</div>
 
 								<!-- START OF MAIN ACCORDION BODY -->
 								<div id="thread_{{ thread.thread_index }}" class="accordion accordion-collapse collapse" data-bs-parent="#thread-list">
@@ -158,13 +157,31 @@
 					{% endif %}
 				</div>
 
-				<div class="tab-pane fade" id="nav-attachments" role="tabpanel" aria-labelledby="nav-contact-tab">
+				{% if minidump.attachments|count != 0 %}
+					<div class="tab-pane fade" id="nav-attachments" role="tabpanel" aria-labelledby="nav-contact-tab">
+						<!-- CODE AREA DIV -->
+						<div class="accordion" id="file-list">
+							{% for file in minidump.attachments %}
 
-					<!-- CODE AREA DIV -->
-					{% for file in minidump.attachments %}
-						<pre class="line-numbers"><code class="language-text">{{ file.file_content }}</code></pre>
-					{% endfor %}
-				</div>
+								<!-- START OF FILE ACCORDION HEADER -->
+								<div class="accordion-item">
+									<h2 class="accordion-header">
+										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+												data-bs-target="#file_{{ file.id }}">
+											<span class="monospace-font">{{ file.original_filename }}</span>
+										</button>
+									</h2>
+								</div>
+
+								<!-- START OF FILE ACCORDION BODY -->
+								<div id="file_{{ file.id }}" class="accordion accordion-collapse collapse" data-bs-parent="#file-list">
+									<pre class="line-numbers"><code class="language-text">{{ file.file_content }}</code></pre>
+								</div>
+							{% endfor %}
+
+						</div>
+					</div>
+				{% endif %}
 			</div>
 
 
