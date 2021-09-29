@@ -14,7 +14,7 @@
 			{% else %}
 				<i class="fa-fw fas fa-question"></i>
 				<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">View</a>
-				{% if not dump.task.complete %}
+				{% if not dump.decode_task_complete %}
 					<span class="crash-thread-badge badge bg-secondary">Processing...</span>
 					<span class="spinner-border spinner-border-sm"></span>
 				{% endif %}
@@ -32,7 +32,7 @@
 {% macro GenMobileRow(dump, project) %}
 	<div style="padding: 3px" class="crash-mobile-item mobile-version-info">
 		<div>
-			{% if not dump.task.complete %}
+			{% if not dump.decode_task_complete %}
 				<i class="fa-fw fas fa-question fa-sm"></i>
 			{% else %}
 				<i class="fa-fw fab fa-sm {{ dump.json.os_icon }}"></i>
@@ -42,7 +42,7 @@
 		</div>
 		<div style="overflow: hidden; white-space: nowrap;">
 
-			{% if not dump.task.complete %}
+			{% if not dump.decode_task_complete %}
 				<span class="crash-thread-badge badge bg-secondary">Processing...</span>
 				<span class="spinner-border spinner-border-sm"></span>
 			{% else %}

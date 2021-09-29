@@ -70,7 +70,7 @@ def decode_minidump(crash_id):
             )
             minidump.stacktrace = json_stack
             minidump.symbolicated = False
-            minidump.task.complete = True
+            minidump.decode_task_complete = True
             db.session.commit()
             return
 

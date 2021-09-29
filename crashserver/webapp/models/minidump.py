@@ -2,11 +2,13 @@ import uuid
 
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET
 from sqlalchemy.sql import func, text, expression
+from loguru import logger
+import redis
+import rq
 
 from crashserver.utility import processor
 from crashserver.webapp import db, queue
 from crashserver import config
-from loguru import logger
 
 
 class Minidump(db.Model):
@@ -36,12 +38,13 @@ class Minidump(db.Model):
     client_guid = db.Column(UUID(as_uuid=True), nullable=True)
     filename = db.Column(db.Text(), nullable=False)
     stacktrace = db.Column(JSONB, nullable=True)
+    decode_task_id = db.Column(db.String(36))
+    decode_task_complete = db.Column(db.Boolean())
 
     # Relationships
     project = db.relationship("Project")
     build = db.relationship("BuildMetadata", back_populates="unprocessed_dumps")
     annotations = db.relationship("Annotation")
-    task = db.relationship("MinidumpTask", uselist=False)
     symbol = db.relationship(
         "Symbol",
         primaryjoin="Minidump.build_metadata_id == BuildMetadata.id",
@@ -62,16 +65,17 @@ class Minidump(db.Model):
         self.filename = filename
 
     def decode_task(self, *args, **kwargs):
-        from crashserver.webapp.models import MinidumpTask
-
         rq_job = queue.enqueue("crashserver.tasks." + "decode_minidump", self.id, *args, **kwargs)
-        task = db.session.query(MinidumpTask).filter_by(minidump_id=self.id).first()
-        if not task:
-            task = MinidumpTask(task_name="decode_minidump", minidump_id=self.id)
-        task.id = rq_job.get_id()
-        task.complete = False
-        db.session.add(task)
-        return task
+        self.decode_task_id = rq_job.get_id()
+        self.decode_task_complete = False
+        return rq_job
+
+    def get_decode_job(self):
+        try:
+            rq_job = rq.job.Job.fetch(self.id, connection=config.get_redis_url())
+        except (redis.exceptions.RedisError, rq.exceptions.NoSuchJobError):
+            return None
+        return rq_job
 
     @property
     def json(self):
