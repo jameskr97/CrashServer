@@ -33,6 +33,10 @@ class Attachment(db.Model):
     project = db.relationship("Project")
     minidump = db.relationship("Minidump", back_populates="attachments")
 
+    @property
+    def file_location(self) -> Path:
+        return config.get_appdata_directory("attachments") / str(self.project_id) / self.filename
+
     def store_file(self, file_content: bytes):
 
         # Determine storage location
@@ -54,3 +58,8 @@ class Attachment(db.Model):
     def delete_file(self):
         location = Path(config.get_appdata_directory("attachments") / str(self.project_id) / self.filename)
         location.unlink(missing_ok=True)
+
+    @property
+    def file_content(self):
+        with self.file_location.open() as f:
+            return f.read()
