@@ -97,7 +97,7 @@ def crash():
 @views.route("/crash-reports/<crash_id>")
 def crash_detail(crash_id):
     minidump = db.session.query(Minidump).get(crash_id)
-    return render_template("crash/crash_detail.html", minidump=minidump)
+    return render_template("crash/crash_detail.html", dump=minidump)
 
 
 @views.route("/symbols")

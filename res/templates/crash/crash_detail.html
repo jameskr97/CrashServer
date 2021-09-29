@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% set json = minidump.json %}
+{% set json = dump.json %}
 
 {% macro still_processing() %}
 	<h2 class="text-center">Processing minidump...</h2>
@@ -34,25 +34,25 @@
 
 {% macro main_detail_page() %}
 	<link href="{{ url_for('static', filename='css/prism.css') }}" rel="stylesheet">
-	<h3>{{ minidump.project.project_name }}</h3>
+	<h3>{{ dump.project.project_name }}</h3>
 	<p>
-		<span class="badge bg-danger">Crash Reason: {{ json.crash_reason.crash_type }}</span>
-		<span class="badge bg-primary">Date Uploaded: {{ minidump.date_created.strftime("%F %T %Z") }}</span>
-		<span class="badge bg-secondary">Crash Location: {{ json.crash_reason.crash_address }}</span>
+		<span class="badge bg-danger">Crash Reason: {{ dump.json.crash_reason.crash_type }}</span>
+		<span class="badge bg-primary">Date Uploaded: {{ dump.date_created.strftime("%F %T %Z") }}</span>
+		<span class="badge bg-secondary">Crash Location: {{ dump.json.crash_reason.crash_address }}</span>
 	</p>
 	<hr>
 	<div class="row">
 		<!-- DESKTOP SIDE TABS  -->
 		<div class="col-md-4 col-lg-3 col-sm-12">
 			<h2>
-				<i class="fab {{ json.os_icon }} fa-fw"></i>{{ json.os_name }}
+				<i class="fab {{ dump.json.os_icon }} fa-fw"></i>{{ dump.json.os_name }}
 			</h2>
 			<ul>
-				<li>Process PID: {{ json.pid }}</li>
-				<li>OS Version: {{ json.system.os_version }}</li>
-				<li>Architecture: {{ json.system.cpu_arch }}</li>
-				<li>CPU Core Count: {{ json.system.cpu_core_count }}</li>
-				<li>CPU Info: {{ json.system.cpu_info }}</li>
+				<li>Process PID: {{ dump.json.pid }}</li>
+				<li>OS Version: {{ dump.json.system.os_version }}</li>
+				<li>Architecture: {{ dump.json.system.cpu_arch }}</li>
+				<li>CPU Core Count: {{ dump.json.system.cpu_core_count }}</li>
+				<li>CPU Info: {{ dump.json.system.cpu_info }}</li>
 			</ul>
 			<hr>
 
@@ -63,7 +63,7 @@
 			<div class="d-none d-md-block">
 				<h2><i class="fas fa-cubes"></i> Modules</h2>
 				<ul class="overflow-scroll card" style="max-height: 200px">
-					{% for module in json.modules %}
+					{% for module in dump.json.modules %}
 						<li>{{ module.debug_file }}</li>
 					{% endfor %}
 				</ul>
@@ -79,12 +79,12 @@
 				<div class="nav nav-tabs" id="nav-tab" role="tablist">
 					<button class="crash-detail-tab nav-link active" id="nav-stack-tab" data-bs-toggle="tab" data-bs-target="#nav-stacktrace">
 						<i class="fas fa-stream"></i>
-						{{ json.threads|count }} Thread{{ json.threads|count|pluralize }}
+						{{ dump.json.threads|count }} Thread{{ dump.json.threads|count|pluralize }}
 					</button>
-					<button class="crash-detail-tab nav-link {{ "disabled" if minidump.attachments|count == 0 }}"
+					<button class="crash-detail-tab nav-link {{ "disabled" if dump.attachments|count == 0 }}"
 							id="nav-attach-tab" data-bs-toggle="tab" data-bs-target="#nav-attachments">
 						<i class="fas fa-paperclip"></i>
-						{{ minidump.attachments|count }} Attachment{{ minidump.attachments|count|pluralize }}
+						{{ dump.attachments|count }} Attachment{{ dump.attachments|count|pluralize }}
 					</button>
 				</div>
 			</nav>
@@ -93,11 +93,11 @@
 			<div class="tab-content" id="nav-tabContent">
 				<div class="tab-pane fade show active " id="nav-stacktrace" role="tabpanel" aria-labelledby="nav-profile-tab">
 
-					{% if not minidump.symbolicated %}
+					{% if not dump.symbolicated %}
 						{{ no_symbols() }}
 					{% else %}
 						<div class="accordion" id="thread-list">
-							{% for thread in json.threads %}
+							{% for thread in dump.json.threads %}
 
 								<!-- START OF MAIN ACCORDION HEADER -->
 								<div class="accordion-item">
@@ -106,7 +106,7 @@
 												data-bs-target="#thread_{{ thread.thread_index }}">
 
 											Thread #{{ thread.thread_index }}
-											{% if thread.thread_index == json.crash_reason.crashing_thread %}
+											{% if thread.thread_index == dump.json.crash_reason.crashing_thread %}
 												<span class="crash-thread-badge badge bg-danger">Crashing Thread</span>
 											{% endif %}
 
@@ -129,7 +129,7 @@
 												{% if frame.file %}
 													<button class="stack-header-btn collapsed" type="button" data-bs-toggle="collapse"
 															data-bs-target="#thread_{{ thread.thread_index }}_{{ i }}"
-															onclick="get_code_snippet(this, '{{ minidump.project_id }}' ,'{{ frame.file|urlencode }}', {{ frame.line }})">
+															onclick="get_code_snippet(this, '{{ dump.project_id }}' ,'{{ frame.file|urlencode }}', {{ frame.line }})">
 														{{ stack_frame_title(frame) }}
 													</button>
 												{% else %}
@@ -157,11 +157,11 @@
 					{% endif %}
 				</div>
 
-				{% if minidump.attachments|count != 0 %}
+				{% if dump.attachments|count != 0 %}
 					<div class="tab-pane fade" id="nav-attachments" role="tabpanel" aria-labelledby="nav-contact-tab">
 						<!-- CODE AREA DIV -->
 						<div class="accordion" id="file-list">
-							{% for file in minidump.attachments %}
+							{% for file in dump.attachments %}
 
 								<!-- START OF FILE ACCORDION HEADER -->
 								<div class="accordion-item">
@@ -192,9 +192,9 @@
 {% block content %}
 	<h1 class="text-center">Detailed Crash Report</h1>
 	<hr>
-	{% if minidump.stacktrace %}
+	{% if dump.stacktrace %}
 		{{ main_detail_page() }}
-	{% elif not minidump.decode_task_complete %}
+	{% elif not dump.decode_task_complete %}
 		{{ still_processing() }}
 	{% endif %}
 {% endblock %}
