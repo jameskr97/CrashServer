@@ -25,9 +25,10 @@ class Attachment(db.Model):
     project_id = db.Column(UUID(as_uuid=True), db.ForeignKey("project.id"), nullable=False)
     minidump_id = db.Column(UUID(as_uuid=True), db.ForeignKey("minidump.id"), nullable=False)
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    filename = db.Column(db.Text(), nullable=False)
     mime_type = db.Column(db.Text(), nullable=False)
     file_size_bytes = db.Column(db.Integer(), nullable=False)
+    filename = db.Column(db.Text(), nullable=False)
+    original_filename = db.Column(db.Text(), nullable=False)
 
     # Relationships
     project = db.relationship("Project")

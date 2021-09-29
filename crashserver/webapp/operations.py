@@ -98,9 +98,9 @@ def minidump_upload(session, project_id: str, annotations: dict, minidump_file: 
     session.flush()
 
     # Store attachments
-    logger.info("Storing {} attachments: {}", len(attachments), type(attachments))
+    logger.info("Storing {} attachments for {}", len(attachments), new_dump.id)
     for attach in attachments:
-        new_attach = Attachment(project_id=project_id, minidump_id=new_dump.id)
+        new_attach = Attachment(project_id=project_id, minidump_id=new_dump.id, original_filename=attach.filename)
         new_attach.store_file(attach.stream.read())
         session.add(new_attach)
 
