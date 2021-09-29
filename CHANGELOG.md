@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.0] - 2021-09-29
 ### Added
 - Add support for uploading attachments. Any additional files to minidump will be added as a row in the Attachments table, and stored to disk
 - Crash detail page has tabs for stacktrace, and uploaded attachments
