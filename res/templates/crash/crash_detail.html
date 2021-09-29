@@ -194,9 +194,7 @@
 	<hr>
 	{% if minidump.stacktrace %}
 		{{ main_detail_page() }}
-	{% elif not minidump.task.complete %}
+	{% elif not minidump.decode_task_complete %}
 		{{ still_processing() }}
-	{% else %}
-		{{ no_symbols() }}
 	{% endif %}
 {% endblock %}

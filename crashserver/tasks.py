@@ -95,6 +95,6 @@ def decode_minidump(crash_id):
         json_stackwalk = process(stackwalker)
         minidump.stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
         minidump.symbolicated = True
-        minidump.task.complete = True
+        minidump.decode_task_complete = True
         db.session.commit()
         logger.info("Minidump {} decoded", minidump.id)
