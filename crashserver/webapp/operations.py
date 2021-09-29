@@ -6,7 +6,7 @@ from loguru import logger
 import flask
 import magic
 
-from crashserver.webapp.models import Symbol, BuildMetadata, Minidump, Annotation, Project
+from crashserver.webapp.models import Symbol, BuildMetadata, Minidump, Annotation, Project, Attachment
 from crashserver.utility.misc import SymbolData
 
 
@@ -81,7 +81,7 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
     return res, 200
 
 
-def minidump_upload(session, project_id: str, annotations: dict, minidump_file: bytearray):
+def minidump_upload(session, project_id: str, annotations: dict, minidump_file: bytes, attachments):
 
     # Verify file is actually a minidump based on magic number
     # Validate magic number
@@ -97,6 +97,14 @@ def minidump_upload(session, project_id: str, annotations: dict, minidump_file: 
     session.add(new_dump)
     session.flush()
 
+    # Store attachments
+    logger.info("Storing {} attachments: {}", len(attachments), type(attachments))
+    for attach in attachments:
+        new_attach = Attachment(project_id=project_id, minidump_id=new_dump.id)
+        new_attach.store_file(attach.stream.read())
+        session.add(new_attach)
+
+    # Store annotations
     if annotations:
         annotations.pop("api_key", None)  # Remove API key from being added as annotation
         for key, value in annotations.items():

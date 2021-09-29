@@ -33,8 +33,17 @@ def upload_minidump(project):
     argument, and it will save and prepare the file for processing
     :return:
     """
-    minidump = request.files.get("upload_file_minidump")
-    return ops.minidump_upload(db.session, project.id, dict(request.values), minidump.stream.read())
+    # Additional files after minidump has been popped from dict are misc attachments.
+    attachments = request.files.to_dict()
+    minidump = attachments.pop("upload_file_minidump")
+
+    return ops.minidump_upload(
+        db.session,
+        project.id,
+        dict(request.values),
+        minidump.stream.read(),
+        attachments.values(),
+    )
 
 
 @api.route("/api/symbol/upload", methods=["POST"])

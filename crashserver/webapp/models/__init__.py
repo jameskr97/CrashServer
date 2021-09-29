@@ -1,5 +1,6 @@
 from .symcache import SymCache
 from .annotation import Annotation
+from .attachments import Attachment
 from .build_metadata import BuildMetadata
 from .minidump import Minidump
 from .minidump_task import MinidumpTask
@@ -18,4 +19,5 @@ __all__ = [
     "SymbolUploadV2",
     "User",
     "SymCache",
+    "Attachment",
 ]

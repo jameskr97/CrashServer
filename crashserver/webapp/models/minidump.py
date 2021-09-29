@@ -49,6 +49,7 @@ class Minidump(db.Model):
         viewonly=True,
         uselist=False,
     )
+    attachments = db.relationship("Attachment")
 
     def store_minidump(self, file_contents: bytes):
         filename = "minidump-%s.dmp" % str(uuid.uuid4().hex)
