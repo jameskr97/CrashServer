@@ -111,7 +111,7 @@ def upload():
     form = UploadMinidumpForm()
 
     if request.method == "POST" and form.validate_on_submit():
-        res = ops.minidump_upload(db.session, form.project.data, {}, form.minidump.data.stream.read())
+        res = ops.minidump_upload(db.session, form.project.data, {}, form.minidump.data.stream.read(), [])
         if res.status_code != 200:
             flash(res.json["error"], category="danger")
             return redirect(url_for("views.upload"))
