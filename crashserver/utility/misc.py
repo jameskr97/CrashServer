@@ -12,6 +12,7 @@ def flash_form_errors(form):
 
 
 def get_font_awesome_os_icon(os: str):
+    os = os.lower()
     if os == "windows":
         return "fab fa-windows"
     if os == "mac":

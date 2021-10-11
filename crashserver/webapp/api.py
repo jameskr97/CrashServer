@@ -3,10 +3,10 @@ import operator
 
 from flask import Blueprint, request, render_template, flash, redirect, make_response
 import charset_normalizer as char_norm
+from sqlalchemy import func
 from loguru import logger
 from flask_login import login_required
 import natsort
-import magic
 
 from crashserver.webapp import limiter
 
@@ -77,7 +77,12 @@ def get_symbols(project_id):
 
     # Get counts for os symbols
     def sym_count(os: str):
-        return db.session.query(Symbol).filter_by(project_id=project_id, os=os).count()
+        return (
+            db.session.query(Symbol)
+            .filter(Symbol.project_id == project_id)
+            .filter(func.lower(Symbol.os) == os.lower())
+            .count()
+        )
 
     stats = {
         "sym_count": {
