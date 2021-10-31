@@ -1,8 +1,8 @@
 import itertools
 import operator
+import io
 
 from flask import Blueprint, request, render_template, flash, redirect, make_response
-import charset_normalizer as char_norm
 from sqlalchemy import func
 from loguru import logger
 from flask_login import login_required
@@ -53,18 +53,16 @@ def upload_minidump(project):
 def upload_symbol(project, version):
     symbol_file = request.files.get("symbol_file")
 
-    # Use charset_normalizer to get a readable version of the text.
     symbol_file_bytes = symbol_file.stream.read()
-    char_res = char_norm.from_bytes(symbol_file_bytes)
-    decoded = char_res.best().output()
-    first_line_str = decoded[: decoded.find("\n".encode())].decode("utf-8")
+    with io.BytesIO(symbol_file_bytes) as f:
+        first_line_str = f.readline().decode("utf-8")
 
     # Get relevant module info from first line of file
     symbol_data = SymbolData.from_module_line(first_line_str)
     symbol_data.app_version = version
     symbol_file.stream.seek(0)
 
-    return ops.symbol_upload(db.session, project, decoded, symbol_data)
+    return ops.symbol_upload(db.session, project, symbol_file_bytes, symbol_data)
 
 
 @api.route("/webapi/symbols/<project_id>")
