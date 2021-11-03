@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Allowed cli.py to be run from cli
 
+### Removed
+- Remove minidump upload limit
+
 ### Fixed
 - Crash report page delete action, deletes correct minidump.
 - Fix reading files with bad/invalid utf-8 characters.
