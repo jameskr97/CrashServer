@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Crash report page delete action, deletes correct minidump.
+- Fix reading files with bad/invalid utf-8 characters.
 
 ## [0.3.1] - 2021-10-29
 ### Removed

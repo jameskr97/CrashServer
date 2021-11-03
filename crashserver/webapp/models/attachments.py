@@ -62,5 +62,5 @@ class Attachment(db.Model):
 
     @property
     def file_content(self):
-        with self.file_location.open() as f:
-            return f.read()
+        with self.file_location.open("rb") as f:
+            return f.read().decode("utf-8", "replace")
