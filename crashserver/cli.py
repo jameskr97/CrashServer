@@ -92,3 +92,7 @@ def deluser(email):
         session.delete(res)
         session.commit()
         click.echo(f"User {email} deleted.")
+
+
+if __name__ == "__main__":
+    cli()
