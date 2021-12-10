@@ -16,5 +16,11 @@ def get_appdata_directory(path: str) -> Path:
     return p
 
 
+def get_postgres_url():
+    return (
+        f"postgresql://{settings.db.user}:{settings.db.passwd}@{settings.db.host}:{settings.db.port}/{settings.db.name}"
+    )
+
+
 def get_redis_url():
     return f"redis://{settings.redis.host}:{settings.redis.port}"
