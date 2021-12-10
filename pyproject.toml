@@ -36,6 +36,7 @@ loguru = "^0.5.3"
 natsort = "^7.1.1"
 rq = "^1.10.0"
 humanize = "^3.11.0"
+Flask-DebugToolbar = "^0.11.0"
 
 [tool.poetry.dev-dependencies]
 [tool.poetry.scripts]

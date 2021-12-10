@@ -6,7 +6,7 @@ from sqlalchemy_utils import create_database, database_exists
 from crashserver.config import get_appdata_directory
 from crashserver.config import get_postgres_url, settings
 from crashserver.utility.hostinfo import HostInfo
-from crashserver.webapp.extensions import db, queue, login, limiter
+from crashserver.webapp.extensions import debug_toolbar, login, limiter, db, queue
 from crashserver.webapp.models import User
 
 
@@ -43,6 +43,7 @@ def init_environment():
 
 
 def register_extensions(app: Flask):
+    debug_toolbar.init_app(app)
     db.init_app(app)
     limiter.init_app(app)
     login.init_app(app)
