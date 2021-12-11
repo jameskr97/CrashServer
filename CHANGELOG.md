@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.2] - 2021-12-11
 ### Changed
 - Crash Detail prismjs attachment presentation is larger, and syntax is updated
 - Switched init to use flask app factory design
@@ -12,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Allowed cli.py to be run from cli
+- Added Flask-Migrate to easily upgrade database
+- Add `upload_ip` column to minidump table
 
 ### Removed
 - Remove minidump upload limit
