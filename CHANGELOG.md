@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Crash Detail prismjs attachment presentation is larger, and syntax is updated
+- Switched init to use flask app factory design
+- Added Flask-DebugToolbar for request debug information
+
 ### Added
 - Allowed cli.py to be run from cli
 
