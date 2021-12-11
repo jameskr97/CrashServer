@@ -91,6 +91,8 @@
 			<br>
 			<!-- MINIDUMP TAB CONTENT AREA -->
 			<div class="tab-content" id="nav-tabContent">
+
+				<!-- STACKTRACE TAB -->
 				<div class="tab-pane fade show active " id="nav-stacktrace" role="tabpanel" aria-labelledby="nav-profile-tab">
 
 					{% if not dump.symbolicated %}
@@ -157,6 +159,7 @@
 					{% endif %}
 				</div>
 
+				<!-- ATTACHMENT TAB -->
 				{% if dump.attachments|count != 0 %}
 					<div class="tab-pane fade" id="nav-attachments" role="tabpanel" aria-labelledby="nav-contact-tab">
 						<!-- CODE AREA DIV -->
@@ -175,7 +178,7 @@
 
 								<!-- START OF FILE ACCORDION BODY -->
 								<div id="file_{{ file.id }}" class="accordion accordion-collapse collapse" data-bs-parent="#file-list">
-									<pre class="line-numbers"><code class="language-text">{{ file.file_content }}</code></pre>
+									<pre class="crash_detail_code_block line-numbers"><code class="language-text">{{ file.file_content }}</code></pre>
 								</div>
 							{% endfor %}
 
