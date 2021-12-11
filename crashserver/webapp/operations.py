@@ -22,7 +22,7 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
         will almost always be from the first line of the symbol file.
 
     :param session: The database session object
-    :param project_id: The project_id to relate the symbol to
+    :param project: The project to relate the symbol to
     :param symbol_file: The bytes to store in the file
     :param symbol_data: Metadata about the symfile param
     :return: The response to the client making this request
