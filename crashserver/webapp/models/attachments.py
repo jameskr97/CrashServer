@@ -39,7 +39,6 @@ class Attachment(db.Model):
         return config.get_appdata_directory("attachments") / str(self.project_id) / self.filename
 
     def store_file(self, file_content: bytes):
-
         # Determine storage location
         dump_id_part = str(self.minidump_id).split("-")[0]
         filename = "attachment-%s-%s" % (dump_id_part, str(uuid.uuid4().hex)[:8])

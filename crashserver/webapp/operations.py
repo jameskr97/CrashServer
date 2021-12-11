@@ -82,7 +82,6 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
 
 
 def minidump_upload(session, project_id: str, annotations: dict, minidump_file: bytes, attachments):
-
     # Verify file is actually a minidump based on magic number
     # Validate magic number
     magic_number = magic.from_buffer(minidump_file, mime=True)

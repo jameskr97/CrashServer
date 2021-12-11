@@ -16,7 +16,6 @@ from crashserver.utility.decorators import (
 from crashserver.webapp import operations as ops
 from crashserver.webapp import db
 
-
 sym_upload_v1 = Blueprint("sym-upload-v1", __name__)
 
 
