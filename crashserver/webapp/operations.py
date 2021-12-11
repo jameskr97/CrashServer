@@ -92,6 +92,7 @@ def minidump_upload(session, project_id: str, annotations: dict, minidump_file: 
 
     # Add minidump to database
     new_dump = Minidump(project_id=project_id)
+    new_dump.upload_ip = flask.request.remote_addr
     new_dump.client_guid = annotations.pop("guid", None)
     new_dump.store_minidump(minidump_file)
     session.add(new_dump)
