@@ -8,16 +8,8 @@ from sqlalchemy.orm import Session
 
 from email_validator import validate_email, EmailNotValidError
 from cloup import HelpFormatter, HelpTheme, Style, command, argument, group
+from crashserver.config import get_postgres_url
 import click
-
-
-def get_engine():
-    from crashserver.config import settings
-
-    db_user, db_pass = settings.db.user, settings.db.passwd
-    db_host, db_name, db_port = settings.db.host, settings.db.name, settings.db.port
-    engine = create_engine(f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
-    return engine
 
 
 """
@@ -62,7 +54,7 @@ def adduser(email):
         return
 
     # Connect to database
-    with Session(get_engine()) as session:
+    with Session(create_engine(get_postgres_url())) as session:
         res = session.query(User).filter_by(email=email).first()
         if res:
             click.echo(f"User {email} already exists")
@@ -83,7 +75,7 @@ def adduser(email):
 def deluser(email):
     from crashserver.webapp.models import User
 
-    with Session(get_engine()) as session:
+    with Session(create_engine(get_postgres_url())) as session:
         res = session.query(User).filter_by(email=email).first()
         if not res:
             click.echo(f"User {email} does not exist")
@@ -94,5 +86,12 @@ def deluser(email):
         click.echo(f"User {email} deleted.")
 
 
-if __name__ == "__main__":
-    cli()
+@cli.command(help="Force minidump to decode")
+@argument("dump_id", required=True)
+def force_decode(dump_id):
+    from crashserver.webapp.models import Minidump
+
+    with Session(create_engine(get_postgres_url())) as session:
+        res = session.query(Minidump).get(dump_id)
+        res.decode_task()
+    print(f"Minidump {dump_id} sent to worker for decode.")

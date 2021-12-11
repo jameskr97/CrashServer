@@ -6,7 +6,8 @@ from loguru import logger
 import requests
 
 from crashserver.webapp.models import Minidump, BuildMetadata, SymCache
-from crashserver.webapp import db, init_app
+from crashserver.webapp.extensions import db
+from crashserver.webapp import create_app
 from crashserver.utility import processor
 from crashserver import config
 
@@ -33,7 +34,7 @@ def download_windows_symbol(module_id: str, build_id: str):
 
 
 def decode_minidump(crash_id):
-    app = init_app()
+    app = create_app()
     with app.app_context():
         stackwalker = str(Path("res/bin/linux/stackwalker").absolute())
 
