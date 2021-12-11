@@ -3,7 +3,6 @@ import uuid
 
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET
 from sqlalchemy.sql import func, text, expression
-from loguru import logger
 import redis
 import rq
 
@@ -37,6 +36,7 @@ class Minidump(db.Model):
     date_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     symbolicated = db.Column(db.Boolean(), default=expression.false())
     client_guid = db.Column(UUID(as_uuid=True), nullable=True)
+    upload_ip = db.Column(INET(), nullable=True, server_default=None)
     filename = db.Column(db.Text(), nullable=False)
     stacktrace = db.Column(JSONB, nullable=True)
     decode_task_id = db.Column(db.String(36))
