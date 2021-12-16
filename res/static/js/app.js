@@ -49,3 +49,43 @@ function delete_minidump(id){
         .then(data => window.location.reload(false))
 
 }
+
+function gen_minidump_count_chart(element_id) {
+    function gen_chart(data) {
+        Chart.register(ChartDataLabels);
+        let ctx = document.getElementById(element_id).getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data["labels"],
+                datasets: [{
+                    data: data["counts"],
+                    backgroundColor: 'rgba(54, 162, 235, 1)',
+                    borderColor: 'rgba(0, 0, 0, 0.2)',
+                    borderWidth: 1
+                }]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                legend: {display: false, onClick: (e) => e.stopPropagation()},
+                animation: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        color: '#000',
+                        font: {size: 20}
+                    },
+                    title: {display: true, text: 'Minidumps uploaded each day'},
+                    legend: {display: false},
+                    tooltip: {enabled: false}
+                }
+            },
+        });
+    }
+
+    // Get Crash Data
+    fetch("/webapi/stats/crash-per-day")
+        .then(data => data.json())
+        .then(json => gen_chart(json))
+}
