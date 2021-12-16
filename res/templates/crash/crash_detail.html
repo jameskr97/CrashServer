@@ -34,7 +34,12 @@
 
 {% macro main_detail_page() %}
 	<link href="{{ url_for('static', filename='css/prism.css') }}" rel="stylesheet">
-	<h3>{{ dump.project.project_name }}</h3>
+	<h3>
+		{{ dump.project.project_name }}
+		{% if dump.symbol and dump.project.project_type|string == "ProjectType.VERSIONED" %}
+			 {{ dump.symbol.app_version }}
+		{% endif %}
+	</h3>
 	<p>
 		<span class="badge bg-danger">Crash Reason: {{ dump.json.crash_reason.crash_type }}</span>
 		<span class="badge bg-primary">Date Uploaded: {{ dump.date_created.strftime("%F %T %Z") }}</span>

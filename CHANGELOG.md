@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Graph on homepage which shows crashes for each day of the past week
 - Added favicon for web browsers and apple icon shortcut
+- Decoded minidumps for versioned symbols now show the symbol's related version number on the crash detail page 
 
 ### Changed
 - Use S3 compatible storage for attachments
