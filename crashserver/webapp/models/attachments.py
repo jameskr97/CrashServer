@@ -1,12 +1,14 @@
-from pathlib import Path
+import io
 import uuid
+from pathlib import Path
 
+import magic
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
-import magic
 
 from crashserver import config
 from crashserver.webapp import db
+from crashserver.webapp.extensions import s3store
 
 
 class Attachment(db.Model):
@@ -35,8 +37,9 @@ class Attachment(db.Model):
     minidump = db.relationship("Minidump", back_populates="attachments")
 
     @property
-    def file_location(self) -> Path:
-        return config.get_appdata_directory("attachments") / str(self.project_id) / self.filename
+    def file_location(self) -> str:
+        """File location with prefix as stored on S3"""
+        return f"attachments/{str(self.project_id)}/{self.filename}"
 
     def store_file(self, file_content: bytes):
         # Determine storage location
@@ -48,9 +51,14 @@ class Attachment(db.Model):
         # Determine mime-type
         self.mime_type = magic.from_buffer(file_content, mime=True)
 
-        # Store file
+        # Store file, and upload to S3
         with open(attach_loc.absolute(), "wb") as f:
             f.write(file_content)
+        s3store.upload_fileobj(
+            io.BytesIO(file_content),
+            config.settings.s3store.bucket_name,
+            str(attach_loc.relative_to(*attach_loc.parts[:2])),
+        )
 
         self.filename = str(filename)
         self.file_size_bytes = len(file_content)
@@ -61,5 +69,7 @@ class Attachment(db.Model):
 
     @property
     def file_content(self):
-        with self.file_location.open("rb") as f:
-            return f.read().decode("utf-8", "replace")
+        with io.BytesIO() as data:
+            s3store.download_fileobj(config.settings.s3store.bucket_name, self.file_location, data)
+            data.seek(0)
+            return data.read().decode("utf-8", "replace")
