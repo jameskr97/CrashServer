@@ -1,4 +1,5 @@
 import itertools
+import json
 import operator
 import io
 
@@ -163,3 +164,27 @@ def delete_minidump(dump_id):
     db.session.delete(dump)
     db.session.commit()
     return "", 200
+
+
+@api.route("/webapi/stats/crash-per-day")
+def crash_per_day():
+    # Get crash per day data
+    with db.engine.connect() as conn:
+        sql = """
+        SELECT
+            m.date_created::DATE as upload_date,
+            COUNT(m.date_created) as num_dump
+        FROM minidump m
+        GROUP BY upload_date
+        ORDER BY upload_date
+        LIMIT 7;
+        """
+        res = conn.execute(sql)
+
+    labels = []
+    counts = []
+    for pair in res:
+        labels.append(pair[0])
+        counts.append(pair[1])
+
+    return json.dumps({"labels": labels, "counts": counts}, default=str)
