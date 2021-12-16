@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Graph on homepage which shows crashes for each day of the past week
 - Added favicon for web browsers and apple icon shortcut
 
+### Changed
+- Use S3 compatible storage for attachments
+
 ## [0.3.2] - 2021-12-11
 ### Changed
 - Crash Detail prismjs attachment presentation is larger, and syntax is updated
