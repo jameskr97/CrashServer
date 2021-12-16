@@ -38,6 +38,7 @@ rq = "^1.10.0"
 humanize = "^3.11.0"
 Flask-DebugToolbar = "^0.11.0"
 Flask-Migrate = "^3.1.0"
+boto3 = "^1.20.24"
 
 [tool.poetry.dev-dependencies]
 [tool.poetry.scripts]
