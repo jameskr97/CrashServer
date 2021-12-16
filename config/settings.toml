@@ -18,12 +18,13 @@
     host = "redis"
     port = 6379
 
-    # Local storage directories
-    [default.storage]
-    appdata     = "data/storage"
-    logs        = "data/logs"
+    [default.s3store]
+    endpoint_url = "https://s3.amazonaws.com"
+    bucket_name = ""
+    access_key = ""
+    secret_key = ""
 
-[docker]
-    [docker.storage]
+    # Docker-based default storage directories
+    [default.storage]
     appdata     = "/storage"
     logs        = "/logs"
