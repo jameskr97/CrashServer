@@ -7,4 +7,5 @@
 
 # Application related
 .env
+.docker/.env.private
 data/

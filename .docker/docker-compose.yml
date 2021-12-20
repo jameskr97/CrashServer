@@ -38,7 +38,7 @@ services:
         networks: [crashnet]
         depends_on: [postgres, crashserver-worker]
         ports: ["8888:8888"]
-        env_file: [".env.docker"]
+        env_file: [".env.docker", ".env.private"]
         volumes:
             # Source related
             - ../crashserver:/app/crashserver
