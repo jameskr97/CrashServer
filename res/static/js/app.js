@@ -89,3 +89,17 @@ function gen_minidump_count_chart(element_id) {
         .then(data => data.json())
         .then(json => gen_chart(json))
 }
+
+function get_attachment_contents(attachment_id){
+    function present_contents(contents){
+        document.getElementById("file_loader_" + attachment_id).remove();
+        document.getElementById("file_code_" + attachment_id).innerHTML = contents;
+        let pre = document.getElementById("file_pre_" + attachment_id);
+        pre.classList.remove("d-none");
+        Prism.highlightAllUnder(pre);
+    }
+
+    fetch("/webapi/attachment/get-content/" + attachment_id)
+        .then(data => data.json())
+        .then(json => present_contents(json["file_content"]));
+}

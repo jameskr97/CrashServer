@@ -16,7 +16,7 @@ from crashserver.utility.decorators import (
     api_key_required,
     check_project_versioned,
 )
-from crashserver.webapp.models import Symbol, Project, ProjectType, Minidump
+from crashserver.webapp.models import Symbol, Project, ProjectType, Minidump, Attachment
 from crashserver.utility.misc import SymbolData
 import crashserver.webapp.operations as ops
 from crashserver.webapp import db
@@ -188,3 +188,9 @@ def crash_per_day():
         counts.insert(0, pair[1])
 
     return json.dumps({"labels": labels, "counts": counts}, default=str)
+
+
+@api.route("/webapi/attachment/get-content/<attach_id>")
+def get_attachment_content(attach_id):
+    attach = Attachment.query.get(attach_id)
+    return {"file_content": attach.file_content}, 200

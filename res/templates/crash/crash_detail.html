@@ -175,7 +175,8 @@
 								<div class="accordion-item">
 									<h2 class="accordion-header">
 										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-												data-bs-target="#file_{{ file.id }}">
+												data-bs-target="#file_{{ file.id }}"
+												onclick="get_attachment_contents('{{ file.id }}')">
 											<span class="monospace-font">{{ file.original_filename }}</span>
 										</button>
 									</h2>
@@ -183,7 +184,11 @@
 
 								<!-- START OF FILE ACCORDION BODY -->
 								<div id="file_{{ file.id }}" class="accordion accordion-collapse collapse" data-bs-parent="#file-list">
-									<pre class="crash_detail_code_block line-numbers"><code class="language-text">{{ file.file_content }}</code></pre>
+									<div id="file_loader_{{ file.id }}" class="frame-code-loader-view">
+										<span style="margin-right: 5px; margin-top: 5px" class="spinner-border text-dark" role="status"></span>
+										<span>Loading attachment content...</span>
+									</div>
+									<pre id="file_pre_{{ file.id }}" class="d-none crash_detail_code_block line-numbers"><code id="file_code_{{ file.id }}" class="language-text"></code></pre>
 								</div>
 							{% endfor %}
 
