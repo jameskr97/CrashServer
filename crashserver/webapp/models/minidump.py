@@ -1,3 +1,4 @@
+from functools import cached_property
 from pathlib import Path
 import uuid
 
@@ -95,7 +96,7 @@ class Minidump(db.Model):
             return None
         return rq_job
 
-    @property
+    @cached_property
     def json(self):
         return processor.ProcessedCrash.generate(self.stacktrace)
 
