@@ -92,6 +92,8 @@ function gen_minidump_count_chart(element_id) {
 
 function get_attachment_contents(attachment_id){
     function present_contents(contents){
+        // Remove loading spinner, remove onclick action, set code content, tell prism to process new content
+        document.getElementById("file_button_" + attachment_id).removeAttribute("onclick");
         document.getElementById("file_loader_" + attachment_id).remove();
         document.getElementById("file_code_" + attachment_id).innerHTML = contents;
         let pre = document.getElementById("file_pre_" + attachment_id);
