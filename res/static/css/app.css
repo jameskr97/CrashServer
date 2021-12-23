@@ -54,12 +54,22 @@ table, th, tr, hr {
     color: var(--cs-text-color) !important;
 }
 
+select, ul, button, .list-group-item {
+    background-color: var(--cs-background-color) !important;
+    color: var(--cs-text-color) !important;
+    border-color: var(--cs-separator-color) !important;
+}
+
 .bg-dark {
     background-color: var(--cs-nav-color) !important;
 }
 
 .crash-thread-badge.bg-danger {
     background-color: #DA0037 !important;
+}
+
+.dropdown-item {
+    color: var(--cs-text-color);
 }
 
 .monospace-font {
@@ -236,6 +246,7 @@ table, th, tr, hr {
 
 .nav-tabs .crash-detail-tab.active {
     color: black;
+    border-bottom: none;
 }
 
 .nav-tabs .crash-detail-tab.disabled {
