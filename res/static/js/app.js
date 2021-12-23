@@ -113,10 +113,12 @@ function gen_minidump_count_chart(element_id) {
         }
         set_colors(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
+        // Update dark website toggle on
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
             set_colors(e.matches);
         });
 
+        // Update dark/light graph on button press
         document.getElementById("btn-toggle-dark").addEventListener("click", e => {
             let currentTheme = determine_current_theme()
 
@@ -129,10 +131,21 @@ function gen_minidump_count_chart(element_id) {
             }
         });
 
+        // Update graph content on select element change
+        document.getElementById("chart-crash-day-select").addEventListener("change", e => {
+            // Get Crash Data
+            fetch("/webapi/stats/crash-per-day?days=" + e.target.value)
+                .then(data => data.json())
+                .then(json => {
+                    chart.data.labels = json["labels"]
+                    chart.data.datasets[0].data = json["counts"]
+                    chart.update()
+                })
+        })
     }
 
     // Get Crash Data
-    fetch("/webapi/stats/crash-per-day")
+    fetch("/webapi/stats/crash-per-day?days=7")
         .then(data => data.json())
         .then(json => gen_chart(json))
 }

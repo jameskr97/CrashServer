@@ -144,6 +144,19 @@ select, ul, button, .list-group-item {
     background: var(--cs-pagination-bg) !important;
 }
 
+.day-crash-count {
+    float: right;
+    display: inline-block;
+}
+
+.day-crash-count > select {
+    border: 1px solid var(--cs-separator-color);
+}
+
+hr {
+    clear: both;
+}
+
 /* Settings page specific CSS */
 .settings-content-container {
     padding: 15px;

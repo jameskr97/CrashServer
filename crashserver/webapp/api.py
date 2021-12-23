@@ -169,15 +169,19 @@ def delete_minidump(dump_id):
 @api.route("/webapi/stats/crash-per-day")
 def crash_per_day():
     # Get crash per day data
+    num_days = request.args.get("days", default=7, type=int)
+    if num_days not in [7, 30]:
+        num_days = 7
+
     with db.engine.connect() as conn:
-        sql = """
+        sql = f"""
         SELECT
             m.date_created::DATE as upload_date,
             COUNT(m.date_created) as num_dump
         FROM minidump m
         GROUP BY upload_date
         ORDER BY upload_date DESC
-        LIMIT 7;
+        LIMIT {num_days};
         """
         res = conn.execute(sql)
 
