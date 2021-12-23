@@ -1,3 +1,26 @@
+function determine_current_theme() {
+    let isLight     = document.body.classList.contains("light-theme");
+    let isDark      = document.body.classList.contains("dark-theme");
+    return (isLight || isDark) ? (isDark ? "dark-theme" : "light-theme") : "os-default";
+}
+
+function toggle_dark_mode(){
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.remove("dark-theme");
+        document.body.classList.toggle("light-theme");
+    } else {
+        document.body.classList.remove("light-theme");
+        document.body.classList.toggle("dark-theme");
+    }
+
+    let currentTheme = determine_current_theme();
+    if (currentTheme !== "os-default") {
+        document.cookie = "theme=" + currentTheme + ";path=/;";
+    } else {
+        document.cookie = "theme=;path=/;";
+    }
+}
+
 function update_symbol_list(id){
     fetch("/webapi/symbols/" + id)
         .then(data => data.json())
@@ -60,8 +83,6 @@ function gen_minidump_count_chart(element_id) {
                 labels: data["labels"],
                 datasets: [{
                     data: data["counts"],
-                    backgroundColor: 'rgba(54, 162, 235, 1)',
-                    borderColor: 'rgba(0, 0, 0, 0.2)',
                     borderWidth: 1
                 }]
             },
@@ -77,11 +98,37 @@ function gen_minidump_count_chart(element_id) {
                         font: {size: 20}
                     },
                     title: {display: true, text: 'Minidumps uploaded each day'},
-                    legend: {display: false},
+                    legend: {display: false, labels: {font: {size: 200}}},
                     tooltip: {enabled: false}
                 }
             },
         });
+
+        function set_colors(isDark){
+            chart.data.datasets[0].backgroundColor  = isDark ? '#DA0037' : 'rgba(54, 162, 235, 1)';
+            chart.data.datasets[0].borderColor      = isDark ? '#DA0037' : 'rgba(0, 0, 0, 0.2)';
+            chart.options.scales['x'].grid.color    = isDark ? '#ffffff66' : 'black';
+            chart.options.scales['y'].grid.color    = isDark ? '#ffffff66' : 'black';
+            chart.update();
+        }
+        set_colors(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            set_colors(e.matches);
+        });
+
+        document.getElementById("btn-toggle-dark").addEventListener("click", e => {
+            let currentTheme = determine_current_theme()
+
+            if(currentTheme === "os-default") {
+                set_colors(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            } else if(currentTheme === "dark-theme"){
+                set_colors(true);
+            } else {
+                set_colors(false);
+            }
+        });
+
     }
 
     // Get Crash Data

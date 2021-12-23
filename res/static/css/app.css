@@ -1,7 +1,65 @@
-/* CSS For Any Page*/
+/* Colors */
+/** Default (light) colors */
+body {
+    --cs-background-color: white;
+    --cs-text-color: black;
+    --cs-nav-color: #212529;
+    --cs-red-badge: #DC3545;
+    --cs-separator-color: black;
+    --cs-pagination-bg: white;
+}
+
+/** Default (dark) colors */
+body.dark-theme {
+    --cs-background-color: #121212;
+    --cs-text-color: #ffffffDE;
+    --cs-nav-color: #12121299;
+    --cs-red-badge: #DA0037;
+    --cs-separator-color: #ffffff66;
+    --cs-pagination-bg: var(--cs-nav-color);
+}
+
+/** Swapped body to .light-theme, and body.dark-theme to body */
+@media (prefers-color-scheme: dark) {
+    body {
+        --cs-background-color: #121212;
+        --cs-text-color: #ffffffDE;
+        --cs-nav-color: #12121299;
+        --cs-red-badge: #DA0037;
+        --cs-separator-color: #ffffff66;
+        --cs-pagination-bg: var(--cs-nav-color);
+    }
+    body.light-theme {
+        --cs-background-color: white;
+        --cs-text-color: black;
+        --cs-nav-color: #212529;
+        --cs-red-badge: #DC3545;
+        --cs-separator-color: black;
+        --cs-pagination-bg: white;
+    }
+}
+
 
 body {
     font-family: 'Bai Jamjuree', monospace;
+    background-color: var(--cs-background-color);
+    color: var(--cs-text-color);
+}
+
+td {
+    border-bottom: 1px inset var(--cs-separator-color);
+}
+
+table, th, tr, hr {
+    color: var(--cs-text-color) !important;
+}
+
+.bg-dark {
+    background-color: var(--cs-nav-color) !important;
+}
+
+.crash-thread-badge.bg-danger {
+    background-color: #DA0037 !important;
 }
 
 .monospace-font {
@@ -68,6 +126,12 @@ body {
 
 .centering-grid-item {
     grid-column: 2;
+}
+
+/* Crash List page */
+.pagination > .page-item > .page-link {
+    color: var(--cs-text-color) !important;
+    background: var(--cs-pagination-bg) !important;
 }
 
 /* Settings page specific CSS */

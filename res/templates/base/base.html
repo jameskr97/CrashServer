@@ -17,7 +17,7 @@
 	<link href="{{ url_for('static', filename='css/prism.css') }}" rel="stylesheet">
 	<link href="{{ url_for('static', filename='css/fa-all.css') }}" rel="stylesheet">
 </head>
-<body>
+<body {{  ('class=' + request.cookies.get('theme')) if request.cookies.get('theme') else "" }}>
 {% include 'base/navbar.html' %}
 <div class="container">
 	{% include 'base/flash.html' %}
