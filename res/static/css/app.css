@@ -5,7 +5,7 @@ body {
     --cs-text-color: black;
     --cs-nav-color: #212529;
     --cs-red-badge: #DC3545;
-    --cs-separator-color: black;
+    --cs-separator-color: rgba(0, 0, 0, .125);
     --cs-pagination-bg: white;
 }
 
@@ -34,7 +34,7 @@ body.dark-theme {
         --cs-text-color: black;
         --cs-nav-color: #212529;
         --cs-red-badge: #DC3545;
-        --cs-separator-color: black;
+        --cs-separator-color: rgba(0, 0, 0, .125);
         --cs-pagination-bg: white;
     }
 }
@@ -92,6 +92,15 @@ select, ul, button, .list-group-item {
 
 .fa-fw {
     margin-right: 3px;
+}
+
+/* Bootstrap Override */
+.nav-tabs {
+    border-bottom: 1px solid var(--cs-separator-color);
+}
+
+.accordion-item {
+    background-color: var(--cs-separator-color);
 }
 
 /* Homepage specific CSS */
