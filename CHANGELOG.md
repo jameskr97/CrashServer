@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Crash Per Day chart shows day of week name, instead of year
+
 ## [0.3.5] - 2021-12-25
 ### Added
 - Dark mode! Toggle icon seen at top right, or in drop-down on mobile

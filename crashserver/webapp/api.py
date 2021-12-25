@@ -176,10 +176,11 @@ def crash_per_day():
     with db.engine.connect() as conn:
         sql = f"""
         SELECT
-            m.date_created::DATE as upload_date,
+            to_char(m.date_created::DATE, 'Dy') as day_name,
+            to_char(m.date_created::DATE, 'MM-DD') as upload_date,
             COUNT(m.date_created) as num_dump
         FROM minidump m
-        GROUP BY upload_date
+        GROUP BY m.date_created::DATE
         ORDER BY upload_date DESC
         LIMIT {num_days};
         """
@@ -187,9 +188,9 @@ def crash_per_day():
 
     labels = []
     counts = []
-    for pair in res:
-        labels.insert(0, pair[0])
-        counts.insert(0, pair[1])
+    for data in res:
+        labels.insert(0, f"{data[1]} ({data[0]})")
+        counts.insert(0, data[2])
 
     return json.dumps({"labels": labels, "counts": counts}, default=str)
 
