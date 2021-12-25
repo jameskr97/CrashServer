@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ## Added
 - Dark mode! Toggle icon seen at top right, or in drop-down on mobile
+- Chart now shows 7 or 30 days depending on dropdown selection.
 
 ## Changed
 - Attachment content no longer included on every page by default. Content requested on view attempt via webapi endpoint.
+- Attachments unable to be fetched present an error, instead of infinitely loading.
 
 ## [0.3.4] - 2021-12-21
 ### Added

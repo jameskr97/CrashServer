@@ -161,7 +161,23 @@ function get_attachment_contents(attachment_id){
         Prism.highlightAllUnder(pre);
     }
 
+    function present_failed(){
+        let spinner = document.getElementById("file_spinner_" + attachment_id)
+        let msg = document.getElementById("file_msg_" + attachment_id)
+        spinner.classList.remove(...spinner.classList);
+        spinner.classList.add("fas", "fa-times-circle")
+        msg.innerText = "Unable to load file contents."
+    }
+
     fetch("/webapi/attachment/get-content/" + attachment_id)
-        .then(data => data.json())
+        .then(response => {
+            document.getElementById("file_button_" + attachment_id).removeAttribute("onclick");
+            if (response.ok){
+                return response.json()
+            } else {
+                present_failed()
+                throw new Error("Unable to load attachment content for " + attachment_id)
+            }
+        })
         .then(json => present_contents(json["file_content"]));
 }
