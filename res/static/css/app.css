@@ -39,6 +39,9 @@ body.dark-theme {
     }
 }
 
+* {
+    transition: none !important;
+}
 
 body {
     font-family: 'Bai Jamjuree', monospace;
@@ -187,6 +190,7 @@ hr {
 
 .nav-link {
     color: #495057;
+    background-color: var(--cs-nav-color);
 }
 
 .settings-box-border {
