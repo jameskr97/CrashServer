@@ -98,7 +98,6 @@ def minidump_upload(session, project_id: str, annotations: dict, minidump_file: 
     session.flush()
 
     # Store attachments
-    logger.info("Storing {} attachments for {}", len(attachments), new_dump.id)
     for attach in attachments:
         new_attach = Attachment(project_id=project_id, minidump_id=new_dump.id, original_filename=attach.filename)
         new_attach.store_file(attach.stream.read())
@@ -112,6 +111,6 @@ def minidump_upload(session, project_id: str, annotations: dict, minidump_file: 
 
     new_dump.decode_task()
     session.commit()
-    logger.info("Minidump received from {}.", flask.request.remote_addr)
+    logger.info(f"Minidump received [{new_dump.id}] - [{flask.request.remote_addr}] - [{len(attachments)} attachments]")
 
     return flask.make_response({"status": "success", "id": str(new_dump.id)}, 200)
