@@ -177,7 +177,7 @@
 										<button id="file_button_{{ file.id }}" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
 												data-bs-target="#file_{{ file.id }}"
 												onclick="get_attachment_contents('{{ file.id }}')">
-											<span class="monospace-font">{{ file.original_filename }}</span>
+											<span class="monospace-font">{{ file.original_filename }} <code>({{ humanize.naturalsize(file.file_size_bytes) }})</code></span>
 										</button>
 									</h2>
 								</div>
