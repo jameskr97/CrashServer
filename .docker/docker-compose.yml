@@ -5,7 +5,7 @@
 #    This dockerfile allow the source code in the root of the project to be used with the rest
 #    of the docker environment. You can modify the source, and since the flask development
 #    server is used, the changes will be updated immediately.
-# 3. A folder called `data` will be created in the root directory. All appdata and log output
+# 3. A folder called `data` will be created in this directory. All appdata and log output
 #    will be stored within this directory
 
 version: "3.0"
@@ -47,8 +47,8 @@ services:
             - ../main.py:/app/main.py
 
             # App Data
-            - ../data/logs:/logs
-            - ../data/storage:/storage
+            - ./data/logs:/logs
+            - ./data/storage:/storage
         environment:
             FLASK_APP: crashserver/webapp:create_app
             FLASK_RUN_HOST: 0.0.0.0
@@ -64,7 +64,7 @@ services:
         depends_on: [redis]
         networks: [crashnet]
         env_file: [".env.docker"]
-        volumes: ["../data/storage:/storage"]
+        volumes: ["./data/storage:/storage"]
 
 
 volumes:
