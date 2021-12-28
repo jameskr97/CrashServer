@@ -18,6 +18,7 @@ from gunicorn.app.base import BaseApplication
 from gunicorn.glogging import Logger
 from loguru import logger
 
+from crashserver.webapp import create_app
 from crashserver.config import settings
 from crashserver import syscheck
 
@@ -122,8 +123,7 @@ if __name__ == "__main__":
 
     syscheck.validate_all_settings()  # Ensure application has a sane environment
 
-    from crashserver.webapp import app
-
+    app = create_app()
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Activate proxy pass detection to get real ip
 
     if os.environ.get("FLASK_DEBUG"):
@@ -141,4 +141,4 @@ if __name__ == "__main__":
         "logger_class": StubbedGunicornLogger,
         "worker_class": "gevent",
     }
-    StandaloneApplication(app, options).run()
+    StandaloneApplication(create_app(), options).run()

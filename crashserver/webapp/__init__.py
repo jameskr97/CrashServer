@@ -98,6 +98,3 @@ def init_database(app: Flask):
     from crashserver.webapp.models import SymbolUploadV2
     from crashserver.webapp.models import User
     from crashserver.webapp.models import SymCache
-
-
-app = create_app()
