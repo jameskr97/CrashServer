@@ -2,11 +2,11 @@
 {% set json = dump.json %}
 
 {% macro still_processing() %}
-	<h2 class="text-center">Processing minidump...</h2>
+	<h2 class="text-center">{{ _("Processing minidump...") }}</h2>
 	<div class="container">
 		<div class="d-flex justify-content-center">
 			<div class="spinner-grow text-center" role="status">
-				<span class="visually-hidden">Processing minidump...</span>
+				<span class="visually-hidden">{{ _("Processing minidump...")}}</span>
 			</div>
 		</div>
 	</div>
@@ -18,7 +18,7 @@
 	<div class="centering-grid">
 		<div class="centering-grid-item">
 			<h1 class="text-center"><i class="far fa-sad-cry"></i></h1>
-			<h2 class="text-center">Symbols for this minidump haven't been uploaded yet.</h2>
+			<h2 class="text-center">{{ _("Symbols for this minidump haven't been uploaded yet.") }}</h2>
 		</div>
 	</div>
 {% endmacro %}
@@ -41,9 +41,9 @@
 		{% endif %}
 	</h3>
 	<p>
-		<span class="badge bg-danger">Crash Reason: {{ dump.json.crash_reason.crash_type }}</span>
-		<span class="badge bg-primary">Date Uploaded: {{ dump.date_created.strftime("%F %T %Z") }}</span>
-		<span class="badge bg-secondary">Crash Location: {{ dump.json.crash_reason.crash_address }}</span>
+		<span class="badge bg-danger">{{ _("Crash Reason") }}: {{ dump.json.crash_reason.crash_type }}</span>
+		<span class="badge bg-primary">{{ _("Date Uploaded") }}: {{ dump.date_created.strftime("%F %T %Z") }}</span>
+		<span class="badge bg-secondary">{{ _("Crash Location") }}: {{ dump.json.crash_reason.crash_address }}</span>
 	</p>
 	<hr>
 	<div class="row">
@@ -84,12 +84,12 @@
 				<div class="nav nav-tabs" id="nav-tab" role="tablist">
 					<button class="crash-detail-tab nav-link active" id="nav-stack-tab" data-bs-toggle="tab" data-bs-target="#nav-stacktrace">
 						<i class="fas fa-stream"></i>
-						{{ dump.json.threads|count }} Thread{{ dump.json.threads|count|pluralize }}
+						{{ ngettext("%(num)d Thread", "%(num)d Threads", dump.json.threads|count)|format(num=dump.json.threads|count) }}
 					</button>
 					<button class="crash-detail-tab nav-link {{ "disabled" if dump.attachments|count == 0 }}"
 							id="nav-attach-tab" data-bs-toggle="tab" data-bs-target="#nav-attachments">
 						<i class="fas fa-paperclip"></i>
-						{{ dump.attachments|count }} Attachment{{ dump.attachments|count|pluralize }}
+						{{ ngettext("%(num)d Attachment", "%(num)d Attachments", dump.attachments|count)|format(num=dump.attachments|count) }}
 					</button>
 				</div>
 			</nav>
@@ -114,12 +114,12 @@
 
 											Thread #{{ thread.thread_index }}
 											{% if thread.thread_index == dump.json.crash_reason.crashing_thread %}
-												<span class="crash-thread-badge badge bg-danger">Crashing Thread</span>
+												<span class="crash-thread-badge badge bg-danger">{{ _("Crashing Thread") }}</span>
 											{% endif %}
 
 											<!-- Add tag for windows worker threads -->
 											{% if thread.frames[-1].func == "TppWorkerThread" %}
-												<span class="crash-thread-badge badge bg-info">Worker Thread</span>
+												<span class="crash-thread-badge badge bg-info">{{ _("Worker Thread") }}</span>
 											{% endif %}
 										</button>
 									</h2>
@@ -151,7 +151,7 @@
 													 data-bs-parent="#thread_{{ thread.thread_index }}_frame">
 													<div class="frame-code-loader-view">
 														<span style="margin-right: 5px" class="spinner-border text-dark" role="status"></span>
-														<span>Loading Code Snippet...</span>
+														<span>{{ _("Loading Code Snippet...") }}</span>
 													</div>
 												</div>
 											{% endif %} <!-- END OF INNER FRAME ACCORDION BODY -->
@@ -186,7 +186,7 @@
 								<div id="file_{{ file.id }}" class="accordion accordion-collapse collapse" data-bs-parent="#file-list">
 									<div id="file_loader_{{ file.id }}" class="frame-code-loader-view">
 										<span id="file_spinner_{{ file.id }}" style="margin-right: 5px; margin-top: 5px" class="spinner-border text-dark" role="status"></span>
-										<span id="file_msg_{{ file.id }}">Loading attachment content...</span>
+										<span id="file_msg_{{ file.id }}">{{ _("Loading attachment content...") }}</span>
 									</div>
 									<pre id="file_pre_{{ file.id }}" class="d-none crash_detail_code_block line-numbers"><code id="file_code_{{ file.id }}" class="language-text"></code></pre>
 								</div>
@@ -203,7 +203,7 @@
 {% endmacro %}
 
 {% block content %}
-	<h1 class="text-center">Detailed Crash Report</h1>
+	<h1 class="text-center">{{ _("Detailed Crash Report") }}</h1>
 	<hr>
 	{% if dump.stacktrace %}
 		{{ main_detail_page() }}

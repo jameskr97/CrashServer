@@ -7,7 +7,7 @@
 	<div class="col-md-4 col-lg-3 col-sm-12">
 		<h2>{{ project.project_name }}</h2>
 		<ul class="list-group">
-			<li class="list-group-item"><i class="fas fa-code-branch fa-fw"></i>{{ sym_dict.keys()|length }} Different Versions</li>
+			<li class="list-group-item"><i class="fas fa-code-branch fa-fw"></i>{{ sym_dict.keys()|length }} {{ _("Different Versions") }}</li>
 			{{ symbol_count_list("mac", "fa-apple") }}
 			{{ symbol_count_list("linux", "fa-linux") }}
 			{{ symbol_count_list("windows", "fa-windows") }}
@@ -24,7 +24,7 @@
 				<div class="accordion-item">
 					<h2 class="accordion-header">
 						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#version_{{ toggle_id }}">
-							Version {{ version }}
+							{{ _("Version") }} {{ version }}
 						</button>
 					</h2>
 				</div>
@@ -41,10 +41,10 @@
 											{{ symbol.build.module_id }} | {{ symbol.arch }}
 										</h6>
 										<p>
-											File Size: <code>{{ humanize.naturalsize(symbol.file_size_bytes) }}</code>
+											{{ _("File Size") }}: <code>{{ humanize.naturalsize(symbol.file_size_bytes) }}</code>
 										</p>
 										<p>
-											Uploaded on: {{ symbol.date_created.strftime("%c") }}
+											{{ _("Uploaded on") }}: {{ symbol.date_created.strftime("%c") }}
 											{#											Uploaded on: {{ symbol.date_created.strftime("%F %T %Z") }}#}
 										</p>
 									</div>
@@ -57,11 +57,11 @@
 									<thead>
 									<tr>
 										<th scope="col"></th> <!-- Operating System Icon -->
-										<th scope="col">Module ID</th>
+										<th scope="col">{{ _("Module ID") }}</th>
 										<th scope="col">Build ID</th>
-										<th scope="col">Architecture</th>
-										<th scope="col">File Size</th>
-										<th scope="col">Date Uploaded</th>
+										<th scope="col">{{ _("Architecture") }}</th>
+										<th scope="col">{{ _("File Size") }}</th>
+										<th scope="col">{{ _("Date Uploaded") }}</th>
 									</tr>
 									</thead>
 									<tbody>

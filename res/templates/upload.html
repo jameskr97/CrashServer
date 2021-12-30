@@ -11,7 +11,7 @@
             <div class="centering-grid-item">
                 <select id="project-select" class="centering-grid-item form-select" name="{{ form.project.name }}"
                         onChange="javascript:set_minidump_upload_enabled(true);" autocomplete="off">
-                    <option disabled selected>Select Project</option>
+                    <option disabled selected>{{ _("Select Project") }}</option>
                     {% for option in form.project %}
                         {{ option }}
                     {% endfor %}
@@ -23,8 +23,7 @@
         <!-- Drop down to select  -->
         <div class="centering-grid">
             <div id="no-symbols-msg" class="d-none centering-grid-item alert alert-danger" role="alert">
-                There aren't any symbols for this project! You can upload a minidump, but it won't be decoded
-                until symbols are uploaded.
+                {{ _("There aren't any symbols for this project! You can upload a minidump, but it won't be decoded until symbols are uploaded.") }}
             </div>
 
             <div class="centering-grid-item">
@@ -33,7 +32,7 @@
                     {{ form.minidump(class="form-control", disabled="true", id="minidump-upload") }}
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-outline-dark">Upload</button>
+                    <button type="submit" class="btn btn-outline-dark">{{ _("Upload") }}</button>
                 </div>
             </div>
         </div>

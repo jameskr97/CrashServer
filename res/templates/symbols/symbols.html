@@ -4,7 +4,7 @@
 	<div class="centering-grid">
 		<div class="centering-grid-item">
 			<select id="project-select" class="form-select" onChange="javascript:update_symbol_list(this.value);" autocomplete="off">
-				<option disabled selected>Select Project</option>
+				<option disabled selected>{{ _("Select Project") }}</option>
 				{% for proj in projects %}
 					<option value="{{ proj.id }}">{{ proj.project_name }}</option>
 				{% endfor %}
