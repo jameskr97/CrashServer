@@ -6,6 +6,7 @@
 /.idea/
 
 # Application related
+messages.pot
 .env
 .docker/.env.private
 data/
