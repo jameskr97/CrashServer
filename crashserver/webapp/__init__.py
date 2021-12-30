@@ -41,6 +41,7 @@ def init_environment():
     app.config["SQLALCHEMY_DATABASE_URI"] = get_postgres_url()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
     app.config["LANGUAGES"] = ['en', 'zh']
+    app.config["BABEL_TRANSLATION_DIRECTORIES"] = str(resources_root / "translations")
 
     return app
 
