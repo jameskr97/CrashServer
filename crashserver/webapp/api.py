@@ -4,6 +4,7 @@ import operator
 import io
 
 from flask import Blueprint, request, render_template, flash, redirect, make_response
+from flask_babel import _
 from sqlalchemy import func
 from loguru import logger
 from flask_login import login_required
@@ -140,10 +141,10 @@ def rename_project():
     res: Project = db.session.query(Project).filter_by(id=project_id).first()
 
     if res is None:
-        flash("Unable to find Project ID?", category="warning")
+        flash(_("Unable to find Project ID?"), category="warning")
         logger.warning("Unable to rename project. Bad project ID: {}".format(project_id))
     else:
-        message = "Project '{}' renamed to '{}'".format(res.project_name, new_name)
+        message = _("Project %(old)s renamed to %(new)s", old=res.project_name, new=new_name)
         res.project_name = new_name
         db.session.commit()
 

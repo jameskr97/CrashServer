@@ -2,6 +2,7 @@ from pathlib import Path
 
 import flask
 from flask import Flask
+from flask_babel import _
 from sqlalchemy_utils import create_database, database_exists
 
 from crashserver.config import get_appdata_directory
@@ -57,7 +58,7 @@ def register_extensions(app: Flask):
         return flask.request.accept_languages.best_match(app.config["LANGUAGES"])
 
     login.login_view = "auth.login"
-    login.login_message = "You must be logged in to see this page"
+    login.login_message = _("You must be logged in to see this page")
     login.login_message_category = "info"
 
 

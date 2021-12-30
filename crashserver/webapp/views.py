@@ -3,6 +3,7 @@ import uuid
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from flask_babel import _
 
 from crashserver.webapp.models import Minidump, Project, ProjectType, User
 from crashserver.webapp.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount
@@ -32,7 +33,7 @@ def settings():
     if request.method == "POST" and form.validate():
         current_user.set_password(form.new_pass.data)
         db.session.commit()
-        flash("Password Updated")
+        flash(_("Password Updated"))
     else:
         misc.flash_form_errors(form)
 
@@ -49,7 +50,7 @@ def project_create():
         # Check if the name is taken
         existing = db.session.query(Project).filter_by(project_name=form.title.data).first()
         if existing is not None:
-            flash('Project name "%s" is taken.' % form.title.data)
+            flash(_("Project name %(name)s is taken.", name=form.title.data))
             return redirect(url_for("views.project_create", form=form))
 
         # Create the project
@@ -67,7 +68,7 @@ def project_create():
 
         new_project.create_directories()
 
-        flash('Project "%s" was created.' % form.title.data)
+        flash(_("Project %(name)s was created.", name=form.title.data))
         return redirect(url_for("views.home"))
     else:
         misc.flash_form_errors(form)
