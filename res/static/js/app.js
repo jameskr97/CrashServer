@@ -92,6 +92,7 @@ function gen_minidump_count_chart(element_id) {
                 legend: {display: false, onClick: (e) => e.stopPropagation()},
                 animation: false,
                 maintainAspectRatio: false,
+                scales: {x: {grid: { display:false }}},
                 plugins: {
                     datalabels: {
                         color: '#000',
