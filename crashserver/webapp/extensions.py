@@ -1,6 +1,7 @@
 import boto3
 import redis
 import rq
+from flask_babel import Babel
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -10,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from crashserver.config import get_redis_url, get_s3store_config
 
+babel = Babel()
 debug_toolbar = DebugToolbarExtension()
 limiter = Limiter(key_func=get_remote_address)
 login = LoginManager()

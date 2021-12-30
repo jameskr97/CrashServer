@@ -1,12 +1,13 @@
 from pathlib import Path
 
+import flask
 from flask import Flask
 from sqlalchemy_utils import create_database, database_exists
 
 from crashserver.config import get_appdata_directory
 from crashserver.config import get_postgres_url, settings
 from crashserver.utility.hostinfo import HostInfo
-from crashserver.webapp.extensions import debug_toolbar, login, limiter, migrate, db, queue
+from crashserver.webapp.extensions import babel, debug_toolbar, login, limiter, migrate, db, queue
 from crashserver.webapp.models import User
 
 
@@ -38,16 +39,22 @@ def init_environment():
     app.config["SECRET_KEY"] = settings.flask.secret_key
     app.config["SQLALCHEMY_DATABASE_URI"] = get_postgres_url()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+    app.config["LANGUAGES"] = ['en', 'zh']
 
     return app
 
 
 def register_extensions(app: Flask):
+    babel.init_app(app)
     debug_toolbar.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db, directory="crashserver/migrations")
     limiter.init_app(app)
     login.init_app(app)
+
+    @babel.localeselector
+    def get_locale():
+        return flask.request.accept_languages.best_match(app.config["LANGUAGES"])
 
     login.login_view = "auth.login"
     login.login_message = "You must be logged in to see this page"
