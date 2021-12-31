@@ -1,5 +1,5 @@
 {% macro symbol_count_list(os, icon) %}
-	<li class="list-group-item"><i class="fab {{ icon }} fa-fw"></i>{{ stats["sym_count"][os] }} {{ os|capitalize }} Symbols</li>
+	<li class="list-group-item"><i class="fab {{ icon }} fa-fw"></i>{{ stats["sym_count"][os] }} {{ os|capitalize }} {{ _("Symbols") }}</li>
 {% endmacro %}
 
 <div class="row">

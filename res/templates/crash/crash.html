@@ -113,11 +113,11 @@
 			<table class="table">
 				<thead>
 				<tr>
-					<th scope="col">App</th>
+					<th scope="col">{{ _("App Name") }}</th>
 					<th scope="col">Minidump</th>
-					<th scope="col">Date Uploaded</th>
+					<th scope="col">{{ _("Date Uploaded") }}</th>
 					{% if current_user.is_authenticated %}
-						<th scope="col">Actions</th>
+						<th scope="col">{{ _("Actions") }}</th>
 					{% endif %}
 				</tr>
 				</thead>
@@ -159,7 +159,7 @@
 			<div class="centering-grid">
 				<div class="centering-grid-item">
 					<h1 class="text-center"><i class="far fa-sad-cry"></i></h1>
-					<h1 class="text-center">No minidumps have been uploaded yet.</h1>
+					<h1 class="text-center">{{ _("No minidumps have been uploaded yet.") }}</h1>
 				</div>
 			</div>
 		</div>

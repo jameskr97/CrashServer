@@ -32,12 +32,12 @@
 		<h4 style="display: inline">{{ p.project_name }}</h4>
 		<p style="display: inline">
 			| {{ p.project_type.value|capitalize }}
-			| {{ p.symbol|length }} Symbols ({{ humanize.naturalsize(p.total_symbol_size) }})
+			| {{ p.symbol|length }} {{ _("Symbols") }} ({{ humanize.naturalsize(p.total_symbol_size) }})
 			| {{ p.minidump|length }} Minidumps ({{ humanize.naturalsize(p.total_minidump_size) }})
 		</p>
 		<hr>
 		<h5>API Keys</h5>
-		{{ settings_info_line("Symbol Key", p.symbol_api_key) }}
+		{{ settings_info_line(_("Symbols") + " api key", p.symbol_api_key) }}
 		{{ settings_info_line("Minidump Key", p.minidump_api_key) }}
 		<hr>
 		<h5><code>symupload</code> examples</h5>
@@ -48,9 +48,9 @@
 		</ul>
 
 		<hr>
-		<h5 style="margin-top: 10px;">Disk Space</h5>
+		<h5 style="margin-top: 10px;">{{ _("Disk Space") }}</h5>
 		{{ project_disk_space("Minidump Storage", p.minidump_location) }}
-		{{ project_disk_space("Symbol Storage", p.symbol_location) }}
+		{{ project_disk_space(_("Symbol Storage"), p.symbol_location) }}
 		<hr>
 
 		<!-- MOBILE BUTTONS -->
@@ -66,16 +66,16 @@
 		<div id="desktop-buttons" class="row">
 			<div class="col-12 d-none d-md-block">
 				<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#project-rename-modal">
-					Rename
-					<span class="d-none d-lg-inline">Project</span>
+					{{ _("Rename") }}
+					<span class="d-none d-lg-inline">{{ _("Project") }}</span>
 				</button>
 				<button type="button" class="btn btn-warning">
-					Purge
+					{{ _("Purge") }}
 					<span class="d-none d-lg-inline">Minidumps</span>
 				</button>
 				<button type="button" class="btn btn-danger">
-					Delete
-					<span class="d-none d-lg-inline">Project</span>
+					{{ _("Delete") }}
+					<span class="d-none d-lg-inline">{{ _("Project") }}</span>
 				</button>
 			</div>
 		</div>
@@ -86,19 +86,19 @@
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title">Rename Project</h5>
+						<h5 class="modal-title">{{ _("Rename Project") }}</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
 						<form method="POST" action="{{ url_for('api.rename_project') }}">
 							<input type="hidden" id="rename-project-id" name="project_id" value="{{ p.id }}">
 							<div class="mb-3">
-								<label for="rename-proj-name" class="form-label">Project Name</label>
+								<label for="rename-proj-name" class="form-label">{{ _("Project Name") }}</label>
 								<input id="rename-proj-name" type="text" class="form-control" name="project_name" placeholder="{{ p.project_name }}"/>
 							</div>
 
 							<div class="modal-footer d-block">
-								<button type="submit" class="btn btn-primary float-end">Rename</button>
+								<button type="submit" class="btn btn-primary float-end">{{ _("Rename") }}</button>
 							</div>
 						</form>
 					</div>
@@ -121,7 +121,7 @@
 {% endmacro %}
 
 {% block content %}
-	<h1 class="text-center">Server Settings</h1>
+	<h1 class="text-center">{{ _("Server Settings") }}</h1>
 	<hr>
 	<div class="container">
 
@@ -143,11 +143,11 @@
 			<!-- DESKTOP SIDE TABS  -->
 			<div class="col-md-4 col-lg-3 d-none d-md-block">
 				<div id="settings-side-tabs" class="list-group settings-box-border">
-					<a id="account" class="list-group-item active" href="#account"><i class="fas fa-user fa-fw"></i>My Account</a>
-					<a id="users" class="list-group-item" href="#users"><i class="fas fa-users fa-fw"></i>Users</a>
-					<a id="server" class="list-group-item" href="#server"><i class="fas fa-server fa-fw"></i>Server</a>
-					<a id="projects" class="list-group-item" href="#projects"><i class="fas fa-archive fa-fw"></i>Projects</a>
-					<a id="about" class="list-group-item" href="#about"><i class="fas fa-info-circle fa-fw"></i>About</a>
+					<a id="account" class="list-group-item active" href="#account"><i class="fas fa-user fa-fw"></i>{{ _("My Account") }}</a>
+					<a id="users" class="list-group-item" href="#users"><i class="fas fa-users fa-fw"></i>{{ _("Users") }}</a>
+					<a id="server" class="list-group-item" href="#server"><i class="fas fa-server fa-fw"></i>{{ _("Server") }}</a>
+					<a id="projects" class="list-group-item" href="#projects"><i class="fas fa-archive fa-fw"></i>{{ _("Projects") }}</a>
+					<a id="about" class="list-group-item" href="#about"><i class="fas fa-info-circle fa-fw"></i>{{ _("About") }}</a>
 				</div>
 			</div>
 
@@ -157,17 +157,17 @@
 					<div id="settings-content" class="tab-content settings-box-border">
 						<!-- MY ACCOUNT TAB -->
 						<div class="tab-pane active" role="tabpanel" id="account-content">
-							<h4>My Account</h4>
+							<h4>{{ _("My Account") }}</h4>
 							<hr>
 							<form action="{{ url_for("views.settings") }}" method="POST">
-								<h5>Change Password</h5>
+								<h5>{{ _("Change Password") }}</h5>
 								{{ account_form.csrf_token }}
 								{{ generate_form_input(account_form.current_pass) }}
 								{{ generate_form_input(account_form.new_pass) }}
 								{{ generate_form_input(account_form.new_pass_verify) }}
 								<hr>
 								<div class="text-center">
-									<button type="submit" class="btn btn-outline-dark">Submit</button>
+									<button type="submit" class="btn btn-outline-dark">{{ _("Submit") }}</button>
 								</div>
 							</form>
 
@@ -176,15 +176,15 @@
 						<!-- USERS TAB -->
 						<div class="tab-pane" role="tabpanel" id="users-content">
 							<div class="text-center">
-								<h5>Current Users</h5>
+								<h5>{{ _("Current Users") }}</h5>
 							</div>
 							<div class="row">
 								<div class="d-none d-md-block">
 									<table class="table">
 										<thead>
 										<tr>
-											<th scope="col">Email</th>
-											<th scope="col">Account Created</th>
+											<th scope="col">{{ _("Email") }}</th>
+											<th scope="col">{{ _("Date Created") }}</th>
 										</tr>
 										</thead>
 										<tbody>
@@ -201,61 +201,60 @@
 						<!-- SERVER TAB -->
 						<div class="tab-pane" role="tabpanel" id="server-content">
 							<form action="">
-								<h4>Server Settings</h4>
+								<h4>{{ _("Server Settings") }}</h4>
 								<hr>
-								<h5>Symbol Upload</h5>
+								<h5>{{ _("Symbol Upload") }}</h5>
 								<div class="form-check">
 									<input class="form-check-input" type="checkbox" value="" id="symupload-v1">
 									<label class="form-check-label" for="symupload-v1">
-										Enable <code>sym-upload-v1</code> protocol
+										{{ _("Enable") }} <code>sym-upload-v1</code> {{ _("protocol") }}
 									</label>
 								</div>
 								<div class="form-check">
 									<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
 									<label class="form-check-label" for="symupload-v1">
-										Enable <code>sym-upload-v2</code> protocol
+										{{ _("Enable") }}  <code>sym-upload-v2</code> {{ _("protocol") }}
 									</label>
 								</div>
 								<hr>
 
-								<h5>Single Project Mode</h5>
+								<h5>{{ _("Single Project Mode") }}</h5>
 								<p>
-									Crash Server supports collecting symbols and minidumps for multiple applications, and keeping the data stored separately on disk,
-									some projects may only have a single project they want to store their symbols for. Enabling single project mode will:
+									{{ _("Crash Server supports collecting symbols and minidumps for multiple applications, and keeping the data stored separately on disk, some projects may only have a single project they want to store their symbols for. Enabling single project mode will:") }}
 								</p>
 
 								<ul>
-									<li>Set the homepage to be the selected projects dashboard.</li>
-									<li>Disable public access to any project expect the selected project.</li>
+									<li>{{ _("Set the homepage to be the selected projects dashboard.") }}</li>
+									<li>{{ _("Disable public access to any project expect the selected project.") }}</li>
 								</ul>
 
-								<p>Enabling will not delete any projects or symbols.</p>
+								<p>{{ _("Enabling will not delete any projects or symbols.") }}</p>
 								<div class="form-check">
 									<input class="form-check-input" type="checkbox" value="" id="single-project-mode">
 									<label class="form-check-label" for="single-project-mode">
-										Enable Single Project Mode
+										{{ _("Enable Single Project Mode") }}
 									</label>
 								</div>
 								<select id="project-select" class="form-select" onChange="javascript:set_minidump_upload_enabled(true);" autocomplete="off">
-									<option disabled selected>Select Project</option>
+									<option disabled selected>{{ _("Select Project") }}</option>
 									{% for proj in projects %}
 										<option value="{{ proj.id }}">{{ proj.project_name }}</option>
 									{% endfor %}
 								</select>
 								<hr>
 								<div class="text-center">
-									<button type="submit" class="btn btn-outline-dark">Save</button>
+									<button type="submit" class="btn btn-outline-dark">{{ _("Save") }}</button>
 								</div>
 							</form>
 						</div>
 
 						<!-- PROJECTS TAB -->
 						<div class="tab-pane" role="tabpanel" id="projects-content">
-							<h4>Projects</h4>
+							<h4>{{ _("Projects") }}</h4>
 							<hr>
 							<div class="settings-project-grid">
 								{% if not projects %}
-									<p>No projects have been created yet.</p>
+									<p>{{ _("No projects have been created yet.") }}</p>
 								{% else %}
 									{% for p in projects %}
 										{{ generate_project_row(p) }}
@@ -266,17 +265,17 @@
 
 						<!-- ABOUT TAB -->
 						<div class="tab-pane" role="tabpanel" id="about-content">
-							<h4>System Information</h4>
+							<h4>{{ _("System Information") }}</h4>
 							<hr>
-							<h5>Host</h5>
+							<h5>{{ _("Host") }}</h5>
 							{{ settings_info_line("Domain Name", settings.flask.domain) }}
 							{{ settings_info_line("Server Port", settings.flask.web_port) }}
 							<hr>
-							<h5>Data Storage</h5>
+							<h5>{{ _("Data Storage") }}</h5>
 							{{ settings_info_line("AppData Path", settings.storage.appdata) }}
 							{{ settings_info_line("Log Path", settings.storage.logs) }}
 							<hr>
-							<h5>Host Information</h5>
+							<h5>{{ _("Host Information") }}</h5>
 							{{ settings_info_line("App Version", HostInfo.get_python_version()) }}
 							{{ settings_info_line("Hostname", HostInfo.get_hostname()) }}
 							{{ settings_info_line('Under Docker?', "Yes" if HostInfo.is_inside_docker() else "No") }}

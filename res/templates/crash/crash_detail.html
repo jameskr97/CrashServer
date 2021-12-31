@@ -53,11 +53,11 @@
 				<i class="fab {{ dump.json.os_icon }} fa-fw"></i>{{ dump.json.os_name }}
 			</h2>
 			<ul>
-				<li>Process PID: {{ dump.json.pid }}</li>
-				<li>OS Version: {{ dump.json.system.os_version }}</li>
-				<li>Architecture: {{ dump.json.system.cpu_arch }}</li>
-				<li>CPU Core Count: {{ dump.json.system.cpu_core_count }}</li>
-				<li>CPU Info: {{ dump.json.system.cpu_info }}</li>
+				<li>{{ _("Process PID") }}: {{ dump.json.pid }}</li>
+				<li>{{ _("OS Version") }}: {{ dump.json.system.os_version }}</li>
+				<li>{{ _("Architecture") }}: {{ dump.json.system.cpu_arch }}</li>
+				<li>{{ _("CPU Core Count") }}: {{ dump.json.system.cpu_core_count }}</li>
+				<li>{{ _("CPU Info") }}: {{ dump.json.system.cpu_info }}</li>
 			</ul>
 			<hr>
 
@@ -112,7 +112,7 @@
 										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
 												data-bs-target="#thread_{{ thread.thread_index }}">
 
-											Thread #{{ thread.thread_index }}
+											{{ _("Thread") }} #{{ thread.thread_index }}
 											{% if thread.thread_index == dump.json.crash_reason.crashing_thread %}
 												<span class="crash-thread-badge badge bg-danger">{{ _("Crashing Thread") }}</span>
 											{% endif %}
