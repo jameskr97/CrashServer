@@ -20,6 +20,10 @@ RUN poetry build && /venv/bin/pip install dist/*.whl
 
 FROM python:3.9.7-slim-bullseye as runner
 
+# Set enviroment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
 # Create non-root user and group
 RUN addgroup --gid 10001 --system nonroot &&\
     adduser  --uid 10000 --system --ingroup nonroot --home /home/nonroot nonroot
@@ -33,7 +37,7 @@ RUN chown nonroot:nonroot /app
 
 # Install linux dependencies
 COPY --from=builder --chown=nonroot:nonroot /venv /venv
-RUN apt update && apt install libmagic1 libcurl3-gnutls -y --no-install-recommends
+RUN apt update && apt install libmagic1 libcurl3-gnutls tzdata -y --no-install-recommends
 
 # Activate virtualenv
 ENV VIRTUAL_ENV=/venv

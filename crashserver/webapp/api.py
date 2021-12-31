@@ -2,6 +2,7 @@ import itertools
 import json
 import operator
 import io
+import os
 
 from flask import Blueprint, request, render_template, flash, redirect, make_response
 from flask_babel import _
@@ -175,6 +176,7 @@ def crash_per_day():
         num_days = 7
 
     with db.engine.connect() as conn:
+        conn.execute(f"SET LOCAL timezone = '{os.environ.get('TZ')}';")
         sql = f"""
         SELECT
             to_char(m.date_created::DATE, 'Dy') as day_name,
