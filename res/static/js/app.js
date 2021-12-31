@@ -93,6 +93,8 @@ function gen_minidump_count_chart(element_id) {
                 animation: false,
                 maintainAspectRatio: false,
                 scales: {x: {grid: { display:false }}},
+                barPercentage: 0.95,
+                categoryPercentage: 1.0,
                 plugins: {
                     datalabels: {
                         color: '#000',
