@@ -47,8 +47,8 @@ services:
             - ../main.py:/app/main.py
 
             # App Data
-            - ./data/logs:/logs
-            - ./data/storage:/storage
+            - ./logs:/logs
+            - ./storage:/storage
         environment:
             FLASK_APP: crashserver/webapp:create_app
             FLASK_RUN_HOST: 0.0.0.0
