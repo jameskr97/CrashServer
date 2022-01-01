@@ -6,8 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Flask-Babel for easy translation. All translatable strings surrounded with relevant `_()` and `ngettext()` functions.
+- TZ environment variable added to configure how information is displayed. Required installing `tzdata` in docker
+
 ### Changed
-- Crash Per Day chart shows day of week name, instead of year
+- Crash-per-day chart bars widened, and removed vertical lines
+- Crash-per-day chart shows day of week name, instead of year
+- Crash-per-day chart has day of week on new line
 - Log output for each minidump upload only takes one line, instead of two.
 
 ## [0.3.5] - 2021-12-25
