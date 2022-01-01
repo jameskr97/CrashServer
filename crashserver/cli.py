@@ -95,3 +95,7 @@ def force_decode(dump_id):
         res = session.query(Minidump).get(dump_id)
         res.decode_task()
     print(f"Minidump {dump_id} sent to worker for decode.")
+
+
+if __name__ == '__main__':
+    cli()
