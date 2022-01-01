@@ -23,29 +23,28 @@ FROM python:3.9.7-slim-bullseye as runner
 # Set enviroment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
-
-# Create non-root user and group
-RUN addgroup --gid 10001 --system nonroot &&\
-    adduser  --uid 10000 --system --ingroup nonroot --home /home/nonroot nonroot
+ENV PUID=10000
+ENV PGID=10001
+ENV VIRTUAL_ENV=/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV ENV_FOR_DYNACONF=docker
+ENV DOCKER=1
 
 # Copy environment, change owner, and install system dependencies
 WORKDIR /app
 COPY main.py ./
 COPY config/ config/
 COPY res/ res/
-RUN chown nonroot:nonroot /app
 
 # Install linux dependencies
-COPY --from=builder --chown=nonroot:nonroot /venv /venv
-RUN apt update && apt install libmagic1 libcurl3-gnutls tzdata -y --no-install-recommends
+COPY --from=builder /venv /venv
+RUN apt update &&\
+    apt install libmagic1 libcurl3-gnutls tzdata gosu -y --no-install-recommends &&\
+    rm -rf /var/lib/apt/lists/* &&\
+    chmod +x /entrypoint.sh &&\
+    python3 -m venv $VIRTUAL_ENV
 
-# Activate virtualenv
-ENV VIRTUAL_ENV=/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-ENV ENV_FOR_DYNACONF=docker
-ENV DOCKER=1
 
-USER nonroot
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["python3", "./main.py"]
 
