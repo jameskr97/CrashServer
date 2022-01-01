@@ -8,6 +8,22 @@ An implementation of an upstream collection server for the [Google Crashpad](htt
 
 Built for open-source projects that use Google Crashpad, and want to host their own crash collection server.
 
+## Getting Started
+
+### Development
+
+Running CrashServer locally can be done with the following commands:
+
+```bash
+$ git clone https://gitub.com/jameskr97/CrashServer.git
+$ cd CrashServer/.docker/
+$ docker-compose up -d
+```
+
+### Production
+
+CrashServer is not yet ready for production environments. If you still choose to use CrashServer for your application, you may refer to the `.docker/docker-compose.yml` for necessary components.
+
 ## TODO
 - API
   - [x] `/api/minidump/upload` Upload Minidumps for project under endpoint.
