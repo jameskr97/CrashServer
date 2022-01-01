@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crashserver"
-version = "0.2.0"
+version = "0.3.6"
 authors = ["James <jameskr97@gmail.com>"]
 description = "A Google Crashpad server, made for open source projects"
 
