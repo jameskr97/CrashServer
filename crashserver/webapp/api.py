@@ -184,7 +184,7 @@ def crash_per_day():
             COUNT(m.date_created) as num_dump
         FROM minidump m
         GROUP BY m.date_created::DATE
-        ORDER BY upload_date DESC
+        ORDER BY to_char(m.date_created::DATE, 'YYYY-MM-DD') DESC
         LIMIT {num_days};
         """
         res = conn.execute(sql)
@@ -192,7 +192,7 @@ def crash_per_day():
     labels = []
     counts = []
     for data in res:
-        labels.insert(0, f"{data[1]} ({data[0]})")
+        labels.insert(0, [f"{data[1]}", f"({data[0]})"])
         counts.insert(0, data[2])
 
     return json.dumps({"labels": labels, "counts": counts}, default=str)
