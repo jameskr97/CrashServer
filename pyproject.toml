@@ -42,8 +42,6 @@ Werkzeug = "^2.0.1"
 WTForms = "^2.3.3"
 
 [tool.poetry.dev-dependencies]
-[tool.poetry.scripts]
-crashserver = "crashserver.cli:cli"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
