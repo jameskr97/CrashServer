@@ -10,7 +10,7 @@
     [default.db]
     user    = "postgres"
     passwd  = "password"
-    host    = "db"
+    host    = "postgres"
     port    = 5432
     name    = "crashserver"
 
