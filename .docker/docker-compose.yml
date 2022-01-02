@@ -34,17 +34,12 @@ services:
             context: ..
             dockerfile: Dockerfile.dev
         container_name: crashserver-app
-        command: python3 /app/main.py
         networks: [crashnet]
         depends_on: [postgres, crashserver-worker]
         ports: ["8888:8888"]
         env_file: [".env.docker", ".env.private"]
         volumes:
-            # Source related
-            - ../crashserver:/app/crashserver
-            - ../res:/app/res
-            - ../config:/app/config
-            - ../main.py:/app/main.py
+            - ../:/app/
 
             # App Data
             - ./logs:/logs
