@@ -34,8 +34,9 @@ def init_environment():
     templates = resources_root / "templates"
     static = resources_root / "static"
 
-    # Create essential directories
-    [get_appdata_directory(p) for p in ["symbol", "symcache", "minidump", "sym_upload_v2"]]
+    # Create essential directories (docker only)
+    if os.environ.get("DOCKER"):
+        [get_appdata_directory(p) for p in ["symbol", "symcache", "minidump", "sym_upload_v2"]]
 
     # Create app and initial parameters
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))
