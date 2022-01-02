@@ -1,6 +1,5 @@
-from gevent import monkey
-monkey.patch_all()
 from pathlib import Path
+import os
 
 import flask
 from flask import Flask
@@ -12,6 +11,7 @@ from crashserver.config import get_postgres_url, settings
 from crashserver.utility.hostinfo import HostInfo
 from crashserver.webapp.extensions import babel, debug_toolbar, login, limiter, migrate, db, queue
 from crashserver.webapp.models import User
+from crashserver.cli import register_cli
 
 
 def create_app():
@@ -20,6 +20,7 @@ def create_app():
     register_extensions(app)
     register_blueprints(app)
     register_jinja(app)
+    register_cli(app)
 
     return app
 
@@ -43,7 +44,7 @@ def init_environment():
     app.config["SECRET_KEY"] = settings.flask.secret_key
     app.config["SQLALCHEMY_DATABASE_URI"] = get_postgres_url()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-    app.config["LANGUAGES"] = ['en', 'zh']
+    app.config["LANGUAGES"] = ["en", "zh"]
     app.config["BABEL_TRANSLATION_DIRECTORIES"] = str(resources_root / "translations")
 
     return app

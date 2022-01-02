@@ -6,12 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Migrations now include initial database create as a migration. (Date and time estimated based on first actual migration)
+
 ### Added
 - `gosu` added to Dockerfiles to allow for setting mapped directory ownership, and specifying a `PUID/PGID` for the container to run as. (Note: Docker `--user` param is no longer used) 
 - TZ environment variable added to configure how information is displayed. Required installing `tzdata` in docker
 - Flask-Babel for easy translation. All translatable strings surrounded with relevant `_()` and `ngettext()` functions.
 
 ### Changed
+- Moved commands which were apart of `crashserver` cli command, to be within the `flask` command
 - Updated README.md to include a `Getting Started` section
 - Crash-per-day chart bars widened, and removed vertical lines
 - Crash-per-day chart shows day of week name, instead of year
