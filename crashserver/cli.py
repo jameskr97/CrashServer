@@ -1,6 +1,3 @@
-# fmt: off
-from gevent import monkey; monkey.patch_all()
-# fmt: on
 import uuid
 
 from sqlalchemy import create_engine
