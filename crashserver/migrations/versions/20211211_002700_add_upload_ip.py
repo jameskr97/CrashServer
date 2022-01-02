@@ -1,6 +1,6 @@
-"""empty message
+"""Add "upload_ip" column to minidump
 
-Revision ID: 3054614d25c1
+Revision ID: 20211211_002700_add_upload_ip
 Revises: 
 Create Date: 2021-12-11 05:20:46.385955
 
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "20211211_002700"
-down_revision = None
+revision = "20211211_002700_add_upload_ip"
+down_revision = "20211211_001700_initial_database"
 branch_labels = None
 depends_on = None
 
