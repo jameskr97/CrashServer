@@ -65,7 +65,7 @@ services:
         command: rq worker -u redis://redis crashserver
         depends_on: [redis]
         networks: [crashnet]
-        volumes: ["./data/storage:/storage"]
+        volumes: ["./storage:/storage"]
 
 
 volumes:
