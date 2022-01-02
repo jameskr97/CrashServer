@@ -9,4 +9,5 @@
 messages.pot
 .env
 .docker/.env.private
-data/
+.docker/logs
+.docker/storage
