@@ -27,7 +27,11 @@ services:
         networks: [crashnet]
         volumes: [db_data:/var/lib/postgresql/data]
         ports: ["5432:5432"]
-        env_file: [".env.docker"]
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB:-crashserver}
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+
 
     crashserver-app:
         build:
@@ -37,7 +41,6 @@ services:
         networks: [crashnet]
         depends_on: [postgres, crashserver-worker]
         ports: ["8888:8888"]
-        env_file: [".env.docker", ".env.private"]
         volumes:
             - ../:/app/
 
@@ -49,6 +52,10 @@ services:
             FLASK_RUN_HOST: 0.0.0.0
             FLASK_RUN_PORT: 8888
             FLASK_DEBUG: 1
+            CRASH_DB__DB: ${POSTGRES_DB:-crashserver}
+            CRASH_DB__USER: ${POSTGRES_USER:-postgres}
+            CRASH_DB__PASSWD: ${POSTGRES_PASSWORD:-password}
+            CRASH_DB__HOST: ${CRASH_DB__HOST:-postgres}
 
     crashserver-worker:
         container_name: crashserver-worker
@@ -58,7 +65,6 @@ services:
         command: rq worker -u redis://redis crashserver
         depends_on: [redis]
         networks: [crashnet]
-        env_file: [".env.docker"]
         volumes: ["./data/storage:/storage"]
 
 

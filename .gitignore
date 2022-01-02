@@ -8,6 +8,5 @@
 # Application related
 messages.pot
 .env
-.docker/.env.private
 .docker/logs
 .docker/storage
