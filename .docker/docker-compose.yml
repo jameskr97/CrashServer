@@ -56,6 +56,11 @@ services:
             CRASH_DB__USER: ${POSTGRES_USER:-postgres}
             CRASH_DB__PASSWD: ${POSTGRES_PASSWORD:-password}
             CRASH_DB__HOST: ${CRASH_DB__HOST:-postgres}
+            CRASH_S3STORE__BUCKET_NAME: ${CRASH_S3STORE__BUCKET_NAME}
+            CRASH_S3STORE__ACCESS_KEY: ${CRASH_S3STORE__ACCESS_KEY}
+            CRASH_S3STORE__SECRET_KEY: ${CRASH_S3STORE__SECRET_KEY}
+            CRASH_S3STORE__ENDPOINT_URL: ${CRASH_S3STORE__ENDPOINT_URL}
+            TZ: ${TZ:-UTC}
 
     crashserver-worker:
         container_name: crashserver-worker
