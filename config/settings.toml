@@ -20,7 +20,7 @@
 
     [default.s3store]
     endpoint_url = "https://s3.amazonaws.com"
-    bucket_name = ""
+    bucket_name = "crashserver"
     access_key = ""
     secret_key = ""
 
