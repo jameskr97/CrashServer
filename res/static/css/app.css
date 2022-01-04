@@ -57,7 +57,7 @@ table, th, tr, hr {
     color: var(--cs-text-color) !important;
 }
 
-select, ul, button, .list-group-item {
+select, button, .list-group-item {
     background-color: var(--cs-background-color) !important;
     color: var(--cs-text-color) !important;
     border-color: var(--cs-separator-color) !important;
