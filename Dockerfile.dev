@@ -1,4 +1,4 @@
-FROM python:3.9.7-slim-bullseye as builder
+FROM python:3.10.1-slim-bullseye as builder
 
 # Install poetry for building
 WORKDIR /build
@@ -7,7 +7,7 @@ ENV POETRY_VERSION=1.0.0
 COPY poetry.lock pyproject.toml ./
 RUN pip install "poetry==$POETRY_VERSION" && python -m venv /venv && poetry export -f requirements.txt | /venv/bin/pip install -r /dev/stdin
 
-FROM python:3.9.7-slim-bullseye as runner
+FROM python:3.10.1-slim-bullseye as runner
 
 # Set enviroment variables
 ENV DEBIAN_FRONTEND=noninteractive

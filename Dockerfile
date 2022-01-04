@@ -3,7 +3,7 @@
 # - https://github.com/juan131/dockerfile-best-practices
 # - https://www.youtube.com/watch?v=74rOYNmxfL8
 # - https://stackoverflow.com/questions/53835198/integrating-python-poetry-with-docker
-FROM python:3.9.7-slim-bullseye as builder
+FROM python:3.10.1-slim-bullseye as builder
 
 # Install poetry for building
 WORKDIR /build
@@ -18,7 +18,7 @@ COPY main.py .
 COPY crashserver/ crashserver/
 RUN poetry build && /venv/bin/pip install dist/*.whl
 
-FROM python:3.9.7-slim-bullseye as runner
+FROM python:3.10.1-slim-bullseye as runner
 
 # Set enviroment variables
 ENV DEBIAN_FRONTEND=noninteractive
