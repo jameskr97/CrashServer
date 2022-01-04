@@ -41,10 +41,10 @@ COPY --from=builder /venv /venv
 RUN apt update &&\
     apt install libmagic1 libcurl3-gnutls tzdata gosu -y --no-install-recommends &&\
     rm -rf /var/lib/apt/lists/* &&\
-    chmod +x /entrypoint.sh &&\
     python3 -m venv $VIRTUAL_ENV
 
-
+COPY .docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["python3", "./main.py"]
 
