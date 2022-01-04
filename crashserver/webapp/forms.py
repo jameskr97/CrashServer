@@ -15,9 +15,15 @@ class UpdateAccount(FlaskForm):
     current_pass = PasswordField(lazy_gettext("Current Password"), validators=[DataRequired(), Length(min=8, max=256)])
     new_pass = PasswordField(
         lazy_gettext("New Password"),
-        validators=[DataRequired(), EqualTo("new_pass_verify", message=lazy_gettext("Passwords must match")), Length(min=8, max=256)],
+        validators=[
+            DataRequired(),
+            EqualTo("new_pass_verify", message=lazy_gettext("Passwords must match")),
+            Length(min=8, max=256),
+        ],
     )
-    new_pass_verify = PasswordField(lazy_gettext("Verify Password"), validators=[DataRequired(), Length(min=8, max=256)])
+    new_pass_verify = PasswordField(
+        lazy_gettext("Verify Password"), validators=[DataRequired(), Length(min=8, max=256)]
+    )
 
     def __init__(self, user, *args, **kwargs):
         super(UpdateAccount, self).__init__(*args, **kwargs)
