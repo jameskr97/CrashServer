@@ -1,4 +1,4 @@
-# CrashServer 💥
+![](res/assets/crashserver_banner.png)
 
 An implementation of an upstream collection server for the [Google Crashpad](https://chromium.googlesource.com/crashpad/crashpad/) crash handler. Intended to be as an all-in-one setup for small-to-medium projects who want to ability to:
 
@@ -22,7 +22,7 @@ $ docker-compose up -d
 
 ### Production
 
-CrashServer is not yet ready for production environments. If you still choose to use CrashServer for your application, you may refer to the `.docker/docker-compose.yml` for necessary components.
+CrashServer is not yet ready for production environments. If you still choose to use CrashServer for your application, you may refer to the `.docker/docker-compose.yml` for necessary components. CrashServer is available as a container image at `ghcr.io/jameskr97/CrashServer`.
 
 ## TODO
 - API
@@ -41,7 +41,8 @@ CrashServer is not yet ready for production environments. If you still choose to
   - [x] Implement `sym-upload-v1` protocol
   - [x] Implement `sym-upload-v2` protocol
   - [ ] Use Amazon S3 for symbol store
+  - [x] Use Amazon S3 for attachment store
 - Misc
   - [ ] Documentation Generation
   - [ ] CI and Tests
-  - [ ] CLI Management interface
+  - [x] CLI Management interface (via flask)
