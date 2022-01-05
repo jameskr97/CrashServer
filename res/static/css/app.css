@@ -6,6 +6,7 @@ body {
     --cs-nav-color: #212529;
     --cs-red-badge: #DC3545;
     --cs-separator-color: rgba(0, 0, 0, .125);
+    --cs-toggler-color: #ffffff8C;
     --cs-pagination-bg: white;
 }
 
@@ -16,6 +17,7 @@ body.dark-theme {
     --cs-nav-color: #12121299;
     --cs-red-badge: #DA0037;
     --cs-separator-color: #ffffff66;
+    --cs-toggler-color: var(--cs-separator-color);
     --cs-pagination-bg: var(--cs-nav-color);
 }
 
@@ -27,6 +29,7 @@ body.dark-theme {
         --cs-nav-color: #12121299;
         --cs-red-badge: #DA0037;
         --cs-separator-color: #ffffff66;
+        --cs-toggler-color: var(--cs-separator-color);
         --cs-pagination-bg: var(--cs-nav-color);
     }
     body.light-theme {
@@ -35,6 +38,7 @@ body.dark-theme {
         --cs-nav-color: #212529;
         --cs-red-badge: #DC3545;
         --cs-separator-color: rgba(0, 0, 0, .125);
+        --cs-toggler-color: #ffffff8C;
         --cs-pagination-bg: white;
     }
 }
@@ -95,6 +99,16 @@ select, button, .list-group-item {
 
 .fa-fw {
     margin-right: 3px;
+}
+
+/* Navbar specific */
+.navbar-dark .navbar-toggler {
+    background-color: var(--cs-nav-color) !important;
+    border-color: var(--cs-toggler-color) !important;
+}
+
+.navbar-dark .navbar-toggler:focus {
+    box-shadow: none;
 }
 
 /* Bootstrap Override */
