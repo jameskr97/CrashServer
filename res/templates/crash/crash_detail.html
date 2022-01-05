@@ -47,7 +47,7 @@
 	</p>
 	<hr>
 	<div class="row">
-		<!-- DESKTOP SIDE TABS  -->
+        {# DESKTOP SIDE TABS #}
 		<div class="col-md-4 col-lg-3 col-sm-12">
 			<h2>
 				<i class="fab {{ dump.json.os_icon }} fa-fw"></i>{{ dump.json.os_name }}
@@ -61,10 +61,10 @@
 			</ul>
 			<hr>
 
-			<!-- Only add extra space if on mobile -->
+			{# Only add extra space if on mobile #}
 			<div class="d-md-none col-sm-12"><br></div>
 
-			<!-- Only disable modules on desktop -->
+            {# Only disable modules on desktop #}
 			<div class="d-none d-md-block">
 				<h2><i class="fas fa-cubes"></i> Modules</h2>
 				<ul class="overflow-scroll card" style="max-height: 200px">
@@ -75,11 +75,11 @@
 			</div>
 		</div>
 
-		<!-- DESKTOP MAIN CONTENT AREA  -->
+        {# DESKTOP MAIN CONTENT AREA #}
 		<div class="h-100 col-md-8 col-lg-9">
 
-			<!-- START OF MAIN AREA -->
-			<!-- MINIDUMP TABS -->
+            {# START OF MAIN AREA #}
+            {# MINIDUMP TABS #}
 			<nav>
 				<div class="nav nav-tabs" id="nav-tab" role="tablist">
 					<button class="crash-detail-tab nav-link active" id="nav-stack-tab" data-bs-toggle="tab" data-bs-target="#nav-stacktrace">
@@ -94,10 +94,10 @@
 				</div>
 			</nav>
 			<br>
-			<!-- MINIDUMP TAB CONTENT AREA -->
+            {# MINIDUMP TAB CONTENT AREA #}
 			<div class="tab-content" id="nav-tabContent">
 
-				<!-- STACKTRACE TAB -->
+				{# STACKTRACE TAB  #}
 				<div class="tab-pane fade show active " id="nav-stacktrace" role="tabpanel" aria-labelledby="nav-profile-tab">
 
 					{% if not dump.symbolicated %}
@@ -106,7 +106,7 @@
 						<div class="accordion" id="thread-list">
 							{% for thread in dump.json.threads %}
 
-								<!-- START OF MAIN ACCORDION HEADER -->
+                                {# START OF MAIN ACCORDION HEADER #}
 								<div class="accordion-item">
 									<h2 class="accordion-header">
 										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -117,7 +117,7 @@
 												<span class="crash-thread-badge badge bg-danger">{{ _("Crashing Thread") }}</span>
 											{% endif %}
 
-											<!-- Add tag for windows worker threads -->
+                                            {# Add tag for windows worker threads #}
 											{% if thread.frames[-1].func == "TppWorkerThread" %}
 												<span class="crash-thread-badge badge bg-info">{{ _("Worker Thread") }}</span>
 											{% endif %}
@@ -125,13 +125,13 @@
 									</h2>
 								</div>
 
-								<!-- START OF MAIN ACCORDION BODY -->
+                                {# START OF MAIN ACCORDION BODY #}
 								<div id="thread_{{ thread.thread_index }}" class="accordion accordion-collapse collapse" data-bs-parent="#thread-list">
 									<ol style="overflow: auto; white-space: nowrap">
 										{% for i in range(thread.frames|length) %}
 											{% set frame = thread.frames[i] %}
 
-											<!-- START OF INNER FRAME ACCORDION HEADER -->
+                                            {# START OF INNER FRAME ACCORDION HEADER #}
 											<li class="accordion-header monospace-font">
 												{% if frame.file %}
 													<button class="stack-header-btn collapsed" type="button" data-bs-toggle="collapse"
@@ -145,7 +145,7 @@
 											</li>
 
 
-											<!-- START OF INNER FRAME ACCORDION BODY -->
+                                            {# START OF INNER FRAME ACCORDION BODY #}
 											{% if frame.file %}
 												<div id="thread_{{ thread.thread_index }}_{{ i }}" class="frame-code-view accordion-collapse collapse"
 													 data-bs-parent="#thread_{{ thread.thread_index }}_frame">
@@ -154,24 +154,24 @@
 														<span>{{ _("Loading Code Snippet...") }}</span>
 													</div>
 												</div>
-											{% endif %} <!-- END OF INNER FRAME ACCORDION BODY -->
+											{% endif %} {# END OF INNER FRAME ACCORDION BODY #}
 										{% endfor %}
 									</ol>
 								</div>
 
 							{% endfor %}
-						</div> <!-- END OF ACCORDION -->
+						</div> {# END OF ACCORDION #}
 					{% endif %}
 				</div>
 
-				<!-- ATTACHMENT TAB -->
+                {# ATTACHMENT TAB  #}
 				{% if dump.attachments|count != 0 %}
 					<div class="tab-pane fade" id="nav-attachments" role="tabpanel" aria-labelledby="nav-contact-tab">
-						<!-- CODE AREA DIV -->
+						{# CODE AREA DIV #}
 						<div class="accordion" id="file-list">
 							{% for file in dump.attachments %}
 
-								<!-- START OF FILE ACCORDION HEADER -->
+                                {# START OF FILE ACCORDION HEADER #}
 								<div class="accordion-item">
 									<h2 class="accordion-header">
 										<button id="file_button_{{ file.id }}" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -182,7 +182,7 @@
 									</h2>
 								</div>
 
-								<!-- START OF FILE ACCORDION BODY -->
+                                {# START OF FILE ACCORDION BODY #}
 								<div id="file_{{ file.id }}" class="accordion accordion-collapse collapse" data-bs-parent="#file-list">
 									<div id="file_loader_{{ file.id }}" class="frame-code-loader-view">
 										<span id="file_spinner_{{ file.id }}" style="margin-right: 5px; margin-top: 5px" class="spinner-border text-dark" role="status"></span>
@@ -198,8 +198,8 @@
 			</div>
 
 
-		</div> <!-- END OF SYMBOL-LIST -->
-	</div> <!-- END OF ROW -->
+		</div>{# END OF SYMBOL-LIST #}
+	</div> {# END OF ROW #}
 {% endmacro %}
 
 {% block content %}
