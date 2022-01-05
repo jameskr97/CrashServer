@@ -114,7 +114,11 @@ function gen_minidump_count_chart(element_id) {
             chart.options.scales['y'].grid.color    = isDark ? '#ffffff66' : 'black';
             chart.update();
         }
-        set_colors(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        // Set to dark if the web browser prefers dark, and `determine_current_theme` results.
+        set_colors(
+            (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && determine_current_theme() === "os-default") ||
+            determine_current_theme() === "dark-theme"
+        );
 
         // Update dark website toggle on
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
