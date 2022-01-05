@@ -183,6 +183,11 @@ hr {
     clear: both;
 }
 
+.card {
+    background-color: var(--cs-background-color);
+    border-color: var(--cs-separator-color);
+}
+
 /* Settings page specific CSS */
 .settings-content-container {
     padding: 15px;

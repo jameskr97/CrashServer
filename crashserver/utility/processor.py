@@ -30,7 +30,7 @@ class DumpModule:
                     missing_symbols=mod.get("missing_symbols", False),
                 )
             )
-        return res
+        return sorted(res, key=lambda x: x.debug_file.lower())
 
 
 @dataclass

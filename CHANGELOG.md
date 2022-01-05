@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Migrations now include initial database create as a migration. (Date and time estimated based on first actual migration)
 - Fixed crash-per-day graph possibly being themed incorrectly on first load.
+- Crash detail modules list no longer blacked whited out in dark-mode, and list is alphabetized.
 
 ### Added
 - `gosu` added to Dockerfiles to allow for setting mapped directory ownership, and specifying a `PUID/PGID` for the container to run as. (Note: Docker `--user` param is no longer used) 
