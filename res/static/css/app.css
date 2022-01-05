@@ -75,8 +75,13 @@ select, button, .list-group-item {
     background-color: #DA0037 !important;
 }
 
+.dropdown-menu {
+    background-color: var(--cs-background-color);
+    border-color: var(--cs-separator-color);
+}
 .dropdown-item {
     color: var(--cs-text-color);
+    background-color: var(--cs-background-color);
 }
 
 .monospace-font {
