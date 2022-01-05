@@ -1,0 +1,3 @@
+# Enable core.autocrlf for all files in the repository.
+* text=auto
+*.sh text eol=lf
