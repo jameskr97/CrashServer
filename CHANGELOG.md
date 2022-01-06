@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `gosu` added to Dockerfiles to allow for setting mapped directory ownership, and specifying a `PUID/PGID` for the container to run as. (Note: Docker `--user` param is no longer used) 
 - TZ environment variable added to configure how information is displayed. Required installing `tzdata` in docker
 - Flask-Babel for easy translation. All translatable strings surrounded with relevant `_()` and `ngettext()` functions.
+- Minidump's files may now be uploaded with or without gzip.
 
 ### Changed
 - Moved commands which were apart of `crashserver` cli command, to be within the `flask` command

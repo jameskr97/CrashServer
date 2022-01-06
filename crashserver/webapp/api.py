@@ -3,15 +3,16 @@ import json
 import operator
 import io
 import os
+import gzip
 
-from flask import Blueprint, request, render_template, flash, redirect, make_response
+from flask import Blueprint, request, render_template, flash, redirect
 from flask_babel import _
 from sqlalchemy import func
 from loguru import logger
 from flask_login import login_required
 import natsort
+from werkzeug.formparser import parse_form_data
 
-from crashserver.webapp import limiter
 
 from crashserver.utility.decorators import (
     file_key_required,
@@ -27,7 +28,6 @@ api = Blueprint("api", __name__)
 
 
 @api.route("/api/minidump/upload", methods=["POST"])
-@file_key_required("upload_file_minidump")
 @api_key_required()
 def upload_minidump(project):
     """
@@ -35,14 +35,34 @@ def upload_minidump(project):
     argument, and it will save and prepare the file for processing
     :return:
     """
-    # Additional files after minidump has been popped from dict are misc attachments.
-    attachments = request.files.to_dict()
-    minidump = attachments.pop("upload_file_minidump")
+
+    # A crashpad upload `Content Encoding` will only be gzip, or not present.
+    if request.content_encoding == "gzip":
+        uncompressed = gzip.decompress(request.get_data())
+        environ = {
+            "wsgi.input": io.BytesIO(uncompressed),
+            "CONTENT_LENGTH": str(len(uncompressed)),
+            "CONTENT_TYPE": request.content_type,
+            "REQUEST_METHOD": "POST",
+        }
+        stream, form, files = parse_form_data(environ)
+        dump_values = dict(form)
+        attachments = files.to_dict()
+
+    else:
+        # Additional files after minidump has been popped from dict are misc attachments.
+        attachments = request.files.to_dict()
+        dump_values = dict(request.values)
+
+    minidump_key = "upload_file_minidump"
+    if minidump_key not in attachments.keys():
+        return {"error": "missing file parameter {}".format(minidump_key)}, 400
+    minidump = attachments.pop(minidump_key)
 
     return ops.minidump_upload(
         db.session,
         project.id,
-        dict(request.values),
+        dump_values,
         minidump.stream.read(),
         attachments.values(),
     )

@@ -27,7 +27,7 @@ CrashServer is not yet ready for production environments. If you still choose to
 ## TODO
 - API
   - [x] `/api/minidump/upload` Upload Minidumps for project under endpoint.
-    - [ ] Handle `gzip` minidump upload
+    - [x] Handle `gzip` minidump upload
   - [x] `/api/synbol/upload` Upload Symbols for project under endpoint, secured by `api_key`
 - Web
   - [x] List of all symbols for project
