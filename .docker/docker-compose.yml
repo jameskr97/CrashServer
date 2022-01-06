@@ -70,7 +70,12 @@ services:
         command: rq worker -u redis://redis crashserver
         depends_on: [redis]
         networks: [crashnet]
-        volumes: ["./storage:/storage"]
+        volumes: ["./storage:/storage", "../:/app/"]
+        environment:
+            CRASH_DB__DB: ${POSTGRES_DB:-crashserver}
+            CRASH_DB__USER: ${POSTGRES_USER:-postgres}
+            CRASH_DB__PASSWD: ${POSTGRES_PASSWORD:-password}
+            CRASH_DB__HOST: ${CRASH_DB__HOST:-postgres}
 
 
 volumes:
