@@ -29,7 +29,7 @@ services:
         ports: ["5432:5432"]
         environment:
             POSTGRES_DB: ${POSTGRES_DB:-crashserver}
-            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_USER: ${POSTGRES_USER:-crashserver}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
 
 
