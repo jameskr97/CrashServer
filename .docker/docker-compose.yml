@@ -18,18 +18,20 @@ services:
     redis:
         image: redis:6.2.5
         container_name: redis
+        restart: always
         networks: [crashnet]
         ports: ["6379:6379"]
 
     postgres:
         image: postgres
         container_name: postgres
+        restart: always
         networks: [crashnet]
         volumes: [db_data:/var/lib/postgresql/data]
         ports: ["5432:5432"]
         environment:
             POSTGRES_DB: ${POSTGRES_DB:-crashserver}
-            POSTGRES_USER: ${POSTGRES_USER:-crashserver}
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
 
 
@@ -38,6 +40,7 @@ services:
             context: ..
             dockerfile: Dockerfile.dev
         container_name: crashserver-app
+        restart: always
         networks: [crashnet]
         depends_on: [postgres, crashserver-worker]
         ports: ["8888:8888"]
@@ -68,6 +71,7 @@ services:
             context: ..
             dockerfile: Dockerfile.dev
         command: rq worker -u redis://redis crashserver
+        restart: always
         depends_on: [redis]
         networks: [crashnet]
         volumes: ["./storage:/storage", "../:/app/"]
