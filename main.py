@@ -22,7 +22,7 @@ from crashserver.server import create_app
 from crashserver.config import settings
 from crashserver import syscheck
 
-LOG_LEVEL = "INFO"  # logging.getLevelName(os.environ.get("LOG_LEVEL", "DEBUG"))
+LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO"))
 JSON_LOGS = True if os.environ.get("JSON_LOGS", "0") == "1" else False
 WORKERS = int(os.environ.get("GUNICORN_WORKERS", "5"))
 
@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     config = {
         "handlers": [
-            {"sink": sys.stdout, "format": LOG_FORMAT, "colorize": True},
+            {"sink": sys.stdout, "format": LOG_FORMAT, "colorize": True, "level": LOG_LEVEL},
             {"sink": os.path.join(settings.storage.logs, "app.log"), "filter": filter_app, "format": LOG_FORMAT},
             {"sink": os.path.join(settings.storage.logs, "access.log"), "filter": filter_access, "format": "{message}"},
         ],
