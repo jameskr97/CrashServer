@@ -79,6 +79,7 @@ def register_blueprints(app: Flask):
 
     app.register_blueprint(views)
     app.register_blueprint(webapi)
+    app.register_blueprint(crash_upload_api)
     app.register_blueprint(sym_upload_v1, url_prefix="/symupload")
     app.register_blueprint(sym_upload_v2, url_prefix="/symupload")
     app.register_blueprint(auth, url_prefix="/auth")
