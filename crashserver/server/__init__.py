@@ -6,7 +6,6 @@ from flask import Flask
 from flask_babel import _
 from sqlalchemy_utils import create_database, database_exists
 
-from crashserver.config import get_appdata_directory
 from crashserver.config import get_postgres_url, settings
 from crashserver.utility.hostinfo import HostInfo
 from crashserver.server.core.extensions import babel, debug_toolbar, login, limiter, migrate, db, queue
@@ -38,10 +37,6 @@ def init_environment():
     resources_root = Path("res").absolute()
     templates = resources_root / "templates"
     static = resources_root / "static"
-
-    # Create essential directories (docker only)
-    if os.environ.get("DOCKER"):
-        [get_appdata_directory(p) for p in ["symbol", "symcache", "minidump", "sym_upload_v2"]]
 
     # Create app and initial parameters
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))

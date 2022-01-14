@@ -1,4 +1,5 @@
 import hashlib
+from pathlib import Path
 
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
@@ -32,7 +33,7 @@ class SymbolUploadV2(db.Model):
 
     @property
     def file_location(self):
-        return config.get_appdata_directory("sym_upload_v2") / "{}.sym".format(self.id)
+        return Path("sym_upload_v2", f"{self.id}.sym")
 
     @property
     def symbol_data(self):

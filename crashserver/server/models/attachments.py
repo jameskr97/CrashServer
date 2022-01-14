@@ -6,9 +6,8 @@ import magic
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
-from crashserver import config
+from .storage import Storage
 from crashserver.server import db
-from crashserver.server.core.extensions import s3store
 
 
 class Attachment(db.Model):
@@ -37,39 +36,31 @@ class Attachment(db.Model):
     minidump = db.relationship("Minidump", back_populates="attachments")
 
     @property
-    def file_location(self) -> str:
+    def file_location(self) -> Path:
         """File location with prefix as stored on S3"""
-        return f"attachments/{str(self.project_id)}/{self.filename}"
+        return Path("attachments", str(self.project_id), self.filename)
 
     def store_file(self, file_content: bytes):
         # Determine storage location
         dump_id_part = str(self.minidump_id).split("-")[0]
         filename = "attachment-%s-%s" % (dump_id_part, str(uuid.uuid4().hex)[:8])
-        attach_loc = config.get_appdata_directory("attachments") / str(self.project_id) / filename
+        attach_loc = Path("attachments", str(self.project_id), filename)
         attach_loc.parent.mkdir(parents=True, exist_ok=True)
 
-        # Determine mime-type
-        self.mime_type = magic.from_buffer(file_content, mime=True)
+        Storage.create(attach_loc, file_content)  # Store file
 
-        # Store file, and upload to S3
-        with open(attach_loc.absolute(), "wb") as f:
-            f.write(file_content)
-        s3store.upload_fileobj(
-            io.BytesIO(file_content),
-            config.settings.s3store.bucket_name,
-            str(attach_loc.relative_to(*attach_loc.parts[:2])),
-        )
-
+        self.mime_type = magic.from_buffer(file_content, mime=True)  # Determine mime-type
         self.filename = str(filename)
         self.file_size_bytes = len(file_content)
 
     def delete_file(self):
-        location = Path(config.get_appdata_directory("attachments") / str(self.project_id) / self.filename)
-        location.unlink(missing_ok=True)
+        Storage.delete(self.file_location)
 
     @property
     def file_content(self):
-        with io.BytesIO() as data:
-            s3store.download_fileobj(config.settings.s3store.bucket_name, self.file_location, data)
-            data.seek(0)
-            return data.read().decode("utf-8", "replace")
+        file = Storage.retrieve(self.file_location)
+        if not file:
+            return None
+        res = file.read().decode("utf-8", "replace")
+        file.close()
+        return res

@@ -51,18 +51,18 @@ class Project(db.Model):
 
     @property
     def symbol_location(self):
-        return config.get_appdata_directory("symbol") / str(self.id)
+        return pathlib.Path("symbol", str(self.id))
 
     @property
     def minidump_location(self):
-        return config.get_appdata_directory("minidump") / str(self.id)
+        return pathlib.Path("minidump", str(self.id))
 
     @property
     def total_minidump_size(self):
         """:return: Size of this projects minidump location in bytes"""
-        return sysinfo.get_directory_size(self.minidump_location)
+        return 0  # sysinfo.get_directory_size(self.minidump_location)
 
     @property
     def total_symbol_size(self):
         """:return: Size of this projects symbol location in bytes"""
-        return sysinfo.get_directory_size(self.symbol_location)
+        return 0  # sysinfo.get_directory_size(self.symbol_location)

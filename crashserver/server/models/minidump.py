@@ -7,6 +7,7 @@ from sqlalchemy.sql import func, text, expression
 import redis
 import rq
 
+from .storage import Storage
 from crashserver.utility import processor
 from crashserver.server import db, queue
 from crashserver import config
@@ -58,15 +59,13 @@ class Minidump(db.Model):
 
     @property
     def file_location(self) -> Path:
-        return config.get_appdata_directory("minidump") / str(self.project_id) / self.filename
+        return Path("minidump", str(self.project_id), self.filename)
 
     def store_minidump(self, file_contents: bytes):
         filename = "minidump-%s.dmp" % str(uuid.uuid4().hex)
 
-        dump_file = config.get_appdata_directory("minidump") / str(self.project_id) / filename
-        dump_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(dump_file.absolute(), "wb") as f:
-            f.write(file_contents)
+        dump_file = Path("minidump", str(self.project_id), filename)
+        Storage.create(dump_file, file_contents)
 
         self.filename = filename
 
@@ -81,7 +80,7 @@ class Minidump(db.Model):
             a.delete_file()
             db.session.delete(a)
 
-        self.file_location.unlink(missing_ok=True)
+        Storage.delete(self.file_location)
 
     def decode_task(self, *args, **kwargs):
         rq_job = queue.enqueue("crashserver.server.jobs." + "decode_minidump", self.id, *args, **kwargs)
