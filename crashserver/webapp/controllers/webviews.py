@@ -2,23 +2,16 @@ import os
 import uuid
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required, current_user
 from flask_babel import _
+from flask_login import login_required, current_user
 
-from crashserver.webapp.models import Minidump, Project, ProjectType, User
-from crashserver.webapp.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount
 from crashserver.config import settings as config
 from crashserver.utility import misc
 from crashserver.webapp import db, helpers
+from crashserver.webapp.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount
+from crashserver.webapp.models import Minidump, Project, ProjectType, User
 
 views = Blueprint("views", __name__)
-
-
-@views.route("/")
-def home():
-    return redirect(url_for("views.crash"))
-    # apps = Project.query.with_entities(Project.id, Project.project_name).all()
-    # return render_template("home.html", apps=apps)
 
 
 @views.route("/settings", methods=["GET", "POST"])
