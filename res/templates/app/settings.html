@@ -90,7 +90,7 @@
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
-						<form method="POST" action="{{ url_for('api.rename_project') }}">
+						<form method="POST" action="{{ url_for("webapi.rename_project") }}">
 							<input type="hidden" id="rename-project-id" name="project_id" value="{{ p.id }}">
 							<div class="mb-3">
 								<label for="rename-proj-name" class="form-label">{{ _("Project Name") }}</label>

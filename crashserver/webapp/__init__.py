@@ -69,12 +69,11 @@ def register_extensions(app: Flask):
 
 def register_blueprints(app: Flask):
     from .views import views
-    from .api import api
-    from .controllers import sym_upload_v1, sym_upload_v2
+    from .controllers import crash_upload_api, sym_upload_v1, sym_upload_v2, webapi
     from .core.auth import auth
 
     app.register_blueprint(views)
-    app.register_blueprint(api)
+    app.register_blueprint(webapi)
     app.register_blueprint(sym_upload_v1, url_prefix="/symupload")
     app.register_blueprint(sym_upload_v2, url_prefix="/symupload")
     app.register_blueprint(auth, url_prefix="/auth")

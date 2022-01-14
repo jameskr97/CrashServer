@@ -28,7 +28,7 @@
 		</td>
 		{% if current_user.is_authenticated %}
 		<td>
-			<a href="{{ url_for("api.delete_minidump", dump_id=dump.id) }}" data-bs-toggle="modal" data-bs-target="#delete-dump-modal-{{ dump.id }}">{{ _("Delete") }}</a>
+			<a href="{{ url_for("webapi.delete_minidump", dump_id=dump.id) }}" data-bs-toggle="modal" data-bs-target="#delete-dump-modal-{{ dump.id }}">{{ _("Delete") }}</a>
 			<div class="modal fade" id="delete-dump-modal-{{ dump.id }}">
 			  <div class="modal-dialog">
 				<div class="modal-content">

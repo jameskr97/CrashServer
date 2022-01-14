@@ -1,93 +1,22 @@
 import itertools
 import json
 import operator
-import io
 import os
-import gzip
 
+import natsort
 from flask import Blueprint, request, render_template, flash, redirect
 from flask_babel import _
-from sqlalchemy import func
-from loguru import logger
 from flask_login import login_required
-import natsort
-from werkzeug.formparser import parse_form_data
+from loguru import logger
+from sqlalchemy import func
 
-
-from crashserver.utility.decorators import (
-    file_key_required,
-    api_key_required,
-    check_project_versioned,
-)
-from crashserver.webapp.models import Symbol, Project, ProjectType, Minidump, Attachment
-from crashserver.utility.misc import SymbolData
-import crashserver.webapp.operations as ops
 from crashserver.webapp import db
+from crashserver.webapp.models import Symbol, Project, ProjectType, Minidump, Attachment
 
-api = Blueprint("api", __name__)
-
-
-@api.route("/api/minidump/upload", methods=["POST"])
-@api_key_required()
-def upload_minidump(project):
-    """
-    A Crashpad_handler sets this endpoint as their upload url with the "-no-upload-gzip"
-    argument, and it will save and prepare the file for processing
-    :return:
-    """
-
-    # A crashpad upload `Content Encoding` will only be gzip, or not present.
-    if request.content_encoding == "gzip":
-        uncompressed = gzip.decompress(request.get_data())
-        environ = {
-            "wsgi.input": io.BytesIO(uncompressed),
-            "CONTENT_LENGTH": str(len(uncompressed)),
-            "CONTENT_TYPE": request.content_type,
-            "REQUEST_METHOD": "POST",
-        }
-        stream, form, files = parse_form_data(environ)
-        dump_values = dict(form)
-        attachments = files.to_dict()
-
-    else:
-        # Additional files after minidump has been popped from dict are misc attachments.
-        attachments = request.files.to_dict()
-        dump_values = dict(request.values)
-
-    minidump_key = "upload_file_minidump"
-    if minidump_key not in attachments.keys():
-        return {"error": "missing file parameter {}".format(minidump_key)}, 400
-    minidump = attachments.pop(minidump_key)
-
-    return ops.minidump_upload(
-        db.session,
-        project.id,
-        dump_values,
-        minidump.stream.read(),
-        attachments.values(),
-    )
+webapi = Blueprint("webapi", __name__)
 
 
-@api.route("/api/symbol/upload", methods=["POST"])
-@file_key_required("symbol_file")
-@api_key_required("symbol")
-@check_project_versioned()
-def upload_symbol(project, version):
-    symbol_file = request.files.get("symbol_file")
-
-    symbol_file_bytes = symbol_file.stream.read()
-    with io.BytesIO(symbol_file_bytes) as f:
-        first_line_str = f.readline().decode("utf-8")
-
-    # Get relevant module info from first line of file
-    symbol_data = SymbolData.from_module_line(first_line_str)
-    symbol_data.app_version = version
-    symbol_file.stream.seek(0)
-
-    return ops.symbol_upload(db.session, project, symbol_file_bytes, symbol_data)
-
-
-@api.route("/webapi/symbols/<project_id>")
+@webapi.route("/webapi/symbols/<project_id>")
 def get_symbols(project_id):
     project = db.session.query(Project).get(project_id)
     proj_symbols = db.session.query(Symbol).filter_by(project_id=project_id).all()
@@ -148,13 +77,13 @@ def get_symbols(project_id):
         }, 200
 
 
-@api.route("/webapi/symbols/count/<project_id>")
+@webapi.route("/webapi/symbols/count/<project_id>")
 def get_symbols_count(project_id):
     proj_symbols = db.session.query(Symbol).filter_by(project_id=project_id).all()
     return {"count": len(proj_symbols)}, 200
 
 
-@api.route("/webapi/project/rename/", methods=["POST"])
+@webapi.route("/webapi/project/rename/", methods=["POST"])
 @login_required
 def rename_project():
     project_id = request.form.get("project_id")
@@ -175,7 +104,7 @@ def rename_project():
     return redirect(request.referrer)
 
 
-@api.route("/webapi/minidump/delete/<dump_id>", methods=["DELETE"])
+@webapi.route("/webapi/minidump/delete/<dump_id>", methods=["DELETE"])
 @login_required
 def delete_minidump(dump_id):
     dump = db.session.query(Minidump).get(dump_id)
@@ -188,7 +117,7 @@ def delete_minidump(dump_id):
     return "", 200
 
 
-@api.route("/webapi/stats/crash-per-day")
+@webapi.route("/webapi/stats/crash-per-day")
 def crash_per_day():
     # Get crash per day data
     num_days = request.args.get("days", default=7, type=int)
@@ -218,7 +147,7 @@ def crash_per_day():
     return json.dumps({"labels": labels, "counts": counts}, default=str)
 
 
-@api.route("/webapi/attachment/get-content/<attach_id>")
+@webapi.route("/webapi/attachment/get-content/<attach_id>")
 def get_attachment_content(attach_id):
     attach = Attachment.query.get(attach_id)
     return {"file_content": attach.file_content}, 200
