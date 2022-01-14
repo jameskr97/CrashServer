@@ -7,9 +7,9 @@ from flask_login import login_required, current_user
 
 from crashserver.config import settings as config
 from crashserver.utility import misc
-from crashserver.webapp import db, helpers
-from crashserver.webapp.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount
-from crashserver.webapp.models import Minidump, Project, ProjectType, User
+from crashserver.server import db, helpers
+from crashserver.server.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount
+from crashserver.server.models import Minidump, Project, ProjectType, User
 
 views = Blueprint("views", __name__)
 

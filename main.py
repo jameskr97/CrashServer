@@ -18,7 +18,7 @@ from gunicorn.app.base import BaseApplication
 from gunicorn.glogging import Logger
 from loguru import logger
 
-from crashserver.webapp import create_app
+from crashserver.server import create_app
 from crashserver.config import settings
 from crashserver import syscheck
 

@@ -1,6 +1,6 @@
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import text
-from crashserver.webapp import db
+from crashserver.server import db
 
 
 class Annotation(db.Model):

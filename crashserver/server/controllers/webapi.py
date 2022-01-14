@@ -10,8 +10,8 @@ from flask_login import login_required
 from loguru import logger
 from sqlalchemy import func
 
-from crashserver.webapp import db
-from crashserver.webapp.models import Symbol, Project, ProjectType, Minidump, Attachment
+from crashserver.server import db
+from crashserver.server.models import Symbol, Project, ProjectType, Minidump, Attachment
 
 webapi = Blueprint("webapi", __name__)
 

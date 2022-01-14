@@ -7,7 +7,7 @@ from sqlalchemy.sql import func, text
 
 from crashserver.utility import misc
 from crashserver import config
-from crashserver.webapp import db
+from crashserver.server import db
 
 
 class SymCache(db.Model):

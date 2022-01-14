@@ -6,7 +6,7 @@ from loguru import logger
 import flask
 import magic
 
-from crashserver.webapp.models import Symbol, BuildMetadata, Minidump, Annotation, Project, Attachment
+from crashserver.server.models import Symbol, BuildMetadata, Minidump, Annotation, Project, Attachment
 from crashserver.utility.misc import SymbolData
 
 

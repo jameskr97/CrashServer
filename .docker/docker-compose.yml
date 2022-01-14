@@ -51,7 +51,7 @@ services:
             - ./logs:/logs
             - ./storage:/storage
         environment:
-            FLASK_APP: crashserver/webapp:create_app
+            FLASK_APP: crashserver/server:create_app
             FLASK_RUN_HOST: 0.0.0.0
             FLASK_RUN_PORT: 8888
             FLASK_DEBUG: 1

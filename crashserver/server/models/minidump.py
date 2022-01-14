@@ -8,7 +8,7 @@ import redis
 import rq
 
 from crashserver.utility import processor
-from crashserver.webapp import db, queue
+from crashserver.server import db, queue
 from crashserver import config
 
 
@@ -71,7 +71,7 @@ class Minidump(db.Model):
         self.filename = filename
 
     def delete_minidump(self):
-        from crashserver.webapp.models import Annotation, Attachment
+        from crashserver.server.models import Annotation, Attachment
 
         # Get all annotations
         annotations = db.session.query(Annotation).filter_by(minidump_id=self.id).all()
@@ -84,7 +84,7 @@ class Minidump(db.Model):
         self.file_location.unlink(missing_ok=True)
 
     def decode_task(self, *args, **kwargs):
-        rq_job = queue.enqueue("crashserver.webapp.jobs." + "decode_minidump", self.id, *args, **kwargs)
+        rq_job = queue.enqueue("crashserver.server.jobs." + "decode_minidump", self.id, *args, **kwargs)
         self.decode_task_id = rq_job.get_id()
         self.decode_task_complete = False
         return rq_job

@@ -1,7 +1,7 @@
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import text, expression
 
-from crashserver.webapp import db
+from crashserver.server import db
 
 
 class BuildMetadata(db.Model):

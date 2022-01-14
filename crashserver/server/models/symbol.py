@@ -6,7 +6,7 @@ from sqlalchemy.sql import func, text
 from flask import current_app
 
 from crashserver import config
-from crashserver.webapp import db
+from crashserver.server import db
 
 
 class Symbol(db.Model):

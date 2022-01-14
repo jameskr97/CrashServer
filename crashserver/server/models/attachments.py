@@ -7,8 +7,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
 from crashserver import config
-from crashserver.webapp import db
-from crashserver.webapp.core.extensions import s3store
+from crashserver.server import db
+from crashserver.server.core.extensions import s3store
 
 
 class Attachment(db.Model):

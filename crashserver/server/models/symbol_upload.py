@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
 from crashserver.utility.misc import SymbolData
-from crashserver.webapp import db
+from crashserver.server import db
 from crashserver import config
 
 

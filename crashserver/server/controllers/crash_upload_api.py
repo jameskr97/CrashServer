@@ -10,7 +10,7 @@ from crashserver.utility.decorators import (
     check_project_versioned,
 )
 from crashserver.utility.misc import SymbolData
-from crashserver.webapp import db, helpers
+from crashserver.server import db, helpers
 
 crash_upload_api = Blueprint("api", __name__)
 

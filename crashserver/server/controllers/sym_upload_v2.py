@@ -62,9 +62,9 @@ import os
 from flask import Blueprint, request, url_for
 from loguru import logger
 
-from crashserver.webapp.models import SymbolUploadV2, BuildMetadata
+from crashserver.server.models import SymbolUploadV2, BuildMetadata
 from crashserver.utility.decorators import url_arg_required, api_key_required
-from crashserver.webapp import db, helpers
+from crashserver.server import db, helpers
 
 sym_upload_v2 = Blueprint("sym-upload-v2", __name__)
 

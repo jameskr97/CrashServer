@@ -9,8 +9,8 @@ from sqlalchemy_utils import create_database, database_exists
 from crashserver.config import get_appdata_directory
 from crashserver.config import get_postgres_url, settings
 from crashserver.utility.hostinfo import HostInfo
-from crashserver.webapp.core.extensions import babel, debug_toolbar, login, limiter, migrate, db, queue
-from crashserver.webapp.models import User
+from crashserver.server.core.extensions import babel, debug_toolbar, login, limiter, migrate, db, queue
+from crashserver.server.models import User
 from crashserver.cli import register_cli
 
 
@@ -107,11 +107,11 @@ def init_database(app: Flask):
         create_database(app.config["SQLALCHEMY_DATABASE_URI"])
         print("Database created")
 
-    from crashserver.webapp.models import Annotation
-    from crashserver.webapp.models import BuildMetadata
-    from crashserver.webapp.models import Minidump
-    from crashserver.webapp.models import Project
-    from crashserver.webapp.models import Symbol
-    from crashserver.webapp.models import SymbolUploadV2
-    from crashserver.webapp.models import User
-    from crashserver.webapp.models import SymCache
+    from crashserver.server.models import Annotation
+    from crashserver.server.models import BuildMetadata
+    from crashserver.server.models import Minidump
+    from crashserver.server.models import Project
+    from crashserver.server.models import Symbol
+    from crashserver.server.models import SymbolUploadV2
+    from crashserver.server.models import User
+    from crashserver.server.models import SymCache

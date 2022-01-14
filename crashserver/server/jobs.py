@@ -5,9 +5,9 @@ import json
 from loguru import logger
 import requests
 
-from crashserver.webapp.models import Minidump, BuildMetadata, SymCache
-from crashserver.webapp.core.extensions import db
-from crashserver.webapp import create_app
+from crashserver.server.models import Minidump, BuildMetadata, SymCache
+from crashserver.server.core.extensions import db
+from crashserver.server import create_app
 from crashserver.utility import processor
 from crashserver import config
 

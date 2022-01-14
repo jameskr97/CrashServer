@@ -57,7 +57,7 @@ def register_account_mgmt(app):
     @click.argument("email")
     def adduser(email):
         """Create a new web account"""
-        from crashserver.webapp.models import User
+        from crashserver.server.models import User
 
         # Ensure email is valid
         try:
@@ -87,7 +87,7 @@ def register_account_mgmt(app):
     @click.argument("email", required=True)
     def deluser(email):
         """Delete an existing web account"""
-        from crashserver.webapp.models import User
+        from crashserver.server.models import User
 
         with Session(create_engine(get_postgres_url())) as session:
             res = session.query(User).filter_by(email=email).first()
@@ -109,7 +109,7 @@ def register_util(app):
     @util.command(help="Force minidump to decode")
     @click.argument("dump_id", required=True)
     def force_decode(dump_id):
-        from crashserver.webapp.models import Minidump
+        from crashserver.server.models import Minidump
 
         with Session(create_engine(get_postgres_url())) as session:
             res = session.query(Minidump).get(dump_id)
