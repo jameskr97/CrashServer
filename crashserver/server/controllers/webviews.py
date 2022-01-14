@@ -14,6 +14,13 @@ from crashserver.server.models import Minidump, Project, ProjectType, User
 views = Blueprint("views", __name__)
 
 
+@views.route("/")
+def home():
+    return redirect(url_for("views.crash"))
+    # apps = Project.query.with_entities(Project.id, Project.project_name).all()
+    # return render_template("home.html", apps=apps)
+
+
 @views.route("/settings", methods=["GET", "POST"])
 @login_required
 def settings():
