@@ -10,7 +10,7 @@ from crashserver.config import get_appdata_directory
 from crashserver.config import get_postgres_url, settings
 from crashserver.utility.hostinfo import HostInfo
 from crashserver.server.core.extensions import babel, debug_toolbar, login, limiter, migrate, db, queue
-from crashserver.server.models import User
+from crashserver.server.models import User, Storage
 from crashserver.cli import register_cli
 
 
@@ -21,6 +21,10 @@ def create_app():
     register_blueprints(app)
     register_jinja(app)
     register_cli(app)
+
+    with app.app_context():
+        Storage.register_targets()
+        Storage.init_targets()
 
     return app
 

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Account dropdown no longer whited-out in dark-mode.
 
 ### Added
+- Storage module added to isolate the request to save a file from where the file is saved.
 - `gosu` added to Dockerfiles to allow for setting mapped directory ownership, and specifying a `PUID/PGID` for the container to run as. (Note: Docker `--user` param is no longer used) 
 - TZ environment variable added to configure how information is displayed. Required installing `tzdata` in docker
 - Flask-Babel for easy translation. All translatable strings surrounded with relevant `_()` and `ngettext()` functions.
