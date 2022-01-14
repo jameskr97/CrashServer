@@ -6,7 +6,7 @@ from loguru import logger
 import flask
 import magic
 
-from crashserver.server.models import Symbol, BuildMetadata, Minidump, Annotation, Project, Attachment
+from crashserver.server.models import Symbol, BuildMetadata, Minidump, Annotation, Project, Attachment, ProjectType
 from crashserver.utility.misc import SymbolData
 
 
@@ -59,7 +59,14 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
     )
     build.symbol.store_file(symbol_file)
     logger.info(
-        f"Symbols received for {project.project_name} [{project.id}]. Version => {symbol_data.app_version}, OS => {symbol_data.os}:{symbol_data.arch}"
+        "Symbols received for {project_name} [{project_id}][{project_type}{sym_version}][{os}:{arch}]".format(
+            project_name=project.project_name,
+            project_id=str(project.id).split("-")[0],
+            project_type=str(project.project_type).split(".")[-1],
+            sym_version=(":" + symbol_data.app_version if project.project_type == ProjectType.VERSIONED else ""),
+            os=symbol_data.os,
+            arch=symbol_data.arch,
+        )
     )
 
     # Send all minidump id's to task processor to for decoding
