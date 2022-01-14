@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
 from crashserver.server import db
-from crashserver.server.models import Storage
+from .storage import Storage
 
 
 class Symbol(db.Model):

@@ -3,11 +3,9 @@ import enum
 
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
-from flask import current_app
 
 from crashserver.server import db
-from crashserver.utility import sysinfo
-from crashserver import config
+from .symbol import Symbol
 
 
 class ProjectType(enum.Enum):
@@ -65,4 +63,4 @@ class Project(db.Model):
     @property
     def total_symbol_size(self):
         """:return: Size of this projects symbol location in bytes"""
-        return 0  # sysinfo.get_directory_size(self.symbol_location)
+        return db.session.query(func.sum(Symbol.file_size_bytes)).scalar()
