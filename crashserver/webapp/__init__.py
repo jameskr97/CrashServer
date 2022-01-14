@@ -9,7 +9,7 @@ from sqlalchemy_utils import create_database, database_exists
 from crashserver.config import get_appdata_directory
 from crashserver.config import get_postgres_url, settings
 from crashserver.utility.hostinfo import HostInfo
-from crashserver.webapp.extensions import babel, debug_toolbar, login, limiter, migrate, db, queue
+from crashserver.webapp.core.extensions import babel, debug_toolbar, login, limiter, migrate, db, queue
 from crashserver.webapp.models import User
 from crashserver.cli import register_cli
 
@@ -62,7 +62,7 @@ def register_extensions(app: Flask):
     def get_locale():
         return flask.request.accept_languages.best_match(app.config["LANGUAGES"])
 
-    login.login_view = "auth.login"
+    login.login_view = "core.auth.login"
     login.login_message = _("You must be logged in to see this page")
     login.login_message_category = "info"
 
@@ -70,8 +70,8 @@ def register_extensions(app: Flask):
 def register_blueprints(app: Flask):
     from .views import views
     from .api import api
-    from .symupload import sym_upload_v1, sym_upload_v2
-    from .auth import auth
+    from .controllers import sym_upload_v1, sym_upload_v2
+    from .core.auth import auth
 
     app.register_blueprint(views)
     app.register_blueprint(api)

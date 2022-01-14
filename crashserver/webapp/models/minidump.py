@@ -84,7 +84,7 @@ class Minidump(db.Model):
         self.file_location.unlink(missing_ok=True)
 
     def decode_task(self, *args, **kwargs):
-        rq_job = queue.enqueue("crashserver.tasks." + "decode_minidump", self.id, *args, **kwargs)
+        rq_job = queue.enqueue("crashserver.webapp.jobs." + "decode_minidump", self.id, *args, **kwargs)
         self.decode_task_id = rq_job.get_id()
         self.decode_task_complete = False
         return rq_job
