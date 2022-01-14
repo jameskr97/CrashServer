@@ -7,10 +7,9 @@ from flask_babel import _
 
 from crashserver.webapp.models import Minidump, Project, ProjectType, User
 from crashserver.webapp.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount
-from crashserver.webapp import operations as ops
 from crashserver.config import settings as config
 from crashserver.utility import misc
-from crashserver.webapp import db
+from crashserver.webapp import db, helpers
 
 views = Blueprint("views", __name__)
 
@@ -112,7 +111,7 @@ def upload():
     form = UploadMinidumpForm()
 
     if request.method == "POST" and form.validate_on_submit():
-        res = ops.minidump_upload(db.session, form.project.data, {}, form.minidump.data.stream.read(), [])
+        res = helpers.minidump_upload(db.session, form.project.data, {}, form.minidump.data.stream.read(), [])
         if res.status_code != 200:
             flash(res.json["error"], category="danger")
             return redirect(url_for("views.upload"))

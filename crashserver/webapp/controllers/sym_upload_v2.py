@@ -64,8 +64,7 @@ from loguru import logger
 
 from crashserver.webapp.models import SymbolUploadV2, BuildMetadata
 from crashserver.utility.decorators import url_arg_required, api_key_required
-from crashserver.webapp import operations as ops
-from crashserver.webapp import db
+from crashserver.webapp import db, helpers
 
 sym_upload_v2 = Blueprint("sym-upload-v2", __name__)
 
@@ -130,7 +129,7 @@ def is_upload_complete(project, upload_key):
 
     # Save the file!
     file_data = symbol_ref.load_file()
-    ops.symbol_upload(db.session, project, file_data, symbol_ref.symbol_data)
+    helpers.symbol_upload(db.session, project, file_data, symbol_ref.symbol_data)
 
     # Delete upload
     os.remove(symbol_ref.file_location)

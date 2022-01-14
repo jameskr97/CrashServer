@@ -4,14 +4,13 @@ import io
 from flask import Blueprint, request
 from werkzeug.formparser import parse_form_data
 
-import crashserver.webapp.operations as ops
 from crashserver.utility.decorators import (
     file_key_required,
     api_key_required,
     check_project_versioned,
 )
 from crashserver.utility.misc import SymbolData
-from crashserver.webapp import db
+from crashserver.webapp import db, helpers
 
 crash_upload_api = Blueprint("api", __name__)
 
@@ -48,7 +47,7 @@ def upload_minidump(project):
         return {"error": "missing file parameter {}".format(minidump_key)}, 400
     minidump = attachments.pop(minidump_key)
 
-    return ops.minidump_upload(
+    return helpers.minidump_upload(
         db.session,
         project.id,
         dump_values,
@@ -73,4 +72,4 @@ def upload_symbol(project, version):
     symbol_data.app_version = version
     symbol_file.stream.seek(0)
 
-    return ops.symbol_upload(db.session, project, symbol_file_bytes, symbol_data)
+    return helpers.symbol_upload(db.session, project, symbol_file_bytes, symbol_data)

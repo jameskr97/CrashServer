@@ -1,11 +1,9 @@
-from pathlib import Path
 import hashlib
 
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
 from crashserver.utility.misc import SymbolData
-from crashserver.webapp import operations as ops
 from crashserver.webapp import db
 from crashserver import config
 
@@ -38,7 +36,7 @@ class SymbolUploadV2(db.Model):
 
     @property
     def symbol_data(self):
-        return ops.SymbolData(module_id=self.module_id, build_id=self.build_id, arch=self.arch, os=self.os)
+        return SymbolData(module_id=self.module_id, build_id=self.build_id, arch=self.arch, os=self.os)
 
     def store_file(self, file_content: bytes):
         # Ensure very first line starts with word "MODULE"

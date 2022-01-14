@@ -13,8 +13,8 @@ from crashserver.utility.decorators import (
     api_key_required,
     check_project_versioned,
 )
-from crashserver.webapp import operations as ops
-from crashserver.webapp import db
+from crashserver.utility.misc import SymbolData
+from crashserver.webapp import db, helpers
 
 sym_upload_v1 = Blueprint("sym-upload-v1", __name__)
 
@@ -29,7 +29,7 @@ def upload(project, version):
     Received payload is a multipart/form request with all data needed to receive a symbol file
     :return:
     """
-    data = ops.SymbolData(
+    data = SymbolData(
         os=request.form["os"].strip(),
         arch=request.form["cpu"].strip(),
         build_id=request.form["debug_identifier"].strip(),
@@ -38,4 +38,4 @@ def upload(project, version):
     )
 
     file_content = request.files.get("symbol_file").stream.read()
-    return ops.symbol_upload(db.session, project, file_content, data)
+    return helpers.symbol_upload(db.session, project, file_content, data)
