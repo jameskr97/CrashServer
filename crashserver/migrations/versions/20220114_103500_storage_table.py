@@ -1,6 +1,6 @@
 """Add Storage table for isolated file access
 
-Revision ID: 94b02d0d570a
+Revision ID: 20220114_103500_storage_table
 Revises: 20211211_002700_add_upload_ip
 Create Date: 2022-01-14 11:58:22.140682
 
@@ -10,7 +10,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "20220114_103500_add_storage_table"
+revision = "20220114_103500_storage_table"
 down_revision = "20211211_002700_add_upload_ip"
 branch_labels = None
 depends_on = None
