@@ -92,31 +92,22 @@ if __name__ == "__main__":
     logging.root.setLevel(LOG_LEVEL)
     logger.configure(handlers=[{"sink": sys.stdout, "serialize": JSON_LOGS}])
     seen = set()
-    for name in [*logging.root.manager.loggerDict.keys(), "gunicorn", "gunicorn.access", "gunicorn.error"]:
+    for name in [*logging.root.manager.loggerDict.keys(), "gunicorn", "gunicorn.access", "gunicorn.error", "werkzeug"]:
         if name not in seen:
             seen.add(name.split(".")[0])
             logging.getLogger(name).handlers = [intercept_handler]
-    LOG_FORMAT = (
-        "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green><lvl>[{level}]</lvl><blue>[{name}]</blue>: <bold>{message}</bold>"
-    )
+
+    # fmt: off
+    LOG_FORMAT = "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green><lvl>[{level}]</lvl>: <bold>{message}</bold>"
+    filter_app = lambda record: any(part in record["name"] for part in ["crashserver", "__main__"])
+    filter_access = lambda record: record["name"] == "gunicorn.glogging" and record["function"] == "access"
+    # fmt: on
+
     config = {
         "handlers": [
-            {
-                "sink": sys.stdout,
-                "format": LOG_FORMAT,
-            },
-            {
-                "sink": os.path.join(settings.storage.logs, "app.log"),
-                "filter": lambda record: any(part in record["name"] for part in ["crashserver", "__main__"]),
-                "format": LOG_FORMAT,
-            },
-            {
-                "sink": os.path.join(settings.storage.logs, "access.log"),
-                "format": "{message}",
-                # I wish there was an easier way to determine the original
-                # python logger that was used before the loguru override
-                "filter": lambda record: record["name"] == "gunicorn.glogging" and record["function"] == "access",
-            },
+            {"sink": sys.stdout, "format": LOG_FORMAT, "colorize": True},
+            {"sink": os.path.join(settings.storage.logs, "app.log"), "filter": filter_app, "format": LOG_FORMAT},
+            {"sink": os.path.join(settings.storage.logs, "access.log"), "filter": filter_access, "format": "{message}"},
         ],
     }
     logger.configure(**config)
