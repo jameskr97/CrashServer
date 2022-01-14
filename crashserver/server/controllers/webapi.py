@@ -150,4 +150,5 @@ def crash_per_day():
 @webapi.route("/webapi/attachment/get-content/<attach_id>")
 def get_attachment_content(attach_id):
     attach = Attachment.query.get(attach_id)
-    return {"file_content": attach.file_content}, 200
+    content = attach.file_content
+    return {"file_content": content}, 200 if content is not None else 404
