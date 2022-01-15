@@ -61,7 +61,7 @@ def register_extensions(app: Flask):
     def get_locale():
         return flask.request.accept_languages.best_match(app.config["LANGUAGES"])
 
-    login.login_view = "core.auth.login"
+    login.login_view = "auth.login"
     login.login_message = _("You must be logged in to see this page")
     login.login_message_category = "info"
 
