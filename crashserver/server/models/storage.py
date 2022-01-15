@@ -1,3 +1,4 @@
+import io
 import typing
 from pathlib import Path
 from typing import IO, Optional
@@ -30,6 +31,7 @@ class Storage(db.Model):
     def register_targets():
         # Register internal targets
         storage_factory.register("filesystem", storage_targets.DiskStorage)
+        storage_factory.register("s3", storage_targets.S3Storage)
 
         # Ensure all methods exist within database
         new_modules = []
