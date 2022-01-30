@@ -42,7 +42,10 @@ class Project(db.Model):
     # Relationships
     minidump = db.relationship("Minidump", viewonly=True)
     symbol = db.relationship("Symbol")
-
+    unprocessed_dumps = db.relationship(
+        "Minidump",
+        primaryjoin="and_(Minidump.project_id==Project.id, Minidump.symbolicated=='false')",
+    )
     def create_directories(self):
         self.symbol_location.mkdir(parents=True, exist_ok=True)
         self.minidump_location.mkdir(parents=True, exist_ok=True)

@@ -16,9 +16,9 @@ views = Blueprint("views", __name__)
 
 @views.route("/")
 def home():
-    return redirect(url_for("views.crash"))
-    # apps = Project.query.with_entities(Project.id, Project.project_name).all()
-    # return render_template("home.html", apps=apps)
+    # return redirect(url_for("views.crash"))
+    apps = Project.query.all()
+    return render_template("app/home.html", apps=apps)
 
 
 @views.route("/settings", methods=["GET", "POST"])

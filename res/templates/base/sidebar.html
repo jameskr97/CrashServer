@@ -1,0 +1,77 @@
+{% macro single_navbar_item(text, icon, link) %}
+	<li class="nav-item">
+		<a href="{{ link }}" class="nav-link">
+			<i class="nav-icon fa-fw fas {{ icon }}"></i>
+			{{ text }}
+		</a>
+	</li>
+{% endmacro %}
+
+<nav class="sidebar vh-100 card py-2 mb-4 sticky-top">
+	<a href="/" class="sidebar-brand d-flex align-items-center ps-3 pe-3 link-dark text-decoration-none">
+{#		<img style="width:40px; padding-right: 8px;" src="{{ url_for("static", filename="img/crashserver-icon.svg") }}" alt="">#}
+		<span class="fs-3 fw-semibold">Crash Server</span>
+	</a>
+	<hr>
+	<ul class="nav flex-column" id="nav_accordion">
+		{{ single_navbar_item(_("Crash Reports"), "fa-car-crash", url_for("views.crash")) }}
+		{{ single_navbar_item(_("Symbols"), "fa-shapes", url_for("views.symbols")) }}
+		{{ single_navbar_item(_("Upload"), "fa-upload", url_for("views.upload")) }}
+		<hr>
+		{% if current_user.is_anonymous %}
+			{{ single_navbar_item(_("Login"), "fa-sign-in-alt", url_for("auth.login")) }}
+		{% else %}
+			{{ single_navbar_item(_("Create App"), "fa-plus", url_for("views.project_create")) }}
+			<li class="nav-item has-submenu">
+				<a href="" class="nav-link">
+					<i class="fa-fw fas fa-cog"></i>
+					{{ _("Settings") }}
+					<i class="right fas fa-angle-left"></i>
+				</a>
+				<ul class="submenu collapse">
+					{{ single_navbar_item(_("My Account"), "fa-user", "#") }}
+					{{ single_navbar_item(_("Users"), "fa-users", "#") }}
+					{{ single_navbar_item(_("Server"), "fa-server", "#") }}
+					{{ single_navbar_item(_("Projects"), "fa-archive", "#") }}
+					{{ single_navbar_item(_("About"), "fa-info-circle", "#") }}
+				</ul>
+			</li>
+			{{ single_navbar_item(_("Logout"), "fa-sign-out-alt", url_for("auth.logout")) }}
+			<hr>
+			<li class="nav-item">
+				<a href="#" class="nav-link" onclick="toggle_dark_mode()">
+					<i class="nav-icon fa-fw fas fa-adjust"></i>
+					{{ _("Toggle Dark Mode") }}
+				</a>
+			</li>
+		{% endif %}
+	</ul>
+</nav>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.sidebar .nav-link').forEach(function (element) {
+            element.addEventListener('click', function (e) {
+                let nextEl = element.nextElementSibling;
+                let parentEl = element.parentElement;
+                if (nextEl) {
+                    e.preventDefault();
+                    let mycollapse = new bootstrap.Collapse(nextEl);
+
+                    if (nextEl.classList.contains('show')) {
+                        mycollapse.hide();
+                    } else {
+                        mycollapse.show();
+                        // find other submenus with class=show
+                        var opened_submenu = parentEl.parentElement.querySelector('.submenu.show');
+                        // if it exists, then close all of them
+                        if (opened_submenu) {
+                            new bootstrap.Collapse(opened_submenu);
+                        }
+                    }
+                }
+            }); // addEventListener
+        }) // forEach
+    });
+</script>

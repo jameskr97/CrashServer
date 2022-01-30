@@ -1,0 +1,40 @@
+{% extends "base/base.html" %}
+
+
+{% macro project_entry(project) %}
+	<div class="item">
+		<div class="header">
+			<div class="title">{{ project.project_name }}</div>
+			<hr>
+			<div><i class="fas fa-stream"></i> {{ project.symbol|count }} Symbols</div>
+			<div><i class="fas fa-archive"></i> {{ project.minidump|count }} Crashes</div>
+			<div><i class="far fa-question-circle"></i> {{ project.unprocessed_dumps|count }} Unprocessed</div>
+		</div>
+		<div class="content">
+			<div class="chart-container">
+				<canvas id="{{ project.id }}"></canvas>
+			</div>
+		</div>
+	</div>
+{% endmacro %}
+
+{% block content %}
+	<h1 class="text-center page-title">{{ _("Symbol Storage and Minidump Decode") }}</h1>
+	<hr>
+	<div class="project-list">
+		{% for app in apps %}
+			{{ project_entry(app) }}
+		{% endfor %}
+	</div>
+
+	<script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let elements = document.getElementsByTagName("canvas")
+            for(let i = 0; i < elements.length; i++){
+                let item = elements.item(i);
+                gen_home_crash_count(item.id, "no");
+            }
+        });
+
+	</script>
+{% endblock %}

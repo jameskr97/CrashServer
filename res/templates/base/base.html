@@ -6,32 +6,39 @@
 	<title>{% block title %}Crash Server{% endblock %}</title>
 
 	<!-- Scripts and CSS-->
-	<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename="img/apple-touch-icon.png") }}">
-	<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename="img/favicon-32x32.png") }}">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree&display=swap" rel="stylesheet">
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
-		  integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
+		  integrity="sha256-z8OR40MowJ8GgK6P89Y+hiJK5+cclzFHzLhFQLL92bg="
+		  crossorigin="anonymous">
 	<link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
 	<link href="{{ url_for('static', filename='css/prism.css') }}" rel="stylesheet">
 	<link href="{{ url_for('static', filename='css/fa-all.css') }}" rel="stylesheet">
 </head>
-<body {{  ('class=' + request.cookies.get('theme')) if request.cookies.get('theme') else "" }}>
-{% include 'base/navbar.html' %}
-<div class="container">
-	{% include 'base/flash.html' %}
-	{% block content %}
-	{% endblock %}
-</div>
+<body {{ ('class=' + request.cookies.get('theme')) if request.cookies.get('theme') else "" }}>
+	<div class="container-fluid">
+		<div class="row d-flex flex-nowrap ">
+			<aside class="col-auto px-0">
+				{% include 'base/sidebar.html' %}
+			</aside>
+			<div class="col ps-md-2 pt-2">
+				<div class="container">
+					{% include 'base/flash.html' %}
+					{% block content %}
+					{% endblock %}
+				</div>
+			</div>
+		</div>
+	</div>
 
-<!-- JS Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
-		crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.2/dist/chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-<script src="{{ url_for("static", filename="js/app.js") }}"></script>
-<script src="{{ url_for("static", filename="js/prism.js") }}"></script>
+	{#<!-- JS Scripts -->#}
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+			integrity="sha256-KuvCVS19rfTjoLgMyDDCdOkRRlhNrY4psEM4uezts2M="
+			crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.2/dist/chart.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+	<script src="{{ url_for("static", filename="js/app.js") }}"></script>
+	<script src="{{ url_for("static", filename="js/prism.js") }}"></script>
 </body>
 </html>
