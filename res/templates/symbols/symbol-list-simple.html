@@ -2,6 +2,29 @@
 	<li class="list-group-item"><i class="fab {{ icon }} fa-fw"></i>{{ stats["sym_count"][os] }} {{ os|capitalize }} {{ _("Symbols") }}</li>
 {% endmacro %}
 
+{% macro desktop_row(symbol) %}
+	<tr class="monospace-font">
+		<td><i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i></td>
+		<td>{{ symbol.build.module_id }}</td>
+		<td>{{ symbol.build.build_id }}</td>
+		<td>{{ symbol.arch }}</td>
+		<td><code>{{ humanize.naturalsize(symbol.file_size_bytes) }}</code></td>
+		<td>{{ symbol.date_created.strftime("%F %T") }}</td>
+	</tr>
+{% endmacro %}
+
+{% macro mobile_row(symbol) %}
+	<div class="mobile-version-info">
+		<h6>
+			<i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i>
+			{{ symbol.build.module_id }} | {{ symbol.arch }}
+		</h6>
+		<p>{{ _("File Size") }}: <code>{{ humanize.naturalsize(symbol.file_size_bytes) }}</code></p>
+		<p>{{ _("Uploaded on") }}: {{ symbol.date_created.strftime("%c") }}</p>
+	</div>
+{% endmacro %}
+
+
 <div class="row">
 	<!-- DESKTOP SIDE TABS  -->
 	<div class="col-md-4 col-lg-3 col-sm-12">
@@ -16,7 +39,14 @@
 		<div class="d-md-none col-sm-12"><br></div>
 	</div>
 
-	<div id="symbol-list" class="col-md-8 col-lg-9">
+	<div id="mobile-version-list" class="d-md-none">
+		{% for symbol in symbols %}
+			{{ mobile_row(symbol) }}
+		{% endfor %}
+	</div>
+
+	{# Destop Table #}
+	<div id="symbol-list" class="d-none d-md-block col-md-8 col-lg-9">
 		<table class="table">
 			<thead>
 			<tr>
@@ -30,14 +60,7 @@
 			</thead>
 			<tbody>
 			{% for symbol in symbols %}
-				<tr class="monospace-font">
-					<td><i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i></td>
-					<td>{{ symbol.build.module_id }}</td>
-					<td>{{ symbol.build.build_id }}</td>
-					<td>{{ symbol.arch }}</td>
-					<td><code>{{ humanize.naturalsize(symbol.file_size_bytes) }}</code></td>
-					<td>{{ symbol.date_created.strftime("%F %T") }}</td>
-				</tr>
+				{{ desktop_row(symbol) }}
 			{% endfor %}
 			</tbody>
 		</table>

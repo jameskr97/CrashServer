@@ -17,7 +17,7 @@ body {
         --cs-background: #121212;
         --cs-sidebar-background: #000;
         --cs-sidebar-separator: #FBFBFF;
-        --cs-separator: #FBFBFF;
+        --cs-separator: #ffffff66;
     }
 }
 
@@ -52,7 +52,7 @@ hr {
 
 /** Bootstrap override */
 .accordion-item {
-    border: 1px solid var(--cs-separator);
+    background-color: var(--cs-separator);
 }
 .accordion-button,
 .accordion-button:not(.collapsed) {
@@ -242,51 +242,7 @@ aside .sidebar li .submenu {
 /*    margin-top: 5px;*/
 /*}*/
 
-/*!* Symbol List HTML *!*/
-/*.symbol-list-version {*/
-/*    margin-left: 5px;*/
-/*    margin-right: 5px;*/
-/*}*/
-
-/*#mobile-version-list .card {*/
-/*    margin-bottom: 5px;*/
-/*}*/
-
-/*#mobile-version-list .mobile-version-info {*/
-/*    padding: 5px 0 0 5px;*/
-/*    margin: 5px;*/
-/*    border-radius: 5px;*/
-/*    border: 1px solid rgba(0,0,0,.125);*/
-/*    font-size: 1em;*/
-/*    font-weight: 400;*/
-/*    line-height: 1.5;*/
-/*}*/
-
-/*#mobile-version-list ul {*/
-/*    margin-bottom: 0;*/
-/*}*/
-
-/*#mobile-version-list p {*/
-/*    margin-bottom: 0px;*/
-/*}*/
-
 /*!* Crash Detail Page *!*/
-/*.crash-thread-badge {*/
-/*    margin-left: 3px;*/
-/*}*/
-
-/*.stack-header-btn {*/
-/*    width: 100%;*/
-/*    text-align: left;*/
-/*    background-color: #fff;*/
-/*    border: none;*/
-/*    color: #000;*/
-/*    border: 0;*/
-/*    border-radius: 0;*/
-/*    user-select: text;*/
-/*    padding-left: 0;*/
-/*}*/
-
 /*.frame-code-view {*/
 /*    padding: 10px;*/
 /*}*/
