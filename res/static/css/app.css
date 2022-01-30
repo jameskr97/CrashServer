@@ -1,50 +1,5 @@
 /* Colors */
-/*!** Default (light) colors *!*/
-/*body {*/
-/*    --cs-background-color: white;*/
-/*    --cs-text-color: black;*/
-/*    --cs-nav-color: #212529;*/
-/*    --cs-red-badge: #DC3545;*/
-/*    --cs-separator-color: rgba(0, 0, 0, .125);*/
-/*    --cs-toggler-color: #ffffff8C;*/
-/*    --cs-pagination-bg: white;*/
-/*}*/
-
-/*!** Default (dark) colors *!*/
-/*body.dark-theme {*/
-/*    --cs-background-color: #121212;*/
-/*    --cs-text-color: #ffffffDE;*/
-/*    --cs-nav-color: #12121299;*/
-/*    --cs-red-badge: #DA0037;*/
-/*    --cs-separator-color: #ffffff66;*/
-/*    --cs-toggler-color: var(--cs-separator-color);*/
-/*    --cs-pagination-bg: var(--cs-nav-color);*/
-/*}*/
-
-/*!** Swapped body to .light-theme, and body.dark-theme to body *!*/
-/*@media (prefers-color-scheme: dark) {*/
-/*    body {*/
-/*        --cs-background-color: #121212;*/
-/*        --cs-text-color: #ffffffDE;*/
-/*        --cs-nav-color: #12121299;*/
-/*        --cs-red-badge: #DA0037;*/
-/*        --cs-separator-color: #ffffff66;*/
-/*        --cs-toggler-color: var(--cs-separator-color);*/
-/*        --cs-pagination-bg: var(--cs-nav-color);*/
-/*    }*/
-/*    body.light-theme {*/
-/*        --cs-background-color: white;*/
-/*        --cs-text-color: black;*/
-/*        --cs-nav-color: #212529;*/
-/*        --cs-red-badge: #DC3545;*/
-/*        --cs-separator-color: rgba(0, 0, 0, .125);*/
-/*        --cs-toggler-color: #ffffff8C;*/
-/*        --cs-pagination-bg: white;*/
-/*    }*/
-/*}*/
-
-/* Colors */
-/*!** Default (light) colors *!*/
+/* Default (light) colors */
 body {
     --cs-text: #000;
     --cs-background: #F7F7FF;
@@ -54,7 +9,7 @@ body {
     --cs-separator: #10002B;
 }
 
-/*!** Default (dark) colors *!*/
+/* Default (dark) colors */
 /* TODO: Add body.dark-theme and body.light-theme */
 @media (prefers-color-scheme: dark) {
     body {
@@ -81,6 +36,40 @@ body {
 .monospace-font {
     font-size: 14px;
     font-family: monospace;
+}
+select, button, .list-group-item {
+    background-color: var(--cs-background) !important;
+    color: var(--cs-text) !important;
+    border-color: var(--cs-separator) !important;
+}
+table, th, tr {
+    color: var(--cs-text) !important;
+}
+hr {
+    color: var(--cs-separator) !important;
+    border: 1px solid;
+}
+
+/** Bootstrap override */
+.accordion-item {
+    border: 1px solid var(--cs-separator);
+}
+.accordion-button,
+.accordion-button:not(.collapsed) {
+    color: var(--cs-text);
+    background-color: var(--cs-background);
+    padding: 5px;
+}
+
+/** Centering Grid CSS */
+.centering-grid {
+    display: grid;
+    justify-content: center;
+    grid-row-gap: 20px;
+    grid-template-columns: 1fr 400px 1fr;
+}
+.centering-grid-item {
+    grid-column: 2;
 }
 
 /* Sidebar styling */
@@ -167,7 +156,6 @@ aside .sidebar li .submenu {
     background: var(--cs-background) !important;
 }
 
-
 /* Crash detail styling */
 #modules-block .card {
     background-color: var(--cs-background);
@@ -183,11 +171,6 @@ aside .sidebar li .submenu {
 #crash-detail-tabs > .nav-link.disabled {
     color: grey;
 }
-#thread-list .accordion-button, #file-list .accordion-button{
-    color: var(--cs-text);
-    background-color: var(--cs-background);
-    padding: 5px;
-}
 #thread-list .stack-header-btn {
     width: 100%;
     text-align: left;
@@ -201,43 +184,16 @@ aside .sidebar li .submenu {
     border-color: var(--cs-separator) !important;
 }
 
-
-/*td {*/
-/*    border-bottom: 1px inset var(--cs-separator-color);*/
-/*}*/
-
-/*table, th, tr, hr {*/
-/*    color: var(--cs-text-color) !important;*/
-/*}*/
-
-/*select, button, .list-group-item {*/
-/*    background-color: var(--cs-background-color) !important;*/
-/*    color: var(--cs-text-color) !important;*/
-/*    border-color: var(--cs-separator-color) !important;*/
-/*}*/
-
-/*.bg-dark {*/
-/*    background-color: var(--cs-nav-color) !important;*/
-/*}*/
-
-/*.crash-thread-badge.bg-danger {*/
-/*    background-color: #DA0037 !important;*/
-/*}*/
-
-/*.dropdown-menu {*/
-/*    background-color: var(--cs-background-color);*/
-/*    border-color: var(--cs-separator-color);*/
-/*}*/
-/*.dropdown-item {*/
-/*    color: var(--cs-text-color);*/
-/*    background-color: var(--cs-background-color);*/
-/*}*/
-
-
-
-/*.container {*/
-/*    padding-top: 15px;*/
-/*}*/
+/* Symbol list styling */
+#mobile-version-list > .mobile-version-info {
+    padding: 5px 0 0 5px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 1px solid var(--cs-separator);
+    font-size: 1em;
+    font-weight: 400;
+    line-height: 1.5;
+}
 
 /*!* Navbar specific *!*/
 /*.navbar-dark .navbar-toggler {*/
@@ -247,43 +203,6 @@ aside .sidebar li .submenu {
 
 /*.navbar-dark .navbar-toggler:focus {*/
 /*    box-shadow: none;*/
-/*}*/
-
-/*!* Bootstrap Override *!*/
-/*.nav-tabs {*/
-/*    border-bottom: 1px solid var(--cs-separator-color);*/
-/*}*/
-
-/*.accordion-item {*/
-/*    background-color: var(--cs-separator-color);*/
-/*}*/
-
-/*!* Homepage specific CSS *!*/
-
-/*.centering-grid {*/
-/*    display: grid;*/
-/*    justify-content: center;*/
-/*    grid-row-gap: 20px;*/
-/*    grid-template-columns: 1fr 400px 1fr;*/
-/*}*/
-
-/*.centering-grid-item {*/
-/*    grid-column: 2;*/
-/*}*/
-
-/*!* Crash List page *!*/
-/*.day-crash-count {*/
-/*    float: right;*/
-/*    display: inline-block;*/
-/*}*/
-
-/*.day-crash-count > select {*/
-/*    border: 1px solid var(--cs-separator-color);*/
-/*}*/
-
-/*.card {*/
-/*    background-color: var(--cs-background-color);*/
-/*    border-color: var(--cs-separator-color);*/
 /*}*/
 
 /*!* Settings page specific CSS *!*/
@@ -324,10 +243,6 @@ aside .sidebar li .submenu {
 /*}*/
 
 /*!* Symbol List HTML *!*/
-/*.accordion-item button {*/
-/*    padding: 5px;*/
-/*}*/
-
 /*.symbol-list-version {*/
 /*    margin-left: 5px;*/
 /*    margin-right: 5px;*/

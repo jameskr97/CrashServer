@@ -2,6 +2,33 @@
 	<li class="list-group-item"><i class="fab {{ icon }} fa-fw"></i>{{ stats["sym_count"][os] }} {{ os|capitalize }} {{ _("Symbols") }}</li>
 {% endmacro %}
 
+{% macro mobile_sym_item(symbol) %}
+	<div class="mobile-version-info">
+		<h6>
+			<i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i>
+			{{ symbol.build.module_id }} | {{ symbol.arch }}
+		</h6>
+		<p>
+			{{ _("File Size") }}: <code>{{ humanize.naturalsize(symbol.file_size_bytes) }}</code>
+		</p>
+		<p>
+			{{ _("Uploaded on") }}: {{ symbol.date_created.strftime("%c") }}
+			{# Uploaded on: {{ symbol.date_created.strftime("%F %T %Z") }}#}
+		</p>
+	</div>
+{% endmacro %}
+
+{% macro desktop_sym_item(symbol) %}
+	<tr class="monospace-font">
+		<td><i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i></td>
+		<td>{{ symbol.build.module_id }}</td>
+		<td>{{ symbol.build.build_id }}</td>
+		<td>{{ symbol.arch }}</td>
+		<td><code>{{ humanize.naturalsize(symbol.file_size_bytes) }}</code></td>
+		<td>{{ symbol.date_created.strftime("%F %T") }}</td>
+	</tr>
+{% endmacro %}
+
 <div class="row">
 	<!-- DESKTOP SIDE TABS  -->
 	<div class="col-md-4 col-lg-3 col-sm-12">
@@ -35,19 +62,7 @@
 							<!-- MOBILE LIST ITEM CONTENT -->
 							<div id="mobile-version-list" class="d-md-none">
 								{% for symbol in sym_dict[version] %}
-									<div class="mobile-version-info">
-										<h6>
-											<i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i>
-											{{ symbol.build.module_id }} | {{ symbol.arch }}
-										</h6>
-										<p>
-											{{ _("File Size") }}: <code>{{ humanize.naturalsize(symbol.file_size_bytes) }}</code>
-										</p>
-										<p>
-											{{ _("Uploaded on") }}: {{ symbol.date_created.strftime("%c") }}
-											{#											Uploaded on: {{ symbol.date_created.strftime("%F %T %Z") }}#}
-										</p>
-									</div>
+									{{ mobile_sym_item(symbol) }}
 								{% endfor %}
 							</div>
 
@@ -66,14 +81,7 @@
 									</thead>
 									<tbody>
 									{% for symbol in sym_dict[version] %}
-										<tr class="monospace-font">
-											<td><i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i></td>
-											<td>{{ symbol.build.module_id }}</td>
-											<td>{{ symbol.build.build_id }}</td>
-											<td>{{ symbol.arch }}</td>
-											<td><code>{{ humanize.naturalsize(symbol.file_size_bytes) }}</code></td>
-											<td>{{ symbol.date_created.strftime("%F %T") }}</td>
-										</tr>
+										{{ desktop_sym_item(symbol) }}
 									{% endfor %}
 									</tbody>
 								</table>
