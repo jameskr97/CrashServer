@@ -130,7 +130,7 @@ function delete_minidump(id) {
 }
 
 function gen_minidump_count_chart(element_id) {
-    fetch("/webapi/stats/crash-per-day?days=7")
+    fetch("/webapi/stats/crash-per-day/all?days=7")
         .then(data => data.json())
         .then(json => {
             let chart = gen_bar_graph(element_id, 'Minidumps uploaded each day', json["counts"], json["labels"])
@@ -151,7 +151,7 @@ function gen_minidump_count_chart(element_id) {
 
 function gen_home_crash_count(element_id, project_id) {
 
-    fetch("/webapi/stats/crash-per-day?days=30")
+    fetch("/webapi/stats/crash-per-day/" + project_id + "?days=30")
         .then(data => data.json())
         .then(json => {
             for(let i = 0; i < json["labels"].length; i++){

@@ -8,7 +8,7 @@ from flask import Blueprint, request, render_template, flash, redirect
 from flask_babel import _
 from flask_login import login_required
 from loguru import logger
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 from crashserver.server import db
 from crashserver.server.models import Symbol, Project, ProjectType, Minidump, Attachment
@@ -117,32 +117,43 @@ def delete_minidump(dump_id):
     return "", 200
 
 
-@webapi.route("/webapi/stats/crash-per-day")
-def crash_per_day():
+@webapi.route("/webapi/stats/crash-per-day/<project_id>")
+def crash_per_day(project_id):
     # Get crash per day data
     num_days = request.args.get("days", default=7, type=int)
     if num_days not in [7, 30]:
         num_days = 7
 
+    if project_id == "all":
+        project_id = None
+
     with db.engine.connect() as conn:
         conn.execute(f"SET LOCAL timezone = '{os.environ.get('TZ')}';")
-        sql = f"""
+        sql = text(f"""
         SELECT
             to_char(m.date_created::DATE, 'Dy') as day_name,
             to_char(m.date_created::DATE, 'MM-DD') as upload_date,
             COUNT(m.date_created) as num_dump
         FROM minidump m
+        WHERE (m.project_id = :project_id OR :project_id is NULL)
         GROUP BY m.date_created::DATE
         ORDER BY to_char(m.date_created::DATE, 'YYYY-MM-DD') DESC
-        LIMIT {num_days};
-        """
-        res = conn.execute(sql)
+        LIMIT :num_days;
+        """)
+        res = conn.execute(sql, project_id=project_id, num_days=num_days)
 
     labels = []
     counts = []
+
+    # Fill with actual data
     for data in res:
         labels.insert(0, [f"{data[1]}", f"({data[0]})"])
         counts.insert(0, data[2])
+
+    # Fill with empty data if leftover spaces
+    while len(labels) < num_days:
+        labels.insert(0, [""])
+        counts.insert(0, 0)
 
     return json.dumps({"labels": labels, "counts": counts}, default=str)
 
