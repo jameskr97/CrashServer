@@ -65,7 +65,7 @@
 			<div class="d-md-none col-sm-12"><br></div>
 
             {# Only disable modules on desktop #}
-			<div class="d-none d-md-block">
+			<div id="modules-block" class="d-none d-md-block">
 				<h2><i class="fas fa-cubes"></i> Modules</h2>
 				<ul class="overflow-scroll card" style="max-height: 200px">
 					{% for module in dump.json.modules %}
@@ -81,12 +81,12 @@
             {# START OF MAIN AREA #}
             {# MINIDUMP TABS #}
 			<nav>
-				<div class="nav nav-tabs" id="nav-tab" role="tablist">
-					<button class="crash-detail-tab nav-link active" id="nav-stack-tab" data-bs-toggle="tab" data-bs-target="#nav-stacktrace">
+				<div class="nav nav-tabs" id="crash-detail-tabs" role="tablist">
+					<button class="nav-link active" id="nav-stack-tab" data-bs-toggle="tab" data-bs-target="#nav-stacktrace">
 						<i class="fas fa-stream"></i>
 						{{ ngettext("%(num)d Thread", "%(num)d Threads", dump.json.threads|count)|format(num=dump.json.threads|count) }}
 					</button>
-					<button class="crash-detail-tab nav-link {{ "disabled" if dump.attachments|count == 0 }}"
+					<button class="nav-link {{ "disabled" if dump.attachments|count == 0 }}"
 							id="nav-attach-tab" data-bs-toggle="tab" data-bs-target="#nav-attachments">
 						<i class="fas fa-paperclip"></i>
 						{{ ngettext("%(num)d Attachment", "%(num)d Attachments", dump.attachments|count)|format(num=dump.attachments|count) }}

@@ -90,17 +90,20 @@
 	<h1 class="text-center">{{ _("Crash Reports") }}</h1>
 	<hr>
 	{% if dumps.items %}
-		<div class="chart-container" style="position: relative; height:25vh; width:100%">
-			<canvas id="chart-crash-per-day"></canvas>
+		<div class="crash-list-chart">
+			<div class="chart-container" style="position: relative; height:25vh; width:100%">
+				<canvas id="chart-crash-per-day"></canvas>
+			</div>
+			<div class="day-crash-count">
+				<label for="chart-crash-day-select">{{ _("Days") }}</label>
+				<select name="crash-day-count" id="chart-crash-day-select">
+					<option value="7">7</option>
+					<option value="30">30</option>
+				</select>
+			</div>
+			<hr>
 		</div>
-		<div class="day-crash-count">
-			<label for="chart-crash-day-select">{{ _("Days") }}</label>
-			<select name="crash-day-count" id="chart-crash-day-select">
-				<option value="7">7</option>
-				<option value="30">30</option>
-			</select>
-		</div>
-		<hr>
+
 		<!-- Mobile List -->
 		<div id="mobile-version-list" class="d-md-none">
 			{% for row in dumps.items %}
@@ -110,7 +113,7 @@
 
 		<!-- Desktop List -->
 		<div class="col-md-12 d-none d-md-block">
-			<table class="table">
+			<table id="crash-table" class="table">
 				<thead>
 				<tr>
 					<th scope="col">{{ _("App Name") }}</th>
@@ -152,7 +155,9 @@
 		</nav>
 
 		<script>
-			window.onload = function() { gen_minidump_count_chart('chart-crash-per-day') }
+			document.addEventListener("DOMContentLoaded", function () {
+				gen_minidump_count_chart('chart-crash-per-day')
+			});
 		</script>
 	{% else %}
 		<div class="row">
