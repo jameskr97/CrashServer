@@ -136,6 +136,16 @@ aside .sidebar li .submenu {
     height: 135px;
     padding-bottom: 5px;
 }
+.project-list .item .content .no-crashes {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+.project-list .item .content .no-crashes p {
+    font-size: 24px;
+    text-align: center;
+}
 
 /* Crash reports styling */
 #crash-table {

@@ -11,9 +11,19 @@
 			<div><i class="far fa-question-circle"></i> {{ project.unprocessed_dumps|count }} Unprocessed</div>
 		</div>
 		<div class="content">
-			<div class="chart-container">
-				<canvas id="{{ project.id }}"></canvas>
-			</div>
+			{% if project.minidump|count != 0 %}
+				<div class="chart-container">
+					<canvas id="{{ project.id }}"></canvas>
+				</div>
+			{% else %}
+				<div class="no-crashes">
+					<p>
+						<i class="far fa-sad-cry"></i>
+						<br>
+						{{ _("No crashes have been uploaded for this project.") }}
+					</p>
+				</div>
+			{% endif %}
 		</div>
 	</div>
 {% endmacro %}
