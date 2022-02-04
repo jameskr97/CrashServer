@@ -4,6 +4,12 @@ function determine_current_theme() {
     return (isLight || isDark) ? (isDark ? "dark-theme" : "light-theme") : "os-default";
 }
 
+function toggle_sidebar(){
+    let sidebar = document.getElementById("sidebar")
+    sidebar.hidden = !sidebar.hidden;
+    document.cookie = "sidebar=" + (sidebar.hidden ? "true" : "") + ";path=/;";
+}
+
 function toggle_dark_mode() {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.body.classList.remove("dark-theme");
@@ -81,6 +87,11 @@ function gen_bar_graph(element_id, title, datapoints, labels) {
     return chart
 }
 
+function settings_key_to_clipboard(string){
+    navigator.clipboard.writeText(string);
+    alert("Key copied to clipboard")
+}
+
 function settings_registerEvents() {
     // Get all items of concern
     const contentAreas = [...document.getElementById("settings-content").getElementsByClassName("tab-pane")];
@@ -129,7 +140,7 @@ function delete_minidump(id) {
 
 }
 
-function gen_minidump_count_chart(element_id) {
+function gen_minidump_count_chart(element_id, project_id) {
     fetch("/webapi/stats/crash-per-day/all?days=7")
         .then(data => data.json())
         .then(json => {
@@ -138,7 +149,7 @@ function gen_minidump_count_chart(element_id) {
             // Update graph content on select element change
             document.getElementById("chart-crash-day-select").addEventListener("change", e => {
                 // Get Crash Data
-                fetch("/webapi/stats/crash-per-day?days=" + e.target.value)
+                fetch("/webapi/stats/crash-per-day/all?days=" + e.target.value)
                     .then(data => data.json())
                     .then(json => {
                         chart.data.labels = json["labels"]

@@ -18,12 +18,15 @@
 </head>
 <body {{ ('class=' + request.cookies.get('theme')) if request.cookies.get('theme') else "" }}>
 	<div class="container-fluid">
-		<div class="row d-flex flex-nowrap ">
-			<aside class="col-auto px-0">
+		<div id="page-row" class="row d-flex flex-nowrap ">
+			<aside class="col-left col-auto px-0">
 				{% include 'base/sidebar.html' %}
 			</aside>
-			<div class="col ps-md-2 pt-2">
-				<div class="container">
+			<div class="col col-content">
+				<aside>
+					{% include 'base/navbar.html' %}
+				</aside>
+				<div class="container ps-md-2 mt-3">
 					{% include 'base/flash.html' %}
 					{% block content %}
 					{% endblock %}

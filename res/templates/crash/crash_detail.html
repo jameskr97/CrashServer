@@ -114,19 +114,19 @@
 
 											{{ _("Thread") }} #{{ thread.thread_index }}
 											{% if thread.thread_index == dump.json.crash_reason.crashing_thread %}
-												<span class="crash-thread-badge badge bg-danger">{{ _("Crashing Thread") }}</span>
+												<span class="thread-badge badge bg-danger">{{ _("Crashing Thread") }}</span>
 											{% endif %}
 
                                             {# Add tag for windows worker threads #}
 											{% if thread.frames[-1].func == "TppWorkerThread" %}
-												<span class="crash-thread-badge badge bg-info">{{ _("Worker Thread") }}</span>
+												<span class="thread-badge badge bg-info">{{ _("Worker Thread") }}</span>
 											{% endif %}
 										</button>
 									</h2>
 								</div>
 
                                 {# START OF MAIN ACCORDION BODY #}
-								<div id="thread_{{ thread.thread_index }}" class="accordion accordion-collapse collapse" data-bs-parent="#thread-list">
+								<div id="thread_{{ thread.thread_index }}" class="accordion-body accordion-collapse collapse" data-bs-parent="#thread-list">
 									<ol style="overflow: auto; white-space: nowrap">
 										{% for i in range(thread.frames|length) %}
 											{% set frame = thread.frames[i] %}
@@ -183,7 +183,7 @@
 								</div>
 
                                 {# START OF FILE ACCORDION BODY #}
-								<div id="file_{{ file.id }}" class="accordion accordion-collapse collapse" data-bs-parent="#file-list">
+								<div id="file_{{ file.id }}" class="accordion-body accordion-collapse collapse" data-bs-parent="#file-list">
 									<div id="file_loader_{{ file.id }}" class="frame-code-loader-view">
 										<span id="file_spinner_{{ file.id }}" style="margin-right: 5px; margin-top: 5px" class="spinner-border text-dark" role="status"></span>
 										<span id="file_msg_{{ file.id }}">{{ _("Loading attachment content...") }}</span>

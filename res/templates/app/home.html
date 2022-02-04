@@ -6,20 +6,21 @@
 		<div class="header">
 			<div class="title">{{ project.project_name }}</div>
 			<hr>
-			<div><i class="fas fa-stream"></i> {{ project.symbol|count }} Symbols</div>
-			<div><i class="fas fa-archive"></i> {{ project.minidump|count }} Crashes</div>
-			<div><i class="far fa-question-circle"></i> {{ project.unprocessed_dumps|count }} Unprocessed</div>
+			<div><i class="fas fa-stream"></i> {{ project.symbol_count }} Symbols</div>
+			<div><i class="fas fa-archive"></i> {{ project.minidump_count }} Crashes</div>
+			<div><i class="far fa-question-circle"></i> {{ project.unprocessed_count }} Unprocessed</div>
+			<hr>
+			<div class="view"><a href="#">View Dashboard</a></div>
 		</div>
 		<div class="content">
-			{% if project.minidump|count != 0 %}
+			{% if project.minidump_count != 0 %}
 				<div class="chart-container">
 					<canvas id="{{ project.id }}"></canvas>
 				</div>
 			{% else %}
-				<div class="no-crashes">
+				<div class="msg-not-available">
 					<p>
 						<i class="far fa-sad-cry"></i>
-						<br>
 						{{ _("No crashes have been uploaded for this project.") }}
 					</p>
 				</div>

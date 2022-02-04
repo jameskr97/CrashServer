@@ -7,10 +7,10 @@
 	</li>
 {% endmacro %}
 
-<nav class="sidebar vh-100 card py-2 mb-4 sticky-top">
+<nav id="sidebar" class="vh-100 card mb-8 sticky-top"{{ ' hidden=""' if request.cookies.get('sidebar') == "true" else "" }}>
 	<a href="/" class="sidebar-brand d-flex align-items-center ps-3 pe-3 link-dark text-decoration-none">
 {#		<img style="width:40px; padding-right: 8px;" src="{{ url_for("static", filename="img/crashserver-icon.svg") }}" alt="">#}
-		<span class="fs-3 fw-semibold">Crash Server</span>
+		<span class="fw-semibold">Crash Server</span>
 	</a>
 	<hr>
 	<ul class="nav flex-column" id="nav_accordion">
@@ -22,20 +22,7 @@
 			{{ single_navbar_item(_("Login"), "fa-sign-in-alt", url_for("auth.login")) }}
 		{% else %}
 			{{ single_navbar_item(_("Create App"), "fa-plus", url_for("views.project_create")) }}
-			<li class="nav-item has-submenu">
-				<a href="" class="nav-link">
-					<i class="fa-fw fas fa-cog"></i>
-					{{ _("Settings") }}
-					<i class="right fas fa-angle-left"></i>
-				</a>
-				<ul class="submenu collapse">
-					{{ single_navbar_item(_("My Account"), "fa-user", "#") }}
-					{{ single_navbar_item(_("Users"), "fa-users", "#") }}
-					{{ single_navbar_item(_("Server"), "fa-server", "#") }}
-					{{ single_navbar_item(_("Projects"), "fa-archive", "#") }}
-					{{ single_navbar_item(_("About"), "fa-info-circle", "#") }}
-				</ul>
-			</li>
+			{{ single_navbar_item(_("Settings"), "fa-cog", url_for("views.settings")) }}
 			{{ single_navbar_item(_("Logout"), "fa-sign-out-alt", url_for("auth.logout")) }}
 			<hr>
 			<li class="nav-item">

@@ -87,9 +87,9 @@ def crash():
     page = request.args.get("page", 1, type=int)
     res = (
         db.session.query(Minidump, Project.project_name)
-        .filter(Minidump.project_id == Project.id)
-        .order_by(Minidump.date_created.desc())
-        .paginate(page=page, per_page=10)
+            .filter(Minidump.project_id == Project.id)
+            .order_by(Minidump.date_created.desc())
+            .paginate(page=page, per_page=10)
     )
     return render_template("crash/crash.html", dumps=res)
 

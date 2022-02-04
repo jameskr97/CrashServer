@@ -4,13 +4,14 @@
 	<tr>
 		<td>{{ project }}</td>
 		<td>
+			<div style="display: flex; align-items: center">
 			{% if dump.json %}
-				<i class="fa-fw {{ dump.json.os_icon }} fa-fw"></i>
+				<i class="fa-fw {{ dump.json.os_icon }}"></i>
 				<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ _("View") }}</a>
 				{% if not dump.symbolicated %}
-					<span class="crash-thread-badge badge bg-secondary">{{ _("Missing Symbols") }}</span>
+					<span class="thread-badge badge bg-secondary">{{ _("Missing Symbols") }}</span>
 				{% endif %}
-				<span class="crash-thread-badge badge bg-danger">{{ dump.json.crash_reason.crash_type }}</span>
+				<span class="thread-badge badge bg-danger">{{ dump.json.crash_reason.crash_type }}</span>
 			{% else %}
 				<i class="fa-fw fas fa-question"></i>
 				<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ _("View") }}</a>
@@ -19,11 +20,11 @@
 					<span class="spinner-border spinner-border-sm"></span>
 				{% endif %}
 			{% endif %}
-
+			</div>
 		</td>
 		<td>
 			<span title="{{ dump.date_created.strftime('%F %X %Z') }}">
-				{{ _("Uploaded") }} {{ humantime(dump.date_created) }}
+				{{ humantime(dump.date_created) }}
 			</span>
 		</td>
 		{% if current_user.is_authenticated %}
@@ -56,8 +57,8 @@
 {% endmacro %}
 
 {% macro GenMobileRow(dump, project) %}
-	<div style="padding: 3px" class="crash-mobile-item mobile-version-info">
-		<div>
+	<div style="padding: 3px" class="crash-mobile-item mobile-crash-info">
+		<div class="crash-header">
 			{% if dump.json %}
 				<i class="fa-fw {{ dump.json.os_icon }}"></i>
 			{% else %}
@@ -66,8 +67,7 @@
 			{{ project }}
 			<a href="{{ url_for("views.crash_detail", crash_id=dump.id) }}">{{ _("View") }}</a>
 		</div>
-		<div style="overflow: hidden; white-space: nowrap;">
-
+		<div class="crash-reason">
 			{% if not dump.json %}
 				<span class="crash-thread-badge badge bg-secondary">{{ _("Processing...") }}</span>
 				<span class="spinner-border spinner-border-sm"></span>
@@ -78,12 +78,12 @@
 				<span class="crash-thread-badge badge bg-danger">{{ dump.json.crash_reason.crash_type }}</span>
 			{% endif %}
 		</div>
-		<div style="white-space: nowrap;">
-			<span title="{{ dump.date_created.strftime('%F %X %Z') }}" class="float-end">
-				{{ humantime(dump.date_created) }}
-			</span>
+		<div class="crash-date" title="{{ dump.date_created.strftime('%F %X %Z') }}">
+			{{ humantime(dump.date_created) }}
 		</div>
 	</div>
+
+
 {% endmacro %}
 
 {% block content %}
@@ -105,7 +105,7 @@
 		</div>
 
 		<!-- Mobile List -->
-		<div id="mobile-version-list" class="d-md-none">
+		<div id="mobile-crash-list" class="d-md-none">
 			{% for row in dumps.items %}
 				{{ GenMobileRow(row[0], row[1]) }}
 			{% endfor %}
@@ -132,19 +132,19 @@
 			</table>
 		</div>
 
-		<!-- PAGINATION TABS -->
+		{# PAGINATION TABS #}
 		<nav>
 			<ul class="pagination justify-content-end">
-				<!-- FOR EACH PAGE WE WANT TO RENDER A TAB FOR -->
+				{# FOR EACH PAGE WE WANT TO RENDER A TAB FOR #}
 				{% for page in dumps.iter_pages() %}
 
-					<!-- IF WE ACTUALLY WANT IT TO BE A PAGE (VS AN ELLIPSIS) -->
+					{# IF WE ACTUALLY WANT IT TO BE A PAGE (VS AN ELLIPSIS) #}
 					{% if page %}
-						<!-- IF THE PAGE WE ITERATE THROUGH DOES NOT MATCH THE PAGE WE ARE ON -->
+						{# IF THE PAGE WE ITERATE THROUGH DOES NOT MATCH THE PAGE WE ARE ON #}
 						{% if page != dumps.page %}
 							<li class="page-item"><a class="page-link" href="{{ url_for("views.crash", page=page) }}">{{ page }}</a></li>
 						{% else %}
-							<li class="page-item disabled"><strong class="page-link">{{ page }}</strong></li>
+							<li class="page-item"><strong class="page-link disabled">{{ page }}</strong></li>
 						{% endif %}
 
 					{% else %}

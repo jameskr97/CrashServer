@@ -7,6 +7,22 @@
 	</tr>
 {% endmacro %}
 
+{% macro settings_info_line(title, value) %}
+	<div class="row">
+		<div class="col-4 text-nowrap float-end">{{ title }}</div>
+		<div class="col-8 text-truncate" style="text-overflow: ellipsis">{{ value }}</div>
+	</div>
+{% endmacro %}
+
+{% macro settings_api_key(title, key) %}
+	<div class="d-flex api-key-row">
+		<div class="title">{{ title }}</div>
+		<button class="btn btn-link" onclick="settings_key_to_clipboard('{{ key }}')">
+			Copy API Key
+		</button>
+	</div>
+{% endmacro %}
+
 {% macro project_disk_space(title, path) %}
 	{% set disk = sysinfo.get_disk_space(path) %}
 	<div class="row settings-storage-row">
@@ -20,68 +36,49 @@
 	</div>
 {% endmacro %}
 
-{% macro settings_info_line(title, value) %}
-	<div class="row">
-		<div class="col-sm-3 float-end">{{ title }}</div>
-		<div class="col-sm-9">{{ value }}</div>
-	</div>
-{% endmacro %}
-
 {% macro generate_project_row(p) %}
-	<div style="border: 3px solid gray; border-radius: 5px; padding: 10px; margin-top: 10px">
-		<h4 style="display: inline">{{ p.project_name }}</h4>
-		<p style="display: inline">
-			| {{ p.project_type.value|capitalize }}
-			| {{ p.symbol|length }} {{ _("Symbols") }} ({{ humanize.naturalsize(p.total_symbol_size) }})
-			| {{ p.minidump|length }} Minidumps ({{ humanize.naturalsize(p.total_minidump_size) }})
-		</p>
-		<hr>
-		<h5>API Keys</h5>
-		{{ settings_info_line(_("Symbols") + " api key", p.symbol_api_key) }}
-		{{ settings_info_line("Minidump Key", p.minidump_api_key) }}
-		<hr>
-		<h5><code>symupload</code> examples</h5>
-		Windows:
-		<ul>
-			<li>sym-upload-v1: <code>symupload app.exe https://{{ settings.flask.domain }}/symupload?api_key={{ p.symbol_api_key }}</code></li>
-			<li>sym-upload-v2: <code>symupload -p app.exe https://{{ settings.flask.domain }}/symupload {{ p.symbol_api_key }}</code></li>
-		</ul>
+	<div class="project-block" style="border-radius: 5px; margin-top: 10px">
+		<div class="header">
+			<h4 style="display: inline;">{{ p.project_name }}</h4>
+			<span class="project-subtitle">| {{ p.project_type.value|capitalize }} | {{ p.symbol_count }} {{ _("Symbols") }} | {{ p.minidump_count }} {{ _("Minidumps") }} </span>
+			<hr>
+		</div>
+		<div class="content">
+			<div>
+				<h5>API Keys</h5>
+				{{ settings_api_key(_("Symbol key"), p.symbol_api_key) }}
+				{{ settings_api_key(_("Minidump key"), p.minidump_api_key) }}
+			</div>
+			<hr>
 
-		<hr>
-		<h5 style="margin-top: 10px;">{{ _("Disk Space") }}</h5>
-		{{ project_disk_space("Minidump Storage", p.minidump_location) }}
-		{{ project_disk_space(_("Symbol Storage"), p.symbol_location) }}
-		<hr>
+			{# MOBILE BUTTONS #}
+			<div id="mobile-buttons" class="row d-md-none">
+				<div class="col-12">
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><i class="fas fa-edit"></i></button>
+					<button type="button" class="btn btn-warning"><i class="fas fa-eraser"></i></button>
+					<button type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
+				</div>
+			</div>
 
-		<!-- MOBILE BUTTONS -->
-		<div id="mobile-buttons" class="row d-md-none">
-			<div class="col-12">
-				<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><i class="fas fa-edit"></i></button>
-				<button type="button" class="btn btn-warning"><i class="fas fa-eraser"></i></button>
-				<button type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
+			{# DESKTOP FULLSCREEN BUTTONS #}
+			<div id="desktop-buttons" class="row">
+				<div class="col-12 d-none d-md-block">
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#project-rename-modal">
+						{{ _("Rename") }} <span class="d-none d-lg-inline">{{ _("Project") }}</span>
+					</button>
+					<button type="button" class="btn btn-warning">
+						{{ _("Purge") }} <span class="d-none d-lg-inline">Minidumps</span>
+					</button>
+					<button type="button" class="btn btn-danger">
+						{{ _("Delete") }} <span class="d-none d-lg-inline">{{ _("Project") }}</span>
+					</button>
+				</div>
 			</div>
 		</div>
 
-		<!-- DESKTOP FULLSCREEN BUTTONS -->
-		<div id="desktop-buttons" class="row">
-			<div class="col-12 d-none d-md-block">
-				<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#project-rename-modal">
-					{{ _("Rename") }}
-					<span class="d-none d-lg-inline">{{ _("Project") }}</span>
-				</button>
-				<button type="button" class="btn btn-warning">
-					{{ _("Purge") }}
-					<span class="d-none d-lg-inline">Minidumps</span>
-				</button>
-				<button type="button" class="btn btn-danger">
-					{{ _("Delete") }}
-					<span class="d-none d-lg-inline">{{ _("Project") }}</span>
-				</button>
-			</div>
-		</div>
 
-		<!-- BUTTON MODALS -->
-		<!-- LOGIN MODALS TODO: Is this generating too many modals for what is needed? -->
+		{# BUTTON MODALS #}
+		{# LOGIN MODALS TODO: Is this generating too many modals for what is needed? #}
 		<div class="modal fade" id="project-rename-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
@@ -105,31 +102,25 @@
 				</div>
 			</div>
 		</div>
-
 	</div>
 {% endmacro %}
 
-{% macro generate_form_input(form_item, placeholder) %}
+{% macro generate_form_input(form_item) %}
 	<div class="row mb-1">
-		<div class="col-md-2">
-			{{ form_item.label(class="col-form-label") }}
-		</div>
-		<div class="col-md-10">
-			{{ form_item(class="col-sm-10 form-control", placeholder=placeholder) }}
-		</div>
+		<div class="col-sm-5 col-md-3">{{ form_item.label(class="col-form-label") }}</div>
+		<div class="col-sm-7 col-md-9">{{ form_item(class="col-sm-10 form-control", **kwargs) }}</div>
 	</div>
 {% endmacro %}
 
 {% block content %}
 	<h1 class="text-center">{{ _("Server Settings") }}</h1>
 	<hr>
-	<div class="container">
-
-		<!-- MOBILE SIZE TOP TABS -->
-		<div class="row d-md-none">
+	<div>
+		{# MOBILE SIZE TOP TABS #}
+		<div class="row d-lg-none">
 			<div class="col-12">
 				<ul id="settings-top-tabs" class="nav nav-tabs">
-					<li id="account" class="nav-item nav-link active"><i class="fas fa-user"></i></li> <!-- My Account -->
+					<li id="account" class="nav-item nav-link active"><i class="fas fa-user"></i></li> {# My Account #}
 					<li id="users" class="nav-item nav-link"><i class="fas fa-users fa-fw"></i></li> <!-- Users-->
 					<li id="server" class="nav-item nav-link"><i class="fas fa-server fa-fw"></i></li> <!-- Server-->
 					<li id="projects" class="nav-item nav-link"><i class="fas fa-archive fa-fw"></i></li> <!-- Projects-->
@@ -138,10 +129,10 @@
 			</div>
 		</div>
 
-		<!-- SIDE TABS AND CONTENT AREA -->
+		{# SIDE TABS AND CONTENT AREA #}
 		<div class="row">
-			<!-- DESKTOP SIDE TABS  -->
-			<div class="col-md-4 col-lg-3 d-none d-md-block">
+			{# DESKTOP SIDE TABS  #}
+			<div class="d-none d-lg-block col-lg-3">
 				<div id="settings-side-tabs" class="list-group settings-box-border">
 					<a id="account" class="list-group-item active" href="#account"><i class="fas fa-user fa-fw"></i>{{ _("My Account") }}</a>
 					<a id="users" class="list-group-item" href="#users"><i class="fas fa-users fa-fw"></i>{{ _("Users") }}</a>
@@ -151,36 +142,31 @@
 				</div>
 			</div>
 
-			<!-- MAIN CONTENT AREA -->
-			<div class="col-md-8 col-lg-9">
-				<div class="settings-content-container">
-					<div id="settings-content" class="tab-content settings-box-border">
-						<!-- MY ACCOUNT TAB -->
+			{# MAIN CONTENT AREA #}
+			<div class="col-lg-9">
+				<div id="settings-content" class="settings-content tab-content settings-box-border">
+						{# MY ACCOUNT TAB #}
 						<div class="tab-pane active" role="tabpanel" id="account-content">
-							<h4>{{ _("My Account") }}</h4>
+							<h4 class="text-center">{{ _("My Account") }}</h4>
 							<hr>
+							<h5>{{ _("Change Password") }}</h5>
 							<form action="{{ url_for("views.settings") }}" method="POST">
-								<h5>{{ _("Change Password") }}</h5>
 								{{ account_form.csrf_token }}
-								{{ generate_form_input(account_form.current_pass) }}
-								{{ generate_form_input(account_form.new_pass) }}
-								{{ generate_form_input(account_form.new_pass_verify) }}
+								{{ generate_form_input(account_form.current_pass, autocomplete="off") }}
+								{{ generate_form_input(account_form.new_pass, autocomplete="off") }}
+								{{ generate_form_input(account_form.new_pass_verify, autocomplete="off") }}
 								<hr>
 								<div class="text-center">
-									<button type="submit" class="btn btn-outline-dark">{{ _("Submit") }}</button>
+									<button type="submit" class="btn btn-outline">{{ _("Submit") }}</button>
 								</div>
 							</form>
-
 						</div>
 
-						<!-- USERS TAB -->
+						{# USERS TAB #}
 						<div class="tab-pane" role="tabpanel" id="users-content">
-							<div class="text-center">
-								<h5>{{ _("Current Users") }}</h5>
-							</div>
-							<div class="row">
-								<div class="d-none d-md-block">
-									<table class="table">
+							<h4 class="text-center">{{ _("Current Users") }}</h4>
+							<hr>
+							<table class="table">
 										<thead>
 										<tr>
 											<th scope="col">{{ _("Email") }}</th>
@@ -193,16 +179,14 @@
 										{% endfor %}
 										</tbody>
 									</table>
-								</div>
-
-							</div> <!-- END OF LARGE SCREEN ROW -->
 						</div>
 
-						<!-- SERVER TAB -->
+						{# SERVER TAB #}
 						<div class="tab-pane" role="tabpanel" id="server-content">
+							<h4 class="text-center">{{ _("Server Settings") }}</h4>
+							<hr>
 							<form action="">
-								<h4>{{ _("Server Settings") }}</h4>
-								<hr>
+
 								<h5>{{ _("Symbol Upload") }}</h5>
 								<div class="form-check">
 									<input class="form-check-input" type="checkbox" value="" id="symupload-v1">
@@ -212,7 +196,7 @@
 								</div>
 								<div class="form-check">
 									<input class="form-check-input" type="checkbox" value="" id="symupload-v2">
-									<label class="form-check-label" for="symupload-v1">
+									<label class="form-check-label" for="symupload-v2">
 										{{ _("Enable") }}  <code>sym-upload-v2</code> {{ _("protocol") }}
 									</label>
 								</div>
@@ -228,31 +212,26 @@
 									<li>{{ _("Disable public access to any project expect the selected project.") }}</li>
 								</ul>
 
-								<p>{{ _("Enabling will not delete any projects or symbols.") }}</p>
-								<div class="form-check">
-									<input class="form-check-input" type="checkbox" value="" id="single-project-mode">
-									<label class="form-check-label" for="single-project-mode">
-										{{ _("Enable Single Project Mode") }}
-									</label>
-								</div>
+								<p>{{ _("Single Project Mode will not delete any projects or symbols.") }}</p>
+								<label for="project-select">{{ _("Select project") + ":" }}</label>
 								<select id="project-select" class="form-select" onChange="javascript:set_minidump_upload_enabled(true);" autocomplete="off">
-									<option disabled selected>{{ _("Select Project") }}</option>
+									<option selected>{{ _("Disable Single Project Mode") }}</option>
 									{% for proj in projects %}
 										<option value="{{ proj.id }}">{{ proj.project_name }}</option>
 									{% endfor %}
 								</select>
 								<hr>
 								<div class="text-center">
-									<button type="submit" class="btn btn-outline-dark">{{ _("Save") }}</button>
+									<button type="submit" class="btn btn-outline">{{ _("Save") }}</button>
 								</div>
 							</form>
 						</div>
 
-						<!-- PROJECTS TAB -->
+						{# PROJECTS TAB #}
 						<div class="tab-pane" role="tabpanel" id="projects-content">
-							<h4>{{ _("Projects") }}</h4>
+							<h4 class="text-center">{{ _("Projects") }}</h4>
 							<hr>
-							<div class="settings-project-grid">
+							<div id="project-grid">
 								{% if not projects %}
 									<p>{{ _("No projects have been created yet.") }}</p>
 								{% else %}
@@ -263,17 +242,13 @@
 							</div>
 						</div>
 
-						<!-- ABOUT TAB -->
+						{# ABOUT TAB #}
 						<div class="tab-pane" role="tabpanel" id="about-content">
-							<h4>{{ _("System Information") }}</h4>
+							<h4 class="text-center">{{ _("System Information") }}</h4>
 							<hr>
 							<h5>{{ _("Host") }}</h5>
 							{{ settings_info_line("Domain Name", settings.flask.domain) }}
 							{{ settings_info_line("Server Port", settings.flask.web_port) }}
-							<hr>
-							<h5>{{ _("Data Storage") }}</h5>
-							{{ settings_info_line("AppData Path", settings.storage.appdata) }}
-							{{ settings_info_line("Log Path", settings.storage.logs) }}
 							<hr>
 							<h5>{{ _("Host Information") }}</h5>
 							{{ settings_info_line("App Version", HostInfo.get_python_version()) }}
@@ -281,12 +256,11 @@
 							{{ settings_info_line('Under Docker?', "Yes" if HostInfo.is_inside_docker() else "No") }}
 						</div>
 
-					</div> <!-- END OF SETTINGS CONTENT-->
-				</div> <!-- END OF SETTING CONTENT CONTAINER -->
-			</div> <!-- END OF COL SIZE CLASSES -->
+				</div> {# END OF SETTING CONTENT CONTAINER #}
+			</div> {# END OF COL SIZE CLASSES #}
 
-		</div> <!--  END OF SIDE TABS AND CONTENT AREA-->
-	</div> <!-- END OF CONTAINER -->
+		</div> {# END OF SIDE TABS AND CONTENT AREA #}
+	</div> {# END OF CONTAINER #}
 
 	<script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => settings_registerEvents())

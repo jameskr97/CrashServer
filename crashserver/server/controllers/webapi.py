@@ -28,9 +28,9 @@ def get_symbols(project_id):
     def sym_count(os: str):
         return (
             db.session.query(Symbol)
-            .filter(Symbol.project_id == project_id)
-            .filter(func.lower(Symbol.os) == os.lower())
-            .count()
+                .filter(Symbol.project_id == project_id)
+                .filter(func.lower(Symbol.os) == os.lower())
+                .count()
         )
 
     stats = {
@@ -58,23 +58,23 @@ def get_symbols(project_id):
             }
         }
         return {
-            "html": render_template(
-                "symbols/symbol-list-versioned.html",
-                project=project,
-                sym_dict=sym_dict,
-                stats=stats,
-            )
-        }, 200
+                   "html": render_template(
+                       "symbols/symbol-list-versioned.html",
+                       project=project,
+                       sym_dict=sym_dict,
+                       stats=stats,
+                   )
+               }, 200
 
     elif project.project_type == ProjectType.SIMPLE:
         return {
-            "html": render_template(
-                "symbols/symbol-list-simple.html",
-                project=project,
-                symbols=proj_symbols,
-                stats=stats,
-            )
-        }, 200
+                   "html": render_template(
+                       "symbols/symbol-list-simple.html",
+                       project=project,
+                       symbols=proj_symbols,
+                       stats=stats,
+                   )
+               }, 200
 
 
 @webapi.route("/webapi/symbols/count/<project_id>")

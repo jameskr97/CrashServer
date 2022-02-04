@@ -30,12 +30,12 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
     # Check if a minidump was already uploaded with the current module_id and build_id
     build = (
         session.query(BuildMetadata)
-        .filter_by(
+            .filter_by(
             project_id=project.id,
             build_id=symbol_data.build_id,
             module_id=symbol_data.module_id,
         )
-        .first()
+            .first()
     )
     if build is None:
         # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded

@@ -14,7 +14,7 @@
 {% endmacro %}
 
 {% macro mobile_row(symbol) %}
-	<div class="mobile-version-info">
+	<div class="mobile-symbol-info">
 		<h6>
 			<i class="fab {{ get_font_awesome_os_icon(symbol.os) }} fa-fw"></i>
 			{{ symbol.build.module_id }} | {{ symbol.arch }}
@@ -39,7 +39,7 @@
 		<div class="d-md-none col-sm-12"><br></div>
 	</div>
 
-	<div id="mobile-version-list" class="d-md-none">
+	<div id="mobile-symbol-list" class="d-md-none">
 		{% for symbol in symbols %}
 			{{ mobile_row(symbol) }}
 		{% endfor %}
