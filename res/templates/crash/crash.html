@@ -82,8 +82,6 @@
 			{{ humantime(dump.date_created) }}
 		</div>
 	</div>
-
-
 {% endmacro %}
 
 {% block content %}
@@ -98,7 +96,7 @@
 				<label for="chart-crash-day-select">{{ _("Days") }}</label>
 				<select name="crash-day-count" id="chart-crash-day-select">
 					<option value="7">7</option>
-					<option value="30">30</option>
+					<option value="30" selected="selected">30</option>
 				</select>
 			</div>
 			<hr>

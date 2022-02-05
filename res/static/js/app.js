@@ -139,7 +139,7 @@ class CrashGraph {
     }
 
     static genAllMinidumpCrashGraph(element_id, project_id) {
-        fetch("/webapi/stats/crash-per-day/all?days=7")
+        fetch("/webapi/stats/crash-per-day/all?days=30")
             .then(data => data.json())
             .then(json => {
                 let chart = CrashGraph.genDefaultGraph(element_id, 'Minidumps uploaded each day', json["counts"], json["labels"])
