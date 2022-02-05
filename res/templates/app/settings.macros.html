@@ -1,0 +1,91 @@
+{% macro info_line(title, value) %}
+	<div class="row">
+		<div class="col-4 text-nowrap float-end">{{ title }}</div>
+		<div class="col-8 text-truncate" style="text-overflow: ellipsis">{{ value }}</div>
+	</div>
+{% endmacro %}
+
+{% macro api_key(title, key) %}
+	<div class="d-flex api-key-row">
+		<div class="title">{{ title }}</div>
+		<button class="btn btn-link" onclick="navigator.clipboard.writeText('{{ key }}')">
+			Copy API Key
+		</button>
+	</div>
+{% endmacro %}
+
+{% macro generate_project_row(p) %}
+	<div class="project-block" style="border-radius: 5px; margin-top: 10px">
+		<div class="header">
+			<h4 style="display: inline;">{{ p.project_name }}</h4>
+			<span class="project-subtitle">| {{ p.project_type.value|capitalize }} | {{ p.symbol_count }} {{ _("Symbols") }} | {{ p.minidump_count }} {{ _("Minidumps") }} </span>
+			<hr>
+		</div>
+		<div class="content">
+			<div>
+				<h5>API Keys</h5>
+				{{ api_key(_("Symbol key"), p.symbol_api_key) }}
+				{{ api_key(_("Minidump key"), p.minidump_api_key) }}
+			</div>
+			<hr>
+
+			{# MOBILE BUTTONS #}
+			<div id="mobile-buttons" class="row d-md-none">
+				<div class="col-12">
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><i class="fas fa-edit"></i></button>
+					<button type="button" class="btn btn-warning"><i class="fas fa-eraser"></i></button>
+					<button type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
+				</div>
+			</div>
+
+			{# DESKTOP FULLSCREEN BUTTONS #}
+			<div id="desktop-buttons" class="row">
+				<div class="col-12 d-none d-md-block">
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#project-rename-modal">
+						{{ _("Rename") }} <span class="d-none d-lg-inline">{{ _("Project") }}</span>
+					</button>
+					<button type="button" class="btn btn-warning">
+						{{ _("Purge") }} <span class="d-none d-lg-inline">Minidumps</span>
+					</button>
+					<button type="button" class="btn btn-danger">
+						{{ _("Delete") }} <span class="d-none d-lg-inline">{{ _("Project") }}</span>
+					</button>
+				</div>
+			</div>
+		</div>
+
+
+		{# BUTTON MODALS #}
+		{# LOGIN MODALS TODO: Is this generating too many modals for what is needed? #}
+		<div class="modal fade" id="project-rename-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">{{ _("Rename Project") }}</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form method="POST" action="{{ url_for("webapi.rename_project") }}">
+							<input type="hidden" id="rename-project-id" name="project_id" value="{{ p.id }}">
+							<div class="mb-3">
+								<label for="rename-proj-name" class="form-label">{{ _("Project Name") }}</label>
+								<input id="rename-proj-name" type="text" class="form-control" name="project_name" placeholder="{{ p.project_name }}"/>
+							</div>
+
+							<div class="modal-footer d-block">
+								<button type="submit" class="btn btn-primary float-end">{{ _("Rename") }}</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endmacro %}
+
+{% macro generate_form_input(form_item) %}
+	<div class="row mb-1">
+		<div class="col-sm-5 col-md-3">{{ form_item.label(class="col-form-label") }}</div>
+		<div class="col-sm-7 col-md-9">{{ form_item(class="col-sm-10 form-control", **kwargs) }}</div>
+	</div>
+{% endmacro %}
