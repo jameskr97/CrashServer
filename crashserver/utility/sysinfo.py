@@ -1,5 +1,4 @@
 import pathlib
-import shutil
 import os
 
 
@@ -19,10 +18,6 @@ def get_directory_size(start_path):
                 total_size += os.path.getsize(fp)
 
     return total_size
-
-
-def get_disk_space(path):
-    return shutil.disk_usage(path)
 
 
 def get_filename_from_path(path):

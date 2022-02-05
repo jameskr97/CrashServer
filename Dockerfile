@@ -28,7 +28,6 @@ ENV PGID=10001
 ENV VIRTUAL_ENV=/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV ENV_FOR_DYNACONF=docker
-ENV DOCKER=1
 
 # Copy environment, change owner, and install system dependencies
 WORKDIR /app
