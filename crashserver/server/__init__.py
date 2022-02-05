@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 
 import flask
-from flask import Flask
+from flask import Flask, render_template
 from flask_babel import _
 from sqlalchemy_utils import create_database, database_exists
 
@@ -16,6 +16,7 @@ from crashserver.cli import register_cli
 def create_app():
     app = init_environment()
 
+    register_errors(app)
     register_extensions(app)
     register_blueprints(app)
     register_jinja(app)
@@ -47,6 +48,16 @@ def init_environment():
     app.config["BABEL_TRANSLATION_DIRECTORIES"] = str(resources_root / "translations")
 
     return app
+
+
+def register_errors(app: Flask):
+    def render_error(error):
+        """Render error template."""
+        error_code = getattr(error, "code", 500)
+        return render_template(f"errors/{error_code}.html"), error_code
+
+    for errcode in [404, 500]:
+        app.errorhandler(errcode)(render_error)
 
 
 def register_extensions(app: Flask):

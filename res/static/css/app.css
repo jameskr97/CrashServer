@@ -113,6 +113,23 @@ hr {
     grid-column: 2;
 }
 
+/* Error page styling */
+.error-page {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+}
+.error-page > * {
+    flex-basis: 100%;
+}
+.error-page .error-code {
+    font-size: clamp(1rem, 40vw, 15rem);
+}
+.error-page .error-reason {
+    font-size: clamp(1rem, 4.5vw, 2rem);
+}
+
 /* Sidebar styling */
 #sidebar {
     margin-bottom: 0 !important;
