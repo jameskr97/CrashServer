@@ -277,7 +277,7 @@ aside .navbar {
     border-color: var(--cs-separator) !important;
 }
 .thread-badge {
-    margin-left: 3px;
+    margin-left: 5px;
 }
 
 #mobile-crash-list > .mobile-crash-info {
