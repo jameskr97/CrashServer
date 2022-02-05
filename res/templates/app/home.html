@@ -43,7 +43,7 @@
             let elements = document.getElementsByTagName("canvas")
             for(let i = 0; i < elements.length; i++){
                 let item = elements.item(i);
-                gen_home_crash_count(item.id, item.id);
+                CrashGraph.genHomepageCrashGraph(item.id, item.id);
             }
         });
 

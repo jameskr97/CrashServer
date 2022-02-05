@@ -222,6 +222,14 @@ aside .navbar {
 #crash-table .fa-fw {
     padding-right: 2px;
 }
+#crash-table tr td button.btn-crash-delete {
+    height: 20px;
+    vertical-align: inherit;
+    display: inline;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+}
 .crash-list-chart hr {
     clear: both;
 }

@@ -29,7 +29,7 @@
 		</td>
 		{% if current_user.is_authenticated %}
 		<td>
-			<a href="{{ url_for("webapi.delete_minidump", dump_id=dump.id) }}" data-bs-toggle="modal" data-bs-target="#delete-dump-modal-{{ dump.id }}">{{ _("Delete") }}</a>
+			<button class="btn btn-link btn-crash-delete" data-bs-toggle="modal" data-bs-target="#delete-dump-modal-{{ dump.id }}">{{ _("Delete") }}</button>
 			<div class="modal fade" id="delete-dump-modal-{{ dump.id }}">
 			  <div class="modal-dialog">
 				<div class="modal-content">
@@ -46,7 +46,7 @@
 				  </div>
 				  <div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _("Cancel") }}</button>
-					<button onclick="delete_minidump('{{ dump.id }}')" type="button" class="btn btn-danger">{{ _("Delete") }}</button>
+					<button onclick="CrashAPI.deleteMinidump('{{ dump.id }}')" type="button" class="btn btn-danger">{{ _("Delete") }}</button>
 				  </div>
 				</div>
 			  </div>
@@ -155,9 +155,7 @@
 		</nav>
 
 		<script>
-			document.addEventListener("DOMContentLoaded", function () {
-				gen_minidump_count_chart('chart-crash-per-day', "all")
-			});
+			document.addEventListener("DOMContentLoaded", () => CrashGraph.genAllMinidumpCrashGraph('chart-crash-per-day', "all"));
 		</script>
 	{% else %}
 		<div class="row">

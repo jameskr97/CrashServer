@@ -17,7 +17,7 @@
 {% macro settings_api_key(title, key) %}
 	<div class="d-flex api-key-row">
 		<div class="title">{{ title }}</div>
-		<button class="btn btn-link" onclick="settings_key_to_clipboard('{{ key }}')">
+		<button class="btn btn-link" onclick="navigator.clipboard.writeText('{{ key }}')">
 			Copy API Key
 		</button>
 	</div>
@@ -214,7 +214,7 @@
 
 								<p>{{ _("Single Project Mode will not delete any projects or symbols.") }}</p>
 								<label for="project-select">{{ _("Select project") + ":" }}</label>
-								<select id="project-select" class="form-select" onChange="javascript:set_minidump_upload_enabled(true);" autocomplete="off">
+								<select id="project-select" class="form-select" autocomplete="off">
 									<option selected>{{ _("Disable Single Project Mode") }}</option>
 									{% for proj in projects %}
 										<option value="{{ proj.id }}">{{ proj.project_name }}</option>
@@ -264,8 +264,8 @@
 
 	<script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
-            settings_registerEvents();
-            settings_register_project_tooltips();
+            SettingsUtil.registerEvents();
+            SettingsUtil.registerTooltips();
 		})
 	</script>
 {% endblock %}

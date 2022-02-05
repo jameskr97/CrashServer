@@ -38,6 +38,10 @@
         </div>
     </form>
     <script type="text/javascript">
+		function set_minidump_upload_enabled(bool) {
+			document.getElementById("minidump-upload").disabled = !bool;
+		}
+
         // This is specifically to allow upload after a previously failed upload.
         // The select field will have the entry from before the post, but this being enabled or disabled is determined
         // by javascript. Here, we make sure the user can upload again after that failure.
@@ -57,7 +61,5 @@
             if(symbol_count === 0)
                 document.getElementById("no-symbols-msg").classList.remove("d-none")
         })
-
-
     </script>
 {% endblock %}

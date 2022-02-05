@@ -1,7 +1,7 @@
 import os
 import uuid
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_babel import _
 from flask_login import login_required, current_user
 
@@ -97,6 +97,10 @@ def crash():
 @views.route("/crash-reports/<crash_id>")
 def crash_detail(crash_id):
     minidump = db.session.query(Minidump).get(crash_id)
+
+    if not minidump:
+        abort(404)
+
     return render_template("crash/crash_detail.html", dump=minidump)
 
 
