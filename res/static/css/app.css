@@ -306,7 +306,8 @@ aside .navbar {
 }
 
 
-/* Settings page styling*/
+/* Settings page styling */
+/* ==  Mobile top tab styling */
 #settings-top-tabs .nav-link {
     color: #495057;
 }
@@ -315,6 +316,8 @@ aside .navbar {
     color: var(--cs-text);
     background-color: var(--cs-background-faded);
 }
+
+/* ==  Desktop side tab styling */
 #settings-side-tabs {
     color: var(--cs-text);
 }
@@ -330,6 +333,7 @@ aside .navbar {
     color: #212529;
 }
 
+/* == Content container styling */
 #settings-content {
     padding: 5px;
     border: 1px solid var(--cs-separator);
@@ -338,6 +342,8 @@ aside .navbar {
 #settings-content div > hr {
     margin: 5px 0 5px 0;
 }
+
+/* == Project tab specific styling */
 #project-grid {
     display: grid;
 }
@@ -355,6 +361,9 @@ aside .navbar {
 }
 .api-key-row button {
     padding: 0;
+}
+.api-key-row button:focus {
+    box-shadow: none;
 }
 
 .settings-storage-row {

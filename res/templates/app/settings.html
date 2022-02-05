@@ -263,6 +263,9 @@
 	</div> {# END OF CONTAINER #}
 
 	<script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => settings_registerEvents())
+        document.addEventListener('DOMContentLoaded', () => {
+            settings_registerEvents();
+            settings_register_project_tooltips();
+		})
 	</script>
 {% endblock %}

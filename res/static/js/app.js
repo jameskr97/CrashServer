@@ -89,7 +89,20 @@ function gen_bar_graph(element_id, title, datapoints, labels) {
 
 function settings_key_to_clipboard(string){
     navigator.clipboard.writeText(string);
-    alert("Key copied to clipboard")
+}
+
+function settings_register_project_tooltips(){
+    var divs = document.getElementsByClassName("api-key-row")
+    console.log(divs)
+    for(let div of divs) {
+        let button = div.getElementsByTagName("button")[0] // Should only be 1 button in here
+        let tooltip = new bootstrap.Tooltip(button, {
+            placement: 'right',
+            trigger: 'click',
+            title: 'Copied to clipboard'
+        })
+        button.addEventListener("click", () => setTimeout(() => tooltip.hide(), 2000));
+    }
 }
 
 function settings_registerEvents() {
