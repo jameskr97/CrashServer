@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Crash-per-day chart shows day of week name, instead of year
 - Crash-per-day chart has day of week on new line
 - Log output for each minidump upload only takes one line, instead of two.
+- Reorganized javascript functions
+
+# Removed
+- Remove `get_disk_space` and `is_inside_docker` functions.
 
 ## [0.3.5] - 2021-12-25
 ### Added
