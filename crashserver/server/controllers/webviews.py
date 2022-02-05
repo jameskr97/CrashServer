@@ -127,4 +127,4 @@ def upload():
     projects = Project.query.with_entities(Project.id, Project.project_name).all()
     for p in projects:
         form.add_project_choice(str(p.id), p.project_name)
-    return render_template("upload.html", form=form, projects=projects)
+    return render_template("app/upload.html", form=form, projects=projects)
