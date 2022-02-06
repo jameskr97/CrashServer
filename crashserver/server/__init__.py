@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import flask
+import flask_migrate
 from flask import Flask, render_template
 from flask_babel import _
 from sqlalchemy_utils import create_database, database_exists
@@ -22,6 +23,7 @@ def create_app():
     register_cli(app)
 
     with app.app_context():
+        flask_migrate.upgrade()
         Storage.register_targets()
         Storage.init_targets()
 
