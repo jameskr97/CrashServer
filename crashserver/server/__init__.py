@@ -1,16 +1,15 @@
 from pathlib import Path
-import os
 
 import flask
 from flask import Flask, render_template
 from flask_babel import _
 from sqlalchemy_utils import create_database, database_exists
 
+from crashserver.cli import register_cli
 from crashserver.config import get_postgres_url, settings
-from crashserver.utility.hostinfo import HostInfo
 from crashserver.server.core.extensions import babel, debug_toolbar, login, limiter, migrate, db, queue
 from crashserver.server.models import User, Storage
-from crashserver.cli import register_cli
+from crashserver.utility.hostinfo import HostInfo
 
 
 def create_app():
