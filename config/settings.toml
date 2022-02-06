@@ -18,12 +18,6 @@
     host = "redis"
     port = 6379
 
-    [default.s3store]
-    endpoint_url = "https://s3.amazonaws.com"
-    bucket_name = "crashserver"
-    access_key = ""
-    secret_key = ""
-
     # Docker-based default storage directories
     [default.storage]
     appdata     = "/storage"

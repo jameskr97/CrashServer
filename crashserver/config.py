@@ -23,11 +23,3 @@ def get_postgres_url():
 
 def get_redis_url():
     return f"redis://{settings.redis.host}:{settings.redis.port}"
-
-
-def get_s3store_config():
-    return {
-        "aws_access_key_id": settings.s3store.access_key,
-        "aws_secret_access_key": settings.s3store.secret_key,
-        "endpoint_url": settings.s3store.endpoint_url,
-    }
