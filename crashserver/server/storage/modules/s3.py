@@ -1,9 +1,9 @@
 import io
-from pathlib import Path
 import typing
+from pathlib import Path
 
-from loguru import logger
 import boto3
+from loguru import logger
 
 
 class S3CompatibleStorage:

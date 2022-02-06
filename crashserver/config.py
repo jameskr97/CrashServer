@@ -1,5 +1,6 @@
-from dynaconf import Dynaconf
 from pathlib import Path
+
+from dynaconf import Dynaconf
 
 settings = Dynaconf(
     settings_files=["config/settings.toml"],
@@ -17,9 +18,7 @@ def get_appdata_directory(path: str) -> Path:
 
 
 def get_postgres_url():
-    return (
-        f"postgresql://{settings.db.user}:{settings.db.passwd}@{settings.db.host}:{settings.db.port}/{settings.db.name}"
-    )
+    return f"postgresql://{settings.db.user}:{settings.db.passwd}@{settings.db.host}:{settings.db.port}/{settings.db.name}"
 
 
 def get_redis_url():

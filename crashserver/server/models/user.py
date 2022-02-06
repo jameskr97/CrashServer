@@ -1,9 +1,10 @@
 import uuid
 
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
-from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from crashserver.server import db
 
 

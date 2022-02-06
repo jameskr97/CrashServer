@@ -4,9 +4,8 @@ from pathlib import Path
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
-from crashserver.utility.misc import SymbolData
 from crashserver.server import db
-from crashserver import config
+from crashserver.utility.misc import SymbolData
 
 
 class SymbolUploadV2(db.Model):
@@ -41,7 +40,7 @@ class SymbolUploadV2(db.Model):
 
     def store_file(self, file_content: bytes):
         # Ensure very first line starts with word "MODULE"
-        file_content = file_content[file_content.find("MODULE".encode()):]
+        file_content = file_content[file_content.find("MODULE".encode()) :]
 
         first_line = file_content[: file_content.find("\n".encode())].decode("utf-8")
         symbol_data = SymbolData.from_module_line(first_line)

@@ -1,16 +1,16 @@
+import uuid
 from functools import cached_property
 from pathlib import Path
-import uuid
 
-from sqlalchemy.dialects.postgresql import UUID, JSONB, INET
-from sqlalchemy.sql import func, text, expression
 import redis
 import rq
+from sqlalchemy.dialects.postgresql import UUID, JSONB, INET
+from sqlalchemy.sql import func, text, expression
 
-from .storage import Storage
-from crashserver.utility import processor
-from crashserver.server import db, queue
 from crashserver import config
+from crashserver.server import db, queue
+from crashserver.utility import processor
+from .storage import Storage
 
 
 class Minidump(db.Model):

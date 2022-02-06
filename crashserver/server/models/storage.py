@@ -1,14 +1,12 @@
-import io
-import typing
 from pathlib import Path
 from typing import IO, Optional
 
 from loguru import logger
 from sqlalchemy.dialects.postgresql import JSONB
 
+import crashserver.server.storage.modules as storage_targets
 from crashserver.server import db
 from crashserver.server.storage import storage_factory
-import crashserver.server.storage.modules as storage_targets
 
 STORAGE_INSTANCES: dict[str, storage_factory.StorageTarget] = {}
 

@@ -1,8 +1,8 @@
 import dataclasses
-
-from flask import flash
 import datetime
+
 import humanize
+from flask import flash
 
 
 def flash_form_errors(form):

@@ -62,9 +62,9 @@ import os
 from flask import Blueprint, request, url_for
 from loguru import logger
 
+from crashserver.server import db, helpers
 from crashserver.server.models import SymbolUploadV2, BuildMetadata
 from crashserver.utility.decorators import url_arg_required, api_key_required
-from crashserver.server import db, helpers
 
 sym_upload_v2 = Blueprint("sym-upload-v2", __name__)
 
@@ -119,9 +119,7 @@ def is_upload_complete(project, upload_key):
     symbol_ref = db.session.query(SymbolUploadV2).get(upload_key)
 
     # If a version already exists, compare hashes
-    build = (
-        db.session.query(BuildMetadata).filter_by(build_id=symbol_ref.build_id, module_id=symbol_ref.module_id).first()
-    )
+    build = db.session.query(BuildMetadata).filter_by(build_id=symbol_ref.build_id, module_id=symbol_ref.module_id).first()
 
     # If symbol exists, and hashes match, then do nothing.
     if build and build.symbol and build.symbol.file_hash == symbol_ref.file_hash:

@@ -1,13 +1,13 @@
-from pathlib import Path
-import subprocess
 import os
+import subprocess
+from pathlib import Path
 
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
-from crashserver.utility import misc
 from crashserver import config
 from crashserver.server import db
+from crashserver.utility import misc
 
 
 class SymCache(db.Model):

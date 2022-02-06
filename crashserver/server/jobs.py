@@ -1,15 +1,15 @@
-from pathlib import Path
-import subprocess
 import json
+import subprocess
+from pathlib import Path
 
-from loguru import logger
 import requests
+from loguru import logger
 
-from crashserver.server.models import Minidump, BuildMetadata, SymCache
-from crashserver.server.core.extensions import db
-from crashserver.server import create_app
-from crashserver.utility import processor
 from crashserver import config
+from crashserver.server import create_app
+from crashserver.server.core.extensions import db
+from crashserver.server.models import Minidump, BuildMetadata, SymCache
+from crashserver.utility import processor
 
 
 def download_windows_symbol(module_id: str, build_id: str):
@@ -51,9 +51,7 @@ def decode_minidump(crash_id):
         crash_data = processor.ProcessedCrash.generate(json_stack)
 
         # Check if symbols exist for the main program
-        minidump.build = (
-            db.session.query(BuildMetadata).filter(BuildMetadata.build_id == crash_data.main_module.debug_id).first()
-        )
+        minidump.build = db.session.query(BuildMetadata).filter(BuildMetadata.build_id == crash_data.main_module.debug_id).first()
 
         # The symbol file needed to decode this minidump does not exist.
         # Make a record in the CompileMetadata table with {build,module}_id. There will be a

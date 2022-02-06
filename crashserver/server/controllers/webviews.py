@@ -6,10 +6,10 @@ from flask_babel import _
 from flask_login import login_required, current_user
 
 from crashserver.config import settings as config
-from crashserver.utility import misc
 from crashserver.server import db, helpers
 from crashserver.server.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount
 from crashserver.server.models import Minidump, Project, ProjectType, User, Storage
+from crashserver.utility import misc
 
 views = Blueprint("views", __name__)
 

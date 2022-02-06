@@ -1,6 +1,6 @@
 import io
-from pathlib import Path
 import typing
+from pathlib import Path
 
 from loguru import logger
 

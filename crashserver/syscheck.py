@@ -1,5 +1,5 @@
-import stat
 import os
+import stat
 
 from loguru import logger
 from redis import Redis
@@ -73,9 +73,6 @@ def validate_binary_executable_bit():
                 os.chmod(full_path, st.st_mode | stat.S_IEXEC)
                 logger.debug(f"File {full_path} given executable bit.")
             except PermissionError:
-                logger.error(
-                    f"Unable to read or write {full_path}. Unable to add executable bit. "
-                    "PermissionError: Operation not permitted"
-                )
+                logger.error(f"Unable to read or write {full_path}. Unable to add executable bit. " "PermissionError: Operation not permitted")
                 validated = False
     return validated

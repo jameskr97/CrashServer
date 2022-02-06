@@ -2,9 +2,9 @@
 symbol.py: Operations which coordinate transactions between
 the filesystem and the database on each api request
 """
-from loguru import logger
 import flask
 import magic
+from loguru import logger
 
 from crashserver.server.models import Symbol, BuildMetadata, Minidump, Annotation, Project, Attachment, ProjectType
 from crashserver.utility.misc import SymbolData
@@ -30,12 +30,12 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
     # Check if a minidump was already uploaded with the current module_id and build_id
     build = (
         session.query(BuildMetadata)
-            .filter_by(
+        .filter_by(
             project_id=project.id,
             build_id=symbol_data.build_id,
             module_id=symbol_data.module_id,
         )
-            .first()
+        .first()
     )
     if build is None:
         # If we can't find the metadata for the symbol (which will usually be the case unless a minidump was uploaded
@@ -118,8 +118,6 @@ def minidump_upload(session, project_id: str, annotations: dict, minidump_file: 
 
     new_dump.decode_task()
     session.commit()
-    logger.info(
-        f"Minidump received [{new_dump.id}] for project [{project_id}] - [{flask.request.remote_addr}] - [{len(attachments)} attachments]"
-    )
+    logger.info(f"Minidump received [{new_dump.id}] for project [{project_id}] - [{flask.request.remote_addr}] - [{len(attachments)} attachments]")
 
     return flask.make_response({"status": "success", "id": str(new_dump.id)}, 200)

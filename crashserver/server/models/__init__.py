@@ -1,4 +1,3 @@
-from .symcache import SymCache
 from .annotation import Annotation
 from .attachments import Attachment
 from .build_metadata import BuildMetadata
@@ -7,6 +6,7 @@ from .project import Project, ProjectType
 from .storage import Storage
 from .symbol import Symbol
 from .symbol_upload import SymbolUploadV2
+from .symcache import SymCache
 from .user import User
 
 __all__ = [

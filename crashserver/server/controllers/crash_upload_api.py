@@ -4,13 +4,13 @@ import io
 from flask import Blueprint, request
 from werkzeug.formparser import parse_form_data
 
+from crashserver.server import db, helpers
 from crashserver.utility.decorators import (
     file_key_required,
     api_key_required,
     check_project_versioned,
 )
 from crashserver.utility.misc import SymbolData
-from crashserver.server import db, helpers
 
 crash_upload_api = Blueprint("api", __name__)
 

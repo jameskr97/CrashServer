@@ -2,8 +2,8 @@ import functools
 
 import flask
 
-from crashserver.server.models import Project, ProjectType
 from crashserver.server import db
+from crashserver.server.models import Project, ProjectType
 
 
 def api_key_required(key_type="minidump", url_arg_key="api_key", pass_project=True):

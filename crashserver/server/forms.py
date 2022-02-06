@@ -1,6 +1,6 @@
+from flask_babel import lazy_gettext
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from flask_babel import lazy_gettext
 from wtforms import StringField, PasswordField, BooleanField, SelectField, ValidationError
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 
@@ -21,9 +21,7 @@ class UpdateAccount(FlaskForm):
             Length(min=8, max=256),
         ],
     )
-    new_pass_verify = PasswordField(
-        lazy_gettext("Verify Password"), validators=[DataRequired(), Length(min=8, max=256)]
-    )
+    new_pass_verify = PasswordField(lazy_gettext("Verify Password"), validators=[DataRequired(), Length(min=8, max=256)])
 
     def __init__(self, user, *args, **kwargs):
         super(UpdateAccount, self).__init__(*args, **kwargs)

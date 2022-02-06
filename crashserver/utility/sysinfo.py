@@ -1,5 +1,5 @@
-import pathlib
 import os
+import pathlib
 
 
 def get_directory_size(start_path):

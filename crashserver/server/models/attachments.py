@@ -1,4 +1,3 @@
-import io
 import uuid
 from pathlib import Path
 
@@ -6,8 +5,8 @@ import magic
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
-from .storage import Storage
 from crashserver.server import db
+from .storage import Storage
 
 
 class Attachment(db.Model):

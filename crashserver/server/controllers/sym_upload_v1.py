@@ -8,13 +8,13 @@ is invoked without any `-p` parameter, and without
 
 from flask import Blueprint, request
 
+from crashserver.server import db, helpers
 from crashserver.utility.decorators import (
     file_key_required,
     api_key_required,
     check_project_versioned,
 )
 from crashserver.utility.misc import SymbolData
-from crashserver.server import db, helpers
 
 sym_upload_v1 = Blueprint("sym-upload-v1", __name__)
 
