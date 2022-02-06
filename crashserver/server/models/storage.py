@@ -40,9 +40,7 @@ class Storage(db.Model):
         for key, storage in modules.items():
             if key not in current_targets:
                 # If the target does not exist, get the default config, and insert that storage target into the database
-                new_modules.append(
-                    Storage(key=key, is_enabled=storage.is_default_enabled(), config=storage.get_default_config())
-                )
+                new_modules.append(Storage(key=key, is_enabled=storage.is_default_enabled(), config=storage.get_default_config()))
             else:
                 # If the target does exist, compare config dicts, and add a blank config for each any new possible config keys
                 existing_module = db.session.query(Storage).get(key)
@@ -72,6 +70,13 @@ class Storage(db.Model):
         for target in active_targets:
             STORAGE_INSTANCES[target.key] = storage_factory.get_storage_method(target.key)(target.config)
             STORAGE_INSTANCES[target.key].init()
+
+    def get_web_config(self):
+        return storage_factory.get_storage_method(self.key).get_web_config()
+
+    def validate_credentials(self, config) -> bool:
+        """Return true if given credentials are valid, otherwise false"""
+        return storage_factory.get_storage_method(self.key).validate_credentials(config)
 
     @staticmethod
     def create(path: Path, file_contents: bytes):

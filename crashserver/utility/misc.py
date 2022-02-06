@@ -22,6 +22,14 @@ def get_font_awesome_os_icon(os: str):
     return ""
 
 
+def get_storage_icon(key: str):
+    key = key.lower()
+    if key == "filesystem":
+        return "fas fa-hdd"
+    if key == "s3":
+        return "fab fa-aws"
+
+
 def naturaltime(time) -> str:
     now = datetime.datetime.now(tz=time.tzinfo)
     return humanize.naturaltime(now - time)

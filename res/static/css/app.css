@@ -391,6 +391,11 @@ aside .navbar {
     box-shadow: none;
 }
 
+/* == Storage tab specific styling */
+#accordion-storage .accordion-body input[type=text] {
+    padding: 3px 6px;
+}
+
 .settings-storage-row {
     margin-top: 5px;
 }

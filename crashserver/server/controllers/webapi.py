@@ -4,14 +4,14 @@ import operator
 import os
 
 import natsort
-from flask import Blueprint, request, render_template, flash, redirect
+from flask import Blueprint, request, render_template, flash, redirect, abort, url_for
 from flask_babel import _
 from flask_login import login_required
 from loguru import logger
 from sqlalchemy import func, text
 
 from crashserver.server import db
-from crashserver.server.models import Symbol, Project, ProjectType, Minidump, Attachment
+from crashserver.server.models import Symbol, Project, ProjectType, Minidump, Attachment, Storage
 
 webapi = Blueprint("webapi", __name__)
 
@@ -26,12 +26,7 @@ def get_symbols(project_id):
 
     # Get counts for os symbols
     def sym_count(os: str):
-        return (
-            db.session.query(Symbol)
-                .filter(Symbol.project_id == project_id)
-                .filter(func.lower(Symbol.os) == os.lower())
-                .count()
-        )
+        return db.session.query(Symbol).filter(Symbol.project_id == project_id).filter(func.lower(Symbol.os) == os.lower()).count()
 
     stats = {
         "sym_count": {
@@ -46,10 +41,7 @@ def get_symbols(project_id):
         # sym_dict is  in the format of {app_version: [Symbol objects of that version]}
         get_attr = operator.attrgetter("app_version")
         sorted_list = natsort.natsorted(proj_symbols, key=lambda x: get_attr(x), reverse=True)
-        sym_dict = {
-            version: sorted(list(group), key=operator.attrgetter("os"))
-            for version, group in itertools.groupby(sorted_list, get_attr)
-        }
+        sym_dict = {version: sorted(list(group), key=operator.attrgetter("os")) for version, group in itertools.groupby(sorted_list, get_attr)}
         stats = {
             "sym_count": {
                 "linux": sym_count("linux"),
@@ -58,23 +50,23 @@ def get_symbols(project_id):
             }
         }
         return {
-                   "html": render_template(
-                       "symbols/symbol-list-versioned.html",
-                       project=project,
-                       sym_dict=sym_dict,
-                       stats=stats,
-                   )
-               }, 200
+            "html": render_template(
+                "symbols/symbol-list-versioned.html",
+                project=project,
+                sym_dict=sym_dict,
+                stats=stats,
+            )
+        }, 200
 
     elif project.project_type == ProjectType.SIMPLE:
         return {
-                   "html": render_template(
-                       "symbols/symbol-list-simple.html",
-                       project=project,
-                       symbols=proj_symbols,
-                       stats=stats,
-                   )
-               }, 200
+            "html": render_template(
+                "symbols/symbol-list-simple.html",
+                project=project,
+                symbols=proj_symbols,
+                stats=stats,
+            )
+        }, 200
 
 
 @webapi.route("/webapi/symbols/count/<project_id>")
@@ -129,7 +121,8 @@ def crash_per_day(project_id):
 
     with db.engine.connect() as conn:
         conn.execute(f"SET LOCAL timezone = '{os.environ.get('TZ')}';")
-        sql = text(f"""
+        sql = text(
+            f"""
         SELECT
             to_char(m.date_created::DATE, 'Dy') as day_name,
             to_char(m.date_created::DATE, 'MM-DD') as upload_date,
@@ -139,7 +132,8 @@ def crash_per_day(project_id):
         GROUP BY m.date_created::DATE
         ORDER BY to_char(m.date_created::DATE, 'YYYY-MM-DD') DESC
         LIMIT :num_days;
-        """)
+        """
+        )
         res = conn.execute(sql, project_id=project_id, num_days=num_days)
 
     labels = []
@@ -163,3 +157,43 @@ def get_attachment_content(attach_id):
     attach = Attachment.query.get(attach_id)
     content = attach.file_content
     return {"file_content": content}, 200 if content is not None else 404
+
+
+@webapi.route("/webapi/storage/update/<key>", methods=["POST"])
+@login_required
+def update_storage_target(key):
+    storage = db.session.query(Storage).get(key)
+
+    # Attempting to save settings to a target that doesn't exist??
+    if not storage:
+        abort(500)
+
+    form = dict(request.form)
+    new_state = form.pop("target_enabled", False)
+    logger.info(form)
+    changed = not (new_state == storage.is_enabled)
+    logger.info(f"changed: {changed}, new_state: {new_state}")
+
+    # If it was changed, and new_state is false, disable, commit, and notify.
+    if changed and not new_state:
+        storage.is_enabled = False
+        db.session.commit()
+        flash(_("%(key)s has been disabled. No settings were changed.", key=key))
+        logger.info(f"{key} has been disabled. No settings were changed.")
+        return redirect(url_for("views.settings"))
+
+    # If we are here, then the state is already enabled, or newly enabled. Either way, update the settings.
+    # First validate credentials
+    valid = storage.validate_credentials(form)
+
+    if not valid:
+        flash(_("Unable to connect to S3 with given credentials. Please try again."))
+        return redirect(url_for("views.settings"))
+
+    # If we are here, the given credentials were valid
+    storage.config = form
+    storage.is_enabled = True
+    db.session.commit()
+
+    flash(_("%(key)s has been enabled. Settings were updated. Uploaded symbols, minidumps, and attachments will now be uploaded as they are received.", key=key))
+    return redirect(url_for("views.settings"))

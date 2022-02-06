@@ -9,7 +9,7 @@ from crashserver.config import settings as config
 from crashserver.utility import misc
 from crashserver.server import db, helpers
 from crashserver.server.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount
-from crashserver.server.models import Minidump, Project, ProjectType, User
+from crashserver.server.models import Minidump, Project, ProjectType, User, Storage
 
 views = Blueprint("views", __name__)
 
@@ -26,6 +26,7 @@ def home():
 def settings():
     users = db.session.query(User).all()
     projects = db.session.query(Project).all()
+    storage = db.session.query(Storage).order_by(Storage.key).all()
     [p.create_directories() for p in projects]
 
     form = UpdateAccount(current_user)
@@ -36,7 +37,14 @@ def settings():
     else:
         misc.flash_form_errors(form)
 
-    return render_template("app/settings.html", account_form=form, users=users, projects=projects, settings=config)
+    return render_template(
+        "app/settings.html",
+        account_form=form,
+        users=users,
+        projects=projects,
+        settings=config,
+        storage=storage,
+    )
 
 
 @views.route("/project/create", methods=["GET", "POST"])
@@ -85,12 +93,7 @@ def project_dashboard(id: str):
 @views.route("/crash-reports")
 def crash():
     page = request.args.get("page", 1, type=int)
-    res = (
-        db.session.query(Minidump, Project.project_name)
-        .filter(Minidump.project_id == Project.id)
-        .order_by(Minidump.date_created.desc())
-        .paginate(page=page, per_page=10)
-    )
+    res = db.session.query(Minidump, Project.project_name).filter(Minidump.project_id == Project.id).order_by(Minidump.date_created.desc()).paginate(page=page, per_page=10)
     return render_template("crash/crash.html", dumps=res)
 
 

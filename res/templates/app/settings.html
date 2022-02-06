@@ -15,6 +15,7 @@
 					<li id="users" class="nav-item nav-link"><i class="fas fa-users fa-fw"></i></li> <!-- Users-->
 					<li id="server" class="nav-item nav-link"><i class="fas fa-server fa-fw"></i></li> <!-- Server-->
 					<li id="projects" class="nav-item nav-link"><i class="fas fa-archive fa-fw"></i></li> <!-- Projects-->
+					<li id="storage" class="nav-item nav-link"><i class="fas fa-database fa-fw"></i></li> <!-- Storage-->
 					<li id="about" class="nav-item nav-link"><i class="fas fa-info-circle fa-fw"></i></li> <!-- About-->
 				</ul>
 			</div>
@@ -29,6 +30,7 @@
 					<a id="users" class="list-group-item" href="#users"><i class="fas fa-users fa-fw"></i>{{ _("Users") }}</a>
 					<a id="server" class="list-group-item" href="#server"><i class="fas fa-server fa-fw"></i>{{ _("Server") }}</a>
 					<a id="projects" class="list-group-item" href="#projects"><i class="fas fa-archive fa-fw"></i>{{ _("Projects") }}</a>
+					<a id="storage" class="list-group-item" href="#storage"><i class="fas fa-database fa-fw"></i>{{ _("Storage") }}</a>
 					<a id="about" class="list-group-item" href="#about"><i class="fas fa-info-circle fa-fw"></i>{{ _("About") }}</a>
 				</div>
 			</div>
@@ -133,6 +135,70 @@
 									{{ macros.generate_project_row(p) }}
 								{% endfor %}
 							{% endif %}
+						</div>
+					</div>
+
+					{# STORAGE TAB #}
+					<div class="tab-pane" role="tabpanel" id="storage-content">
+						<h4 class="text-center">{{ _("Storage") }}</h4>
+						<hr>
+						<p>
+							{{ _("CrashServer can store symbols, minidumps, and attachments at remote locations. Data will be uploaded to all enabled storage targets.") }}
+							{{ _("By default, \"Filesystem\" is enabled. The \"Filesystem\" target may be disabled, but if CrashServer is unable to upload data to all enabled remote locations, the data will be stored locally as a backup.") }}
+						</p>
+						<hr>
+						{# STORAGE ACCORDION #}
+						<div class="accordion" id="accordion-storage">
+							{% for s in storage %}
+								<div class="accordion-item">
+									<h2 class="accordion-header" id="storage-{{ s.key }}">
+										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#storage-body-{{ s.key }}"
+												aria-expanded="true"
+												aria-controls="storage-body-{{ s.key }}">
+											<span><i class="fa-fw {{ get_storage_icon(s.key) }}"></i> {{ s.key|capitalize }}</span>
+										</button>
+									</h2>
+								</div>
+								<div id="storage-body-{{ s.key }}" class="accordion-collapse collapse" aria-labelledby="storage-{{ s.key }}" data-bs-parent="#accordion-storage">
+									<div class="accordion-body">
+										<h4 class="text-center">{{ s.key|capitalize }}</h4>
+										<hr>
+										<form method="post" action="{{ url_for("webapi.update_storage_target", key=s.key) }}">
+											<h5>Configuration Options</h5>
+											<div class="row mb-3">
+												<div class="col-3">
+													<label class="form-check-label" for="enabled-{{ s.key }}">Enable {{ s.key|capitalize }}</label>
+												</div>
+												<div class="col-9">
+													<input	class="form-check-input"
+														   	type="checkbox"
+														   	name="target_enabled"
+														   	value="true"
+														   	id="enabled-{{ s.key }}"
+														   	autocomplete="off" {{ "checked" if s.is_enabled else "" }}
+															{{ "disabled" if s.key == "filesystem" else ""}}
+													/>
+												</div>
+											</div>
+											{% set web = s.get_web_config() %}
+											{% for item in web["options"] %}
+												<div class="row mb-1">
+													<div class="col-3">
+														<label class="form-label" for="storage-input-{{ s.key }}-{{ item.key }}">{{ item.title }}</label>
+													</div>
+													<div class="col-9">
+														<input class="form-control" type="text" name="{{ item.key }}" id="storage-input-{{ s.key }}-{{ item.key }}" placeholder="{{ s.config[item.key] }}">
+													</div>
+												</div>
+											{% endfor %}
+											<hr>
+											<div class="text-center mt-3">
+												<button type="submit" class="btn btn-outline">{{ _("Save") }}</button>
+											</div>
+										</form>
+									</div>
+								</div>
+							{% endfor %}
 						</div>
 					</div>
 

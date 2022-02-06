@@ -25,6 +25,20 @@ class DiskStorage:
         """Get default config options for this storage target"""
         return {"path": "/storage"}
 
+    @staticmethod
+    def get_web_config() -> dict:
+        """Retrieve parameters for web config"""
+        return {
+            "options": [
+                {"key": "path", "title": "Path", "default": DiskStorage.get_default_config()["path"], "desc": "Absolute path without a trailing slash (e.g. /storage)"},
+            ]
+        }
+
+    @staticmethod
+    def validate_credentials(config) -> bool:
+        """Return true if given credentials are valid, otherwise false"""
+        return True
+
     def create(self, path: Path, file_contents: bytes) -> bool:
         """Store the data in file at path. Return bool for success"""
         filepath = Path(self.config.get("path"), path)

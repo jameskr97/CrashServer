@@ -102,6 +102,7 @@ def register_jinja(app: Flask):
     app.add_template_global(HostInfo, "HostInfo")
     app.add_template_global(misc.get_font_awesome_os_icon, "get_font_awesome_os_icon")
     app.add_template_global(misc.naturaltime, "humantime")
+    app.add_template_global(misc.get_storage_icon, "get_storage_icon")
     app.add_template_global(humanize, "humanize")
     app.add_template_global(app.config, "settings")
 
