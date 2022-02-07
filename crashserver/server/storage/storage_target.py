@@ -10,6 +10,11 @@ class StorageTarget(typing.Protocol):
         pass
 
     @staticmethod
+    def get_user_friendly_name() -> str:
+        """Get user-facing name of target"""
+        pass
+
+    @staticmethod
     def is_default_enabled() -> bool:
         """Return true if module is enabled by default, otherwise false"""
         pass

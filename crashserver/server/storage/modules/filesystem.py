@@ -16,6 +16,11 @@ class DiskStorage:
         logger.info("[STORAGE/DISK] Initialization complete")
 
     @staticmethod
+    def get_user_friendly_name() -> str:
+        """Get user-facing name of target"""
+        return "Filesystem"
+
+    @staticmethod
     def is_default_enabled() -> bool:
         """Return true if module is enabled by default, otherwise false"""
         return True

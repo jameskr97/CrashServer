@@ -28,6 +28,8 @@ def get_storage_icon(key: str):
         return "fas fa-hdd"
     if key == "s3":
         return "fab fa-aws"
+    if key == "s3generic":
+        return "fas fa-cube"
 
 
 def naturaltime(time) -> str:

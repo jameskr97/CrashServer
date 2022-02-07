@@ -30,6 +30,7 @@ class Storage(db.Model):
         # Register internal targets
         storage_factory.register("filesystem", storage_targets.DiskStorage)
         storage_factory.register("s3", storage_targets.S3Storage)
+        storage_factory.register("s3generic", storage_targets.S3GenericStorage)
 
         # Ensure all methods exist within database
         new_modules = []
@@ -68,6 +69,10 @@ class Storage(db.Model):
         for target in active_targets:
             STORAGE_INSTANCES[target.key] = storage_factory.get_storage_method(target.key)(target.config)
             STORAGE_INSTANCES[target.key].init()
+
+    def get_user_friendly_name(self) -> str:
+        """Get user-facing name of target"""
+        return storage_factory.get_storage_method(self.key).get_user_friendly_name()
 
     def get_web_config(self):
         return storage_factory.get_storage_method(self.key).get_web_config()
