@@ -117,6 +117,11 @@ if __name__ == "__main__":
     app = create_app()
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Activate proxy pass detection to get real ip
 
+    with app.app_context():
+        flask_migrate.upgrade()
+        Storage.register_targets()
+        Storage.init_targets()
+
     if os.environ.get("FLASK_DEBUG"):
         app.run(host="0.0.0.0", port=settings.flask.web_port, debug=True)
         exit(0)

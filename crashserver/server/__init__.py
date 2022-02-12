@@ -22,11 +22,6 @@ def create_app():
     register_jinja(app)
     register_cli(app)
 
-    with app.app_context():
-        flask_migrate.upgrade()
-        Storage.register_targets()
-        Storage.init_targets()
-
     return app
 
 
