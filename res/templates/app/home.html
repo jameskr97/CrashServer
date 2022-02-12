@@ -32,11 +32,22 @@
 {% block content %}
 	<h1 class="text-center page-title">{{ _("Symbol Storage and Minidump Decode") }}</h1>
 	<hr>
-	<div class="project-list">
-		{% for app in apps %}
-			{{ project_entry(app) }}
-		{% endfor %}
-	</div>
+	{% if apps|count != 0 %}
+		<div class="project-list">
+			{% for app in apps %}
+				{{ project_entry(app) }}
+			{% endfor %}
+		</div>
+	{% else %}
+		<div class="row">
+			<div class="centering-grid">
+				<div class="centering-grid-item">
+					<h1 class="text-center"><i class="far fa-sad-cry"></i></h1>
+					<h1 class="text-center">{{ _("No projects have been created yet.") }}</h1>
+				</div>
+			</div>
+		</div>
+	{% endif %}
 
 	<script>
         document.addEventListener("DOMContentLoaded", function () {
