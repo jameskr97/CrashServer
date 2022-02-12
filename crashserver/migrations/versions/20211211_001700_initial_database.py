@@ -166,4 +166,5 @@ def downgrade():
     op.drop_table("users")
     op.drop_table("symcache")
     op.drop_table("project")
+    op.execute("DROP TYPE projecttype")
     # ### end Alembic commands ###
