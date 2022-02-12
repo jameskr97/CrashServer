@@ -89,7 +89,6 @@ def project_dashboard(id: str):
     return render_template("app/dashboard.html", project=proj)
 
 
-@views.route("/")
 @views.route("/crash-reports")
 def crash():
     page = request.args.get("page", 1, type=int)
