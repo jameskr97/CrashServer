@@ -1,9 +1,9 @@
 # CrashServer Configuration File
 
 [default]
+SECRET_KEY = "changeme"
+
     [default.flask]
-    # Set to a cryptographic random string
-    secret_key  = "changeme"
     web_port    = 8888
 
     # Currently, only postgres is supported
@@ -22,3 +22,13 @@
     [default.storage]
     appdata     = "/storage"
     logs        = "/logs"
+
+[testing]
+WTF_CSRF_ENABLED = false
+
+    [testing.db]
+    name = "test_crashserver"
+
+    [testing.login]
+    email = "test@test.com"
+    passwd = "password"

@@ -1,15 +1,14 @@
 from pathlib import Path
 
 import flask
-import flask_migrate
+from dynaconf import FlaskDynaconf
 from flask import Flask, render_template
 from flask_babel import _
 from sqlalchemy_utils import create_database, database_exists
 
 from crashserver.cli import register_cli
-from crashserver.config import get_postgres_url, settings
+from crashserver.config import get_postgres_url
 from crashserver.server.core.extensions import babel, debug_toolbar, login, limiter, migrate, db, queue
-from crashserver.server.models import User, Storage
 from crashserver.utility.hostinfo import HostInfo
 
 
@@ -37,11 +36,11 @@ def init_environment():
 
     # Create app and initial parameters
     app = Flask("CrashServer", static_folder=str(static), template_folder=str(templates))
-    app.config["SECRET_KEY"] = settings.flask.secret_key
     app.config["SQLALCHEMY_DATABASE_URI"] = get_postgres_url()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
     app.config["LANGUAGES"] = ["en", "zh"]
     app.config["BABEL_TRANSLATION_DIRECTORIES"] = str(resources_root / "translations")
+    FlaskDynaconf(app, settings_files=["config/settings.toml"], environments=True)
 
     return app
 
