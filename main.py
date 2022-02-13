@@ -4,6 +4,7 @@ CrashServer
 Logging Setup from: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn-uvicorn-app/
 """
 # fmt: off
+import flask_migrate
 from gevent import monkey
 monkey.patch_all()
 # fmt: on
@@ -18,6 +19,7 @@ from gunicorn.app.base import BaseApplication
 from gunicorn.glogging import Logger
 from loguru import logger
 
+from crashserver.server.models import Storage
 from crashserver.server import create_app
 from crashserver.config import settings
 from crashserver import syscheck
