@@ -7,6 +7,7 @@ settings = Dynaconf(
     environments=True,
     load_dotenv=True,
     envvar_prefix="CRASH",
+    merge_enabled=True,
 )
 
 
