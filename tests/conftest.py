@@ -3,18 +3,24 @@ import pytest
 
 from crashserver.config import settings
 from crashserver.server import create_app, db
-from crashserver.server.models import User
+from crashserver.server.models import User, Storage
 
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_session(client):
-    flask_migrate.upgrade()  # Create Database
 
+    # Create Database
+    flask_migrate.upgrade()
+
+    # Create default user
     user = User(email=settings.login.email)
     user.set_password(settings.login.passwd)
     db.session.add(user)
     db.session.commit()
+
     yield  # Do the tests
+
+    # Delete default user
     db.session.delete(User.query.filter_by(email=settings.login.email).first())
     db.session.commit()
 
