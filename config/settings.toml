@@ -24,6 +24,7 @@ SECRET_KEY = "changeme"
     logs        = "/logs"
 
 [testing]
+DEBUG_TB_INTERCEPT_REDIRECTS = false
 WTF_CSRF_ENABLED = false
 
     [testing.db]
