@@ -156,6 +156,10 @@
 												aria-expanded="true"
 												aria-controls="storage-body-{{ s.key }}">
 											<span><i class="fa-fw {{ get_storage_icon(s.key) }}"></i> {{ s.get_user_friendly_name() }}</span>
+											{% if s.key == "filesystem" %}
+												<span class="thread-badge badge bg-danger">{{ _("Fallback") }}</span>
+											{% endif %}
+
 										</button>
 									</h2>
 								</div>
@@ -175,7 +179,8 @@
 														   	name="target_enabled"
 														   	value="true"
 														   	id="enabled-{{ s.key }}"
-														   	autocomplete="off" {{ "checked" if s.is_enabled else "" }}
+														   	autocomplete="off"
+															{{ "checked" if s.is_enabled else "" }}
 															{{ "disabled" if s.key == "filesystem" else ""}}
 													/>
 												</div>
