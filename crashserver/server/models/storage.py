@@ -84,10 +84,16 @@ class Storage(db.Model):
     @staticmethod
     def create(path: Path, file_contents: bytes):
         for key, instance in STORAGE_INSTANCES.items():
-            instance.create(path, file_contents)
+            instance.create(path, file_contents)  # TODO: Read the result, and store to filesystem if unable to be created on any except filesystem (that's the fallback)
 
     @staticmethod
-    def retrieve(path: Path) -> Optional[IO]:
+    def retrieve(path: Path, key: str = None) -> Optional[IO]:
+        if key:
+            file = STORAGE_INSTANCES[key].retrieve(path)
+            if file is not None:
+                return file
+            return None
+
         for key, instance in STORAGE_INSTANCES.items():
             file = instance.retrieve(path)
             if file is not None:
