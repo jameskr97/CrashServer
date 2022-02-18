@@ -168,11 +168,14 @@ def update_storage_target(key):
     if not storage:
         abort(500)
 
-    form = dict(request.form)
+    # Determine if the storage backend is being enable or disabled
+    form = {key: val for key, val in dict(request.form).items() if val}
+
     new_state = form.pop("target_enabled", False)
-    logger.info(form)
     changed = not (new_state == storage.is_enabled)
-    logger.info(f"changed: {changed}, new_state: {new_state}")
+
+    old_config = storage.config.copy()
+    old_config.update(form)
 
     # If it was changed, and new_state is false, disable, commit, and notify.
     if changed and not new_state:
@@ -184,16 +187,18 @@ def update_storage_target(key):
 
     # If we are here, then the state is already enabled, or newly enabled. Either way, update the settings.
     # First validate credentials
-    valid = storage.validate_credentials(form)
+    valid = storage.validate_credentials(old_config)
 
     if not valid:
         flash(_("Unable to connect to S3 with given credentials. Please try again."))
         return redirect(url_for("views.settings"))
 
     # If we are here, the given credentials were valid
-    storage.config = form
+    storage.config = old_config
     storage.is_enabled = True
     db.session.commit()
+
+    Storage.init_targets()
 
     flash(_("%(key)s has been enabled. Settings were updated. Uploaded symbols, minidumps, and attachments will now be uploaded as they are received.", key=key))
     return redirect(url_for("views.settings"))
