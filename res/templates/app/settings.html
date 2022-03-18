@@ -155,7 +155,7 @@
 										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#storage-body-{{ s.key }}"
 												aria-expanded="true"
 												aria-controls="storage-body-{{ s.key }}">
-											<span><i class="fa-fw {{ get_storage_icon(s.key) }}"></i> {{ s.get_user_friendly_name() }}</span>
+											<span><i class="fa-fw {{ get_storage_icon(s.key) }}"></i> {{ s.meta.ui_name() }}</span>
 											{% if s.key == "filesystem" %}
 												<span class="thread-badge badge bg-danger">{{ _("Fallback") }}</span>
 											{% endif %}
@@ -165,13 +165,13 @@
 								</div>
 								<div id="storage-body-{{ s.key }}" class="accordion-collapse collapse" aria-labelledby="storage-{{ s.key }}" data-bs-parent="#accordion-storage">
 									<div class="accordion-body">
-										<h4 class="text-center">{{ s.get_user_friendly_name() }}</h4>
+										<h4 class="text-center">{{ s.meta.ui_name() }}</h4>
 										<hr>
 										<form method="post" action="{{ url_for("webapi.update_storage_target", key=s.key) }}">
 											<h5>Configuration Options</h5>
 											<div class="row mb-3">
 												<div class="col-3">
-													<label class="form-check-label" for="enabled-{{ s.key }}">Enable {{ s.get_user_friendly_name() }}</label>
+													<label class="form-check-label" for="enabled-{{ s.key }}">Enable {{ s.meta.ui_name() }}</label>
 												</div>
 												<div class="col-9">
 													<input	class="form-check-input"
@@ -185,7 +185,7 @@
 													/>
 												</div>
 											</div>
-											{% set web = s.get_web_config() %}
+											{% set web = s.meta.web_config() %}
 											{% for item in web["options"] %}
 												<div class="row mb-1">
 													<div class="col-3">
