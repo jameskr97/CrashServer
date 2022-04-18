@@ -4,11 +4,13 @@ from typing import IO, Optional
 from loguru import logger
 from sqlalchemy.dialects.postgresql import JSONB
 
-import crashserver.server.storage.modules as storage_targets
+import crashserver.server.storage.modules
 from crashserver.server import db
+from crashserver.server.storage import loader as storage_loader
 from crashserver.server.storage import storage_factory
+from crashserver.server.storage.backend import StorageBackend
 
-STORAGE_INSTANCES: dict[str, storage_factory.StorageTarget] = {}
+STORAGE_INSTANCES: dict[str, StorageBackend] = {}
 
 
 class Storage(db.Model):
@@ -28,22 +30,23 @@ class Storage(db.Model):
     @staticmethod
     def register_targets():
         # Register internal targets
-        storage_factory.register("filesystem", storage_targets.DiskStorage)
-        storage_factory.register("s3", storage_targets.S3Storage)
-        storage_factory.register("s3generic", storage_targets.S3GenericStorage)
+        storage_loader.load_plugins(crashserver.server.storage.modules)
 
         # Ensure all methods exist within database
         new_modules = []
         current_targets = [key[0] for key in db.session.query(Storage.key)]
+
         modules = storage_factory.get_storage_methods()
         for key, storage in modules.items():
+            meta = storage_factory.get_metadata(key)
+
             if key not in current_targets:
                 # If the target does not exist, get the default config, and insert that storage target into the database
-                new_modules.append(Storage(key=key, is_enabled=storage.is_default_enabled(), config=storage.get_default_config()))
+                new_modules.append(Storage(key=key, is_enabled=meta.default_enabled(), config=meta.default_config()))
             else:
                 # If the target does exist, compare config dicts, and add a blank config for each any new possible config keys
                 existing_module = db.session.query(Storage).get(key)
-                new_cfg = storage.get_default_config()
+                new_cfg = meta.default_config()
                 new_cfg.update(existing_module.config)
                 existing_module.config = new_cfg
 
@@ -70,16 +73,9 @@ class Storage(db.Model):
             STORAGE_INSTANCES[target.key] = storage_factory.get_storage_method(target.key)(target.config)
             STORAGE_INSTANCES[target.key].init()
 
-    def get_user_friendly_name(self) -> str:
-        """Get user-facing name of target"""
-        return storage_factory.get_storage_method(self.key).get_user_friendly_name()
-
-    def get_web_config(self):
-        return storage_factory.get_storage_method(self.key).get_web_config()
-
-    def validate_credentials(self, config) -> bool:
-        """Return true if given credentials are valid, otherwise false"""
-        return storage_factory.get_storage_method(self.key).validate_credentials(config)
+    @property
+    def meta(self):
+        return storage_factory.get_metadata(self.key)
 
     @staticmethod
     def create(path: Path, file_contents: bytes):
@@ -89,13 +85,13 @@ class Storage(db.Model):
     @staticmethod
     def retrieve(path: Path, key: str = None) -> Optional[IO]:
         if key:
-            file = STORAGE_INSTANCES[key].retrieve(path)
+            file = STORAGE_INSTANCES[key].read(path)
             if file is not None:
                 return file
             return None
 
         for key, instance in STORAGE_INSTANCES.items():
-            file = instance.retrieve(path)
+            file = instance.read(path)
             if file is not None:
                 return file
         return None

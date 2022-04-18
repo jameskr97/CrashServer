@@ -115,3 +115,9 @@ def register_util(app):
             res = session.query(Minidump).get(dump_id)
             res.decode_task()
         print(f"Minidump {dump_id} sent to worker for decode.")
+
+    @util.command(help="Create DB files")
+    def create_db():
+        from crashserver.server import db
+
+        db.create_all()

@@ -1,8 +1,8 @@
 import io
 import typing
 from pathlib import Path
-
 from loguru import logger
+from crashserver.server.storage import storage_factory
 
 
 class DiskStorage:
@@ -15,35 +15,6 @@ class DiskStorage:
         self.config.get("path").mkdir(parents=True, exist_ok=True)
         logger.info("[STORAGE/DISK] Initialization complete")
 
-    @staticmethod
-    def get_user_friendly_name() -> str:
-        """Get user-facing name of target"""
-        return "Filesystem"
-
-    @staticmethod
-    def is_default_enabled() -> bool:
-        """Return true if module is enabled by default, otherwise false"""
-        return True
-
-    @staticmethod
-    def get_default_config() -> dict:
-        """Get default config options for this storage target"""
-        return {"path": "/storage"}
-
-    @staticmethod
-    def get_web_config() -> dict:
-        """Retrieve parameters for web config"""
-        return {
-            "options": [
-                {"key": "path", "title": "Path", "default": DiskStorage.get_default_config()["path"], "desc": "Absolute path without a trailing slash (e.g. /storage)"},
-            ]
-        }
-
-    @staticmethod
-    def validate_credentials(config) -> bool:
-        """Return true if given credentials are valid, otherwise false"""
-        return True
-
     def create(self, path: Path, file_contents: bytes) -> bool:
         """Store the data in file at path. Return bool for success"""
         filepath = Path(self.config.get("path"), path)
@@ -54,7 +25,7 @@ class DiskStorage:
             outfile.write(file_contents)
         return True
 
-    def retrieve(self, path: Path) -> typing.Optional[typing.IO]:
+    def read(self, path: Path) -> typing.Optional[typing.IO]:
         """Retrieve and return the file at path as a file-like object"""
         filepath = self.config.get("path") / path
         if not filepath.exists():
@@ -74,3 +45,37 @@ class DiskStorage:
         else:
             logger.warning(f"[STORAGE/DISK] File not deleted. File does not exist. File: {path}")
         return True
+
+
+class DiskStorageMeta:
+    @staticmethod
+    def ui_name() -> str:
+        return "Filesystem"
+
+    @staticmethod
+    def default_enabled() -> bool:
+        """Return true if module is enabled by default, otherwise false"""
+        return True
+
+    @staticmethod
+    def default_config() -> dict:
+        """Get default config options for this storage target"""
+        return {"path": "/storage"}
+
+    @staticmethod
+    def web_config() -> dict:
+        """Retrieve parameters for web config"""
+        return {
+            "options": [
+                {"key": "path", "title": "Path", "default": DiskStorageMeta.default_config()["path"], "desc": "Absolute path without a trailing slash (e.g. /storage)"},
+            ]
+        }
+
+    @staticmethod
+    def validate_credentials(config) -> bool:
+        """Return true if given credentials are valid, otherwise false"""
+        return True
+
+
+def register() -> None:
+    storage_factory.register("filesystem", DiskStorage, DiskStorageMeta)

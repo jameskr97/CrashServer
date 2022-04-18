@@ -5,6 +5,8 @@ from pathlib import Path
 import boto3
 from loguru import logger
 
+from crashserver.server.storage import storage_factory
+
 
 class S3CompatibleStorage:
     def __init__(self, storage_name: str, config: dict = None):
@@ -43,19 +45,30 @@ class S3Storage:
         """Initialize the storage module"""
         self.store.init_storage()
 
+    def create(self, path: Path, file_contents: bytes) -> bool:
+        """Store the data in file at path. Return bool for success"""
+        return self.store.create(path, file_contents)
+
+    def read(self, path: Path) -> typing.IO:
+        """Retrieve and return the file at path as a file-like object"""
+        return self.store.retrieve(path)
+
+    def delete(self, path: Path) -> bool:
+        """Delete the file at path. Return bool for success"""
+        return self.store.delete(path)
+
+
+class S3Meta:
     @staticmethod
-    def get_user_friendly_name() -> str:
-        """Get user-facing name of target"""
+    def ui_name() -> str:
         return "S3"
 
     @staticmethod
-    def is_default_enabled() -> bool:
-        """Return true if module is enabled by default, otherwise false"""
+    def default_enabled() -> bool:
         return False
 
     @staticmethod
-    def get_default_config() -> dict:
-        """Get default config options for this storage target"""
+    def default_config() -> dict:
         return {
             "aws_access_key_id": "",
             "aws_secret_access_key": "",
@@ -64,7 +77,7 @@ class S3Storage:
         }
 
     @staticmethod
-    def get_web_config() -> dict:
+    def web_config() -> dict:
         """Retrieve parameters for web config"""
         return {
             "options": [
@@ -85,6 +98,7 @@ class S3Storage:
 
         client = boto3.client(
             "s3",
+            endpoint_url="https://s3.amazonaws.com",
             aws_access_key_id=config.get("aws_access_key_id", ""),
             aws_secret_access_key=config.get("aws_secret_access_key", ""),
             region_name=config.get("region_name", ""),
@@ -95,14 +109,67 @@ class S3Storage:
         except:
             return False
 
-    def create(self, path: Path, file_contents: bytes) -> bool:
-        """Store the data in file at path. Return bool for success"""
-        return self.store.create(path, file_contents)
 
-    def retrieve(self, path: Path) -> typing.IO:
-        """Retrieve and return the file at path as a file-like object"""
-        return self.store.retrieve(path)
+class S3Generic(S3Storage):
+    def __init__(self, config: dict):
+        super().__init__(config)
+        self.store = S3CompatibleStorage("S3Generic", config)
 
-    def delete(self, path: Path) -> bool:
-        """Delete the file at path. Return bool for success"""
-        return self.store.delete(path)
+
+class S3GenericMeta:
+    @staticmethod
+    def ui_name() -> str:
+        return "S3 Generic"
+
+    @staticmethod
+    def default_enabled() -> bool:
+        """Return true if module is enabled by default, otherwise false"""
+        return False
+
+    @staticmethod
+    def default_config() -> dict:
+        """Get default config options for this storage target"""
+        return {
+            "aws_access_key_id": "",
+            "aws_secret_access_key": "",
+            "endpoint_url": "",
+            "bucket_name": "",
+            "region_name": "",
+        }
+
+    @staticmethod
+    def web_config() -> dict:
+        """Retrieve parameters for web config"""
+        return {
+            "options": [
+                {"key": "endpoint_url", "title": "Endpoint URI", "desc": "The full S3-compliant endpoint URI"},
+                {"key": "bucket_name", "title": "Bucket Name", "desc": "The unique bucket name to create"},
+                {"key": "aws_access_key_id", "title": "Access Key ID", "desc": "The Access Key ID"},
+                {"key": "aws_secret_access_key", "title": "Secret Access Key", "desc": "The Access Key Secret for the Access Key ID"},
+                {"key": "region_name", "title": "Bucket Region", "desc": "The region for the bucket"},
+            ],
+            "actions": [
+                {"func": "upload_data", "desc": "Upload all local data to AWS S3"},
+            ],
+        }
+
+    @staticmethod
+    def validate_credentials(config) -> bool:
+        """Return true if given credentials are valid, otherwise false"""
+        client = boto3.client(
+            "s3",
+            aws_access_key_id=config.get("aws_access_key_id", ""),
+            aws_secret_access_key=config.get("aws_secret_access_key", ""),
+            endpoint_url=config.get("endpoint_url", ""),
+            region_name=config.get("region_name", ""),
+        )
+        try:
+            res = client.head_bucket(Bucket=config.get("bucket_name", ""))
+            return res
+        except:
+            return False
+
+
+def register() -> None:
+    storage_factory.register("s3", S3Storage, S3Meta)
+    storage_factory.register("s3generic", S3Generic, S3GenericMeta)
