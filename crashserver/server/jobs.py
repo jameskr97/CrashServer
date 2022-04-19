@@ -42,7 +42,7 @@ def decode_minidump(crash_id):
         # TODO: Proper error handling for if executable fails
         minidump = db.session.query(Minidump).get(crash_id)
         if not minidump:
-            logger.error(f"Unable to decode minidump: {minidump}")
+            logger.error(f"Unable to decode minidump [{minidump}]. No database entry found.")
             return
 
         dumpfile = str(Path(minidump.project.minidump_location) / minidump.filename)
