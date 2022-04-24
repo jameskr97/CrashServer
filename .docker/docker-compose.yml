@@ -55,10 +55,10 @@ services:
             FLASK_RUN_HOST: 0.0.0.0
             FLASK_RUN_PORT: 8888
             FLASK_DEBUG: 1
-            CRASH_DB__DB: ${POSTGRES_DB:-crashserver}
-            CRASH_DB__USER: ${POSTGRES_USER:-postgres}
-            CRASH_DB__PASSWD: ${POSTGRES_PASSWORD:-password}
-            CRASH_DB__HOST: ${CRASH_DB__HOST:-postgres}
+            CRASH_DB__db: ${POSTGRES_DB:-crashserver}
+            CRASH_DB__user: ${POSTGRES_USER:-postgres}
+            CRASH_DB__passwd: ${POSTGRES_PASSWORD:-password}
+            CRASH_DB__host: ${CRASH_DB__HOST:-postgres}
             TZ: ${TZ:-UTC}
 
     crashserver-worker:
@@ -72,10 +72,10 @@ services:
         networks: [crashnet]
         volumes: ["./storage:/storage", "../:/app/"]
         environment:
-            CRASH_DB__DB: ${POSTGRES_DB:-crashserver}
-            CRASH_DB__USER: ${POSTGRES_USER:-postgres}
-            CRASH_DB__PASSWD: ${POSTGRES_PASSWORD:-password}
-            CRASH_DB__HOST: ${CRASH_DB__HOST:-postgres}
+            CRASH_DB__db: ${POSTGRES_DB:-crashserver}
+            CRASH_DB__user: ${POSTGRES_USER:-postgres}
+            CRASH_DB__passwd: ${POSTGRES_PASSWORD:-password}
+            CRASH_DB__host: ${CRASH_DB__HOST:-postgres}
 
 
 volumes:
