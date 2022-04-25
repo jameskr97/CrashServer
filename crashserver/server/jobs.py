@@ -38,6 +38,10 @@ def decode_minidump(crash_id):
     cache_dir = Path("/tmp/crash_decode/cache")
     current_dump = Path("/tmp/crash_decode/current_dump.dmp")
 
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    current_dump.parent.mkdir(parents=True, exist_ok=True)
+    current_dump.unlink(missing_ok=True)
+
     # Symbolicate without symbols to get metadata
     # TODO: Proper error handling for if executable fails
     minidump = db.session.query(Minidump).get(crash_id)
