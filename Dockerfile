@@ -32,6 +32,7 @@ ENV ENV_FOR_DYNACONF=docker
 # Copy environment, change owner, and install system dependencies
 WORKDIR /app
 COPY main.py ./
+COPY main-rq.py ./
 COPY config/ config/
 COPY res/ res/
 

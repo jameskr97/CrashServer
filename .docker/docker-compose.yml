@@ -76,7 +76,7 @@ services:
         build:
             context: ..
             dockerfile: Dockerfile.dev
-        command: rq worker -u redis://redis crashserver
+        command: python3 /app/main-rq.py
         restart: always
         depends_on: [redis]
         networks: [crashnet]
