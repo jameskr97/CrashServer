@@ -3,6 +3,7 @@ import typing
 from pathlib import Path
 
 import boto3
+import botocore.exceptions
 from loguru import logger
 
 from crashserver.server.storage import storage_factory
@@ -25,12 +26,15 @@ class S3CompatibleStorage:
         logger.info(f"[STORAGE/{self.storage_name}] Creating file {path}")
         self.s3.upload_fileobj(io.BytesIO(file_contents), self.bucket_name, str(path))
 
-    def retrieve(self, path: Path) -> typing.IO:
+    def retrieve(self, path: Path) -> typing.Optional[typing.IO]:
         logger.debug(f"[STORAGE/{self.storage_name}] Reading file {path}")
         data = io.BytesIO()
-        self.s3.download_fileobj(self.bucket_name, str(path), data)
-        data.seek(0)
-        return data
+        try:
+            self.s3.download_fileobj(self.bucket_name, str(path), data)
+            data.seek(0)
+            return data
+        except botocore.exceptions.ClientError:  # Thrown when file is not available
+            return None
 
     def delete(self, path: Path) -> bool:
         self.s3.delete_object(Bucket=self.bucket_name, Key=str(path))
@@ -49,7 +53,7 @@ class S3Storage:
         """Store the data in file at path. Return bool for success"""
         return self.store.create(path, file_contents)
 
-    def read(self, path: Path) -> typing.IO:
+    def read(self, path: Path) -> typing.Optional[typing.IO]:
         """Retrieve and return the file at path as a file-like object"""
         return self.store.retrieve(path)
 

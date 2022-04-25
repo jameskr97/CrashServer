@@ -34,6 +34,16 @@ services:
             POSTGRES_USER: ${POSTGRES_USER:-postgres}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
 
+    minio:
+        container_name: minio
+        image: minio/minio
+        networks: [crashnet]
+        command: ["server", "/data", "--console-address", ":9001"]
+        environment:
+            MINIO_ACCESS_KEY: cs-access-key
+            MINIO_SECRET_KEY: cs-secret-key
+        ports: ["9000:9000", "9001:9001"]
+        volumes: [minio_data:/data]
 
     crashserver-app:
         build:
@@ -80,3 +90,4 @@ services:
 
 volumes:
     db_data:
+    minio_data:

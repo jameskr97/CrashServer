@@ -1,7 +1,8 @@
 from pathlib import Path
 
+import pytest
 from minio import Minio
-from minio.error import S3Error
+
 
 from crashserver.server import db
 from crashserver.server.models import Storage
@@ -36,8 +37,13 @@ def init_s3generic_client(bucket_name):
 
 class StorageData:
     def setup_class(self):
-        self.filename = Path("filename.txt")
-        self.file_content = b"ThisIsTheSavedFileContent!"
+        class SampleFile:
+            def __init__(self, filename, file_content):
+                self.path = Path(filename)
+                self.content = file_content
+        self.file_all = SampleFile("all_platforms.txt", b"ThisIsTheSavedFileContent!\n")
+        self.file_s3 = SampleFile("s3only.txt", b"ThisFileIsOnS3Only!\n")
+        self.file_fs = SampleFile("fsonly.txt", b"ThisFileIsOnFilesystemOnly!\n")
 
     @staticmethod
     def disable_backends_except(backends: list):
@@ -64,22 +70,22 @@ class TestFilesystem(StorageData):
 
     def test_fileio_save(self):
         # Create file
-        Storage.create(self.filename, self.file_content)
+        Storage.create(self.file_all.path, self.file_all.content)
 
         # Ensure file exists
-        assert Path(self.storage_config.get("path"), self.filename).exists()
+        assert Path(self.storage_config.get("path"), self.file_all.path).exists()
 
     def test_fileio_read(self):
         # Read file
-        with Storage.retrieve(self.filename) as file:
+        with Storage.retrieve(self.file_all.path) as file:
             data = file.read()
-        assert data == self.file_content
+        assert data == self.file_all.content
 
     def test_fileio_delete(self):
-        Storage.delete(self.filename)
+        Storage.delete(self.file_all.path)
 
         # Ensure file deleted
-        assert not Path(self.storage_config.get("path"), self.filename).exists()
+        assert not Path(self.storage_config.get("path"), self.file_all.path).exists()
 
 
 class TestS3(StorageData):
@@ -98,26 +104,17 @@ class TestS3(StorageData):
         self.client = init_s3generic_client(self.bucket_name)
 
     def test_fileio_create(self):
-        # Create file
-        Storage.create(self.filename, self.file_content)
-
-        # Ensure file exists
-        assert self.client.stat_object(self.bucket_name, str(self.filename))
+        Storage.create(self.file_s3.path, self.file_s3.content)  # Create file
+        assert self.client.stat_object(self.bucket_name, str(self.file_s3.path))  # Ensure file exists
 
     def test_fileio_retrieve(self):
-        # Read file
-        with Storage.retrieve(self.filename) as file:
-            data = file.read()
-        assert data == self.file_content
+        data = Storage.retrieve(self.file_s3.path).read()
+        assert data == self.file_s3.content
 
     def test_fileio_removed(self):
-        Storage.delete(self.filename)
+        Storage.delete(self.file_s3.path)
 
-        try:
-            self.client.stat_object(self.bucket_name, str(self.filename))
-            assert False, "The file was successfully found, when it should not have been."
-        except S3Error:
-            assert True, "We reached an S3Error, meaning we could not find the file. (Test desired outcome)"
+        pytest.raises(FileNotFoundError, Storage.retrieve, self.file_s3.path)
 
 
 class TestMultiBackend(StorageData):
@@ -139,26 +136,37 @@ class TestMultiBackend(StorageData):
 
     def test_multi_create(self):
         # Create file
-        Storage.create(self.filename, self.file_content)
+        Storage.create(self.file_all.path, self.file_all.content)
+        Storage.create(self.file_fs.path, self.file_fs.content, "filesystem")
+        Storage.create(self.file_s3.path, self.file_s3.content, "s3generic")
 
-        # Ensure file exists
-        assert self.client.stat_object(self.bucket_name, str(self.filename))
-        assert Path(self.fs_config.get("path"), self.filename).exists()
+        # Ensure files exists
+        assert self.client.stat_object(self.bucket_name, str(self.file_all.path))
+        assert self.client.stat_object(self.bucket_name, str(self.file_s3.path))
+        assert Path(self.fs_config.get("path"), self.file_all.path).exists()
+        assert Path(self.fs_config.get("path"), self.file_fs.path).exists()
 
-    def test_fileio_retrieve(self):
-        # Read file
-        for backend in self.testing_backends:
-            with Storage.retrieve(self.filename, backend) as file:
-                data = file.read()
-                assert data == self.file_content
+    def test_multi_retrieve(self):
+        # Attempt reading all stored files
+        f_all = Storage.retrieve(self.file_all.path).read()
+        f_ffs = Storage.retrieve(self.file_fs.path).read()
+        f_fs3 = Storage.retrieve(self.file_s3.path).read()
 
-    def test_fileio_removed(self):
-        Storage.delete(self.filename)
+        # Ensure Content Matches
+        assert f_all == self.file_all.content
+        assert f_ffs == self.file_fs.content
+        assert f_fs3 == self.file_s3.content
 
-        assert not Path(self.fs_config.get("path"), self.filename).exists()
+    def test_multi_retrieve_expect_fail(self):
+        # Ensure files are only available where they were stored
+        pytest.raises(FileNotFoundError, Storage.retrieve_from_backend, self.file_s3.path, "filesystem")
+        pytest.raises(FileNotFoundError, Storage.retrieve_from_backend, self.file_fs.path, "s3generic")
 
-        try:
-            self.client.stat_object(self.bucket_name, str(self.filename))
-            assert False, "The file was successfully found, when it should not have been."
-        except S3Error:
-            assert True, "We reached an S3Error, meaning we could not find the file. (Test desired outcome)"
+    def test_multi_removed(self):
+        Storage.delete(self.file_all.path)
+        Storage.delete(self.file_s3.path)
+        Storage.delete(self.file_fs.path)
+
+        pytest.raises(FileNotFoundError, Storage.retrieve, self.file_all.path)
+        pytest.raises(FileNotFoundError, Storage.retrieve, self.file_s3.path)
+        pytest.raises(FileNotFoundError, Storage.retrieve, self.file_fs.path)

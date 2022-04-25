@@ -29,7 +29,7 @@ class DiskStorage:
         """Retrieve and return the file at path as a file-like object"""
         filepath = self.config.get("path") / path
         if not filepath.exists():
-            logger.debug(f"[STORAGE/DISK] Attempting to read non-existent file {filepath}")
+            logger.debug(f"[STORAGE/DISK] Cannot load file [{filepath}]. File does not exist.")
             return None
 
         logger.debug(f"[STORAGE/DISK] Reading file {filepath}")

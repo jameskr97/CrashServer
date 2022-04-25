@@ -69,7 +69,7 @@ class Storage(db.Model):
     @staticmethod
     def init_targets():
         active_targets: [Storage] = db.session.query(Storage).filter_by(is_enabled=True).all()
-        for target in active_targets:
+        for target in sorted(active_targets, key=lambda x: x.key):
             STORAGE_INSTANCES[target.key] = storage_factory.get_storage_method(target.key)(target.config)
             STORAGE_INSTANCES[target.key].init()
 
@@ -78,23 +78,27 @@ class Storage(db.Model):
         return storage_factory.get_metadata(self.key)
 
     @staticmethod
-    def create(path: Path, file_contents: bytes):
-        for key, instance in STORAGE_INSTANCES.items():
-            instance.create(path, file_contents)  # TODO: Read the result, and store to filesystem if unable to be created on any except filesystem (that's the fallback)
+    def create(path: Path, file_contents: bytes, backend: str = None):
+        if backend:
+            STORAGE_INSTANCES[backend].create(path, file_contents)
+        else:
+            for key, instance in STORAGE_INSTANCES.items():
+                instance.create(path, file_contents)  # TODO: Read the result, and store to filesystem if unable to be created on any except filesystem (that's the fallback)
 
     @staticmethod
-    def retrieve(path: Path, key: str = None) -> Optional[IO]:
-        if key:
-            file = STORAGE_INSTANCES[key].read(path)
-            if file is not None:
-                return file
-            return None
-
+    def retrieve(path: Path):
         for key, instance in STORAGE_INSTANCES.items():
             file = instance.read(path)
             if file is not None:
                 return file
-        return None
+        raise FileNotFoundError
+
+    @staticmethod
+    def retrieve_from_backend(path: Path, key: str) -> Optional[IO]:
+        file = STORAGE_INSTANCES[key].read(path)
+        if file is not None:
+            return file
+        raise FileNotFoundError
 
     @staticmethod
     def delete(path: Path):
