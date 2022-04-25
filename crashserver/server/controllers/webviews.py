@@ -27,7 +27,6 @@ def settings():
     users = db.session.query(User).all()
     projects = db.session.query(Project).all()
     storage = db.session.query(Storage).order_by(Storage.key).all()
-    [p.create_directories() for p in projects]
 
     form = UpdateAccount(current_user)
     if request.method == "POST" and form.validate():
@@ -72,8 +71,6 @@ def project_create():
 
         db.session.add(new_project)
         db.session.commit()
-
-        new_project.create_directories()
 
         flash(_("Project %(name)s was created.", name=form.title.data))
         return redirect(url_for("views.home"))

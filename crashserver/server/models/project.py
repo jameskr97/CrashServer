@@ -45,10 +45,6 @@ class Project(db.Model):
     symbol = db.relationship("Symbol")
     unprocessed_dumps = db.relationship("Minidump", primaryjoin="and_(Minidump.project_id==Project.id, Minidump.symbolicated=='false')", viewonly=True)
 
-    def create_directories(self):
-        self.symbol_location.mkdir(parents=True, exist_ok=True)
-        self.minidump_location.mkdir(parents=True, exist_ok=True)
-
     @property
     def symbol_location(self):
         return pathlib.Path("symbol", str(self.id))
