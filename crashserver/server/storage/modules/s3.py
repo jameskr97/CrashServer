@@ -38,6 +38,7 @@ class S3CompatibleStorage:
             data.seek(0)
             return data
         except botocore.exceptions.ClientError:  # Thrown when file is not available
+            logger.debug(f"[STORAGE/{self.storage_name}] Unable to read file [{path}]")
             return None
 
     def delete(self, path: Path) -> bool:
