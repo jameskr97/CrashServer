@@ -3,12 +3,27 @@
 {% macro project_selector() %}
 	<div class="centering-grid">
 		<div class="centering-grid-item">
-			<select id="project-select" class="form-select" onChange="javascript:CrashAPI.getSymbolList(this.value);" autocomplete="off">
-				<option disabled selected>{{ _("Select Project") }}</option>
-				{% for proj in projects %}
-					<option value="{{ proj.id }}">{{ proj.project_name }}</option>
-				{% endfor %}
-			</select>
+            {% if not projects %}
+                <h1 class="text-center"><i class="far fa-sad-cry"></i></h1>
+                <h1 class="text-center">{{ _("No projects have been created yet.") }}</h1>
+                <hr>
+                {% if not current_user.is_authenticated %}
+                    {% autoescape false %}
+                        <h3 class="text-center">{{ _("Click %(open)shere%(close)s to create a new project.", open='<a href="%s">' % url_for("views.project_create"), close="</a>")|safe }}</h3>
+                    {% endautoescape %}
+                {% else %}
+                    <h3 class="text-center">Administrators can login to create a project.</h3>
+                {% endif %}
+
+            {% else %}
+                <select id="project-select" class="form-select" onChange="javascript:CrashAPI.getSymbolList(this.value);" autocomplete="off">
+                    <option disabled selected>{{ _("Select Project") }}</option>
+                    {% for proj in projects %}
+                        <option value="{{ proj.id }}">{{ proj.project_name }}</option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+
 		</div>
 	</div>
 {% endmacro %}
