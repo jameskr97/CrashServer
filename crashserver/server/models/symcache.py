@@ -53,7 +53,8 @@ class SymCache(db.Model):
 
         # Convert pdb to sym and store to file
         filename = self.module_id.split(".")[0] + ".sym"
-        symfile = pdb_location.parent / filename
+        symfile = Path("/tmp/crash_decode/cache", self.module_id, self.build_id, filename)
+        symfile.parent.mkdir(parents=True, exist_ok=True)
         with open(symfile, "wb") as f:
             # Write symbol data
             subprocess.run([dump_syms, pdb_location], stdout=f)

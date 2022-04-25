@@ -31,6 +31,10 @@ class Storage(db.Model):
     config = db.Column(JSONB, nullable=True)
 
     @staticmethod
+    def load_storage_modules():
+        storage_loader.load_plugins(crashserver.server.storage.modules)
+
+    @staticmethod
     def register_targets():
         # Register internal targets
         storage_loader.load_plugins(crashserver.server.storage.modules)
@@ -109,7 +113,7 @@ class Storage(db.Model):
         logger.error(f"Failed [{PRIMARY_STORAGE}] storage of file [{path}]. Successfully stored in {success_backends}.")
 
     @staticmethod
-    def retrieve(path: Path):
+    def retrieve(path: Path) -> Optional[IO]:
         for key, instance in STORAGE_INSTANCES.items():
             file = instance.read(path)
             if file is not None:

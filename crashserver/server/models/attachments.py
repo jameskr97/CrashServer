@@ -44,7 +44,6 @@ class Attachment(db.Model):
         dump_id_part = str(self.minidump_id).split("-")[0]
         filename = "attachment-%s-%s" % (dump_id_part, str(uuid.uuid4().hex)[:8])
         attach_loc = Path("attachments", str(self.project_id), filename)
-        attach_loc.parent.mkdir(parents=True, exist_ok=True)
 
         Storage.create(attach_loc, file_content)  # Store file
 

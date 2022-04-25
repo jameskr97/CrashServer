@@ -32,6 +32,10 @@ class Symbol(db.Model):
     project = db.relationship("Project", back_populates="symbol")
     build = db.relationship("BuildMetadata")
 
+    @property
+    def file_location_stored(self) -> Path:
+        return Path("symbol", str(self.project_id), self.file_location)
+
     def store_file(self, file_content: bytes):
         filesystem_module_id = self.build.module_id.split(".")[0]
         dir_location = Path(self.build.module_id, self.build.build_id, filesystem_module_id + ".sym")
