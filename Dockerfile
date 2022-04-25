@@ -35,6 +35,7 @@ COPY main.py ./
 COPY main-rq.py ./
 COPY config/ config/
 COPY res/ res/
+COPY crashserver/migrations crashserver/migrations
 
 # Install linux dependencies
 COPY --from=builder /venv /venv

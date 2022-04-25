@@ -40,8 +40,7 @@ CrashServer is not yet ready for production environments. If you still choose to
   - [ ] Single project mode
   - [x] Implement `sym-upload-v1` protocol
   - [x] Implement `sym-upload-v2` protocol
-  - [ ] Use Amazon S3 for symbol store
-  - [x] Use Amazon S3 for attachment store
+  - [x] Use Amazon S3 (S3-Compatible) for all data store
 - Misc
   - [ ] Documentation Generation
   - [ ] CI and Tests
