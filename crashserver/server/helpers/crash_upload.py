@@ -89,11 +89,16 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
 
 
 def minidump_upload(session, project_id: str, annotations: dict, minidump_file: bytes, attachments):
+    # Ensure file is not empty
+    if len(minidump_file) == 0:
+        logger.warning(f"Minidump rejected from {flask.request.remote_addr}. File is empty.")
+        return flask.make_response({"error": "Bad Minidump"}, 400)
+
     # Verify file is actually a minidump based on magic number
     # Validate magic number
     magic_number = magic.from_buffer(minidump_file, mime=True)
     if magic_number != "application/x-dmp":
-        logger.error("Minidump rejected from {}. File detected as {}", flask.request.remote_addr, magic_number)
+        logger.warning("Minidump rejected from {}. File detected as {}", flask.request.remote_addr, magic_number)
         return flask.make_response({"error": "Bad Minidump"}, 400)
 
     # Add minidump to database
