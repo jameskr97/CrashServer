@@ -38,6 +38,7 @@ services:
         container_name: minio
         image: minio/minio
         networks: [crashnet]
+        restart: always
         command: ["server", "/data", "--console-address", ":9001"]
         environment:
             MINIO_ACCESS_KEY: cs-access-key
