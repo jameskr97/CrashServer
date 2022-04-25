@@ -121,8 +121,8 @@ def minidump_upload(session, project_id: str, annotations: dict, minidump_file: 
         for key, value in annotations.items():
             new_dump.annotations.append(Annotation(key=key, value=value))
 
-    new_dump.decode_task()
     session.commit()
+    new_dump.decode_task()
     logger.info(f"Minidump received [{new_dump.id}] for project [{project_id}] - [{flask.request.remote_addr}] - [{len(attachments)} attachments]")
 
     return flask.make_response({"status": "success", "id": str(new_dump.id)}, 200)
