@@ -146,6 +146,9 @@
 							{{ _("CrashServer can store symbols, minidumps, and attachments at remote locations. Data will be uploaded to all enabled storage targets.") }}
 							{{ _("By default, \"Filesystem\" is enabled. The \"Filesystem\" target may be disabled, but if CrashServer is unable to upload data to all enabled remote locations, the data will be stored locally as a backup.") }}
 						</p>
+                        <p>
+                            {{ _("Currently, only one storage backend may be enabled at a time.") }}
+                        </p>
 						<hr>
 						{# STORAGE ACCORDION #}
 						<div class="accordion" id="accordion-storage">
@@ -156,10 +159,9 @@
 												aria-expanded="true"
 												aria-controls="storage-body-{{ s.key }}">
 											<span><i class="fa-fw {{ get_storage_icon(s.key) }}"></i> {{ s.meta.ui_name() }}</span>
-											{% if s.key == "filesystem" %}
-												<span class="thread-badge badge bg-danger">{{ _("Fallback") }}</span>
+											{% if s.is_primary %}
+												<span class="thread-badge badge bg-primary">{{ _("Primary") }}</span>
 											{% endif %}
-
 										</button>
 									</h2>
 								</div>
@@ -169,7 +171,22 @@
 										<hr>
 										<form method="post" action="{{ url_for("webapi.update_storage_target", key=s.key) }}">
 											<h5>Configuration Options</h5>
-											<div class="row mb-3">
+                                            <div class="row">
+												<div class="col-3">
+													<label class="form-check-label" for="enabled-{{ s.key }}">Primary Backend </label>
+												</div>
+												<div class="col-9">
+													<input	class="form-check-input"
+														   	type="checkbox"
+														   	name="primary_backend"
+														   	value="true"
+														   	id="enabled-{{ s.key }}"
+														   	autocomplete="off"
+															{{ "checked" if s.is_primary else "" }}
+													/>
+												</div>
+                                            </div>
+                                            <div class="row">
 												<div class="col-3">
 													<label class="form-check-label" for="enabled-{{ s.key }}">Enable {{ s.meta.ui_name() }}</label>
 												</div>
@@ -181,7 +198,6 @@
 														   	id="enabled-{{ s.key }}"
 														   	autocomplete="off"
 															{{ "checked" if s.is_enabled else "" }}
-															{{ "disabled" if s.key == "filesystem" else ""}}
 													/>
 												</div>
 											</div>

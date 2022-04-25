@@ -22,6 +22,7 @@ def upgrade():
         "storage",
         sa.Column("key", sa.Text(), nullable=False),
         sa.Column("is_enabled", sa.Boolean(), nullable=False),
+        sa.Column("is_primary", sa.Boolean(), nullable=False),
         sa.Column("config", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.PrimaryKeyConstraint("key"),
     )

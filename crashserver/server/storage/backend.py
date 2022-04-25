@@ -30,6 +30,10 @@ class StorageMeta(typing.Protocol):
         """Return true if module is enabled by default, otherwise false"""
 
     @staticmethod
+    def default_primary():
+        """Return true if module is primary storage backend by default, otherwise false"""
+
+    @staticmethod
     def default_config() -> dict:
         """Get default config options for this storage target"""
 

@@ -23,8 +23,12 @@ class S3CompatibleStorage:
         logger.info(f"[STORAGE/{self.storage_name}] Initialization complete")
 
     def create(self, path: Path, file_contents: bytes) -> bool:
-        logger.info(f"[STORAGE/{self.storage_name}] Creating file {path}")
-        self.s3.upload_fileobj(io.BytesIO(file_contents), self.bucket_name, str(path))
+        logger.debug(f"[STORAGE/{self.storage_name}] Creating file {path}")
+        try:
+            self.s3.upload_fileobj(io.BytesIO(file_contents), self.bucket_name, str(path))
+            return True
+        except:
+            return False
 
     def retrieve(self, path: Path) -> typing.Optional[typing.IO]:
         logger.debug(f"[STORAGE/{self.storage_name}] Reading file {path}")
@@ -37,6 +41,7 @@ class S3CompatibleStorage:
             return None
 
     def delete(self, path: Path) -> bool:
+        logger.debug(f"[STORAGE/{self.storage_name}] Deleting file {path}")
         self.s3.delete_object(Bucket=self.bucket_name, Key=str(path))
 
 
@@ -69,6 +74,10 @@ class S3Meta:
 
     @staticmethod
     def default_enabled() -> bool:
+        return False
+
+    @staticmethod
+    def default_primary():
         return False
 
     @staticmethod
@@ -128,6 +137,10 @@ class S3GenericMeta:
     @staticmethod
     def default_enabled() -> bool:
         """Return true if module is enabled by default, otherwise false"""
+        return False
+
+    @staticmethod
+    def default_primary():
         return False
 
     @staticmethod

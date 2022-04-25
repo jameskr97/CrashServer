@@ -21,9 +21,12 @@ class DiskStorage:
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         logger.debug(f"[STORAGE/DISK] Creating file {filepath}")
-        with open(filepath, "wb+") as outfile:
-            outfile.write(file_contents)
-        return True
+        try:
+            with open(filepath, "wb+") as outfile:
+                outfile.write(file_contents)
+            return True
+        except:
+            return False
 
     def read(self, path: Path) -> typing.Optional[typing.IO]:
         """Retrieve and return the file at path as a file-like object"""
@@ -55,6 +58,10 @@ class DiskStorageMeta:
     @staticmethod
     def default_enabled() -> bool:
         """Return true if module is enabled by default, otherwise false"""
+        return True
+
+    @staticmethod
+    def default_primary():
         return True
 
     @staticmethod
