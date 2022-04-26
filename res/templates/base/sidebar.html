@@ -24,14 +24,14 @@
 			{{ single_navbar_item(_("Create App"), "fa-plus", url_for("views.project_create")) }}
 			{{ single_navbar_item(_("Settings"), "fa-cog", url_for("views.settings")) }}
 			{{ single_navbar_item(_("Logout"), "fa-sign-out-alt", url_for("auth.logout")) }}
-			<hr>
-			<li class="nav-item">
-				<a href="#" class="nav-link" onclick="CrashServer.toggleDarkMode()">
-					<i class="nav-icon fa-fw fas fa-adjust"></i>
-					{{ _("Toggle Dark Mode") }}
-				</a>
-			</li>
 		{% endif %}
+		<hr>
+		<li class="nav-item">
+			<a id="btn-toggle-dark" class="nav-link" onclick="CrashServer.toggleDarkMode()">
+				<i class="nav-icon fa-fw fas fa-adjust"></i>
+				{{ _("Toggle Dark Mode") }}
+			</a>
+		</li>
 	</ul>
 </nav>
 

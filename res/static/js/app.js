@@ -123,18 +123,18 @@ class CrashGraph {
             set_colors(e.matches);
         });
 
-        // // Update dark/light graph on button press
-        // document.getElementById("btn-toggle-dark").addEventListener("click", e => {
-        //     let currentTheme = determine_current_theme()
-        //
-        //     if(currentTheme === "os-default") {
-        //         set_colors(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        //     } else if(currentTheme === "dark-theme"){
-        //         set_colors(true);
-        //     } else {
-        //         set_colors(false);
-        //     }
-        // });
+        // Update dark/light graph on button press
+        document.getElementById("btn-toggle-dark").addEventListener("click", e => {
+            let currentTheme = CrashServer.determineCurrentTheme()
+
+            if(currentTheme === "os-default") {
+                set_colors(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            } else if(currentTheme === "dark-theme"){
+                set_colors(true);
+            } else {
+                set_colors(false);
+            }
+        });
         return chart
     }
 

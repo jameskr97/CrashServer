@@ -10,11 +10,20 @@ body {
     --cs-separator: #10002B;
     --cs-btn-outline: #212529;
     --cs-btn-outline-hover: #FFF;
+}
 
+body.dark-theme {
+    --cs-text: #FFF;
+    --cs-background: #121212;
+    --cs-background-faded: #666363;
+    --cs-sidebar-background: #000;
+    --cs-sidebar-separator: #FBFBFF;
+    --cs-separator: #ffffff66;
+    --cs-btn-outline: #f8f9fa;
+    --cs-btn-outline-hover: #000;
 }
 
 /* Default (dark) colors */
-/* TODO: Add body.dark-theme and body.light-theme */
 @media (prefers-color-scheme: dark) {
     body {
         --cs-text: #FFF;
@@ -25,7 +34,18 @@ body {
         --cs-separator: #ffffff66;
         --cs-btn-outline: #f8f9fa;
         --cs-btn-outline-hover: #000;
+    }
 
+    body.light-theme {
+        --cs-text: #000;
+        --cs-background: #F7F7FF;
+        --cs-background-faded: #EBEBEB;
+        --cs-sidebar-text: #FFF;
+        --cs-sidebar-background: #212529;
+        --cs-sidebar-separator: #FBFBFF;
+        --cs-separator: #10002B;
+        --cs-btn-outline: #212529;
+        --cs-btn-outline-hover: #FFF;
     }
 }
 
