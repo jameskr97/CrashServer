@@ -178,7 +178,6 @@ def update_storage_target(key):
         old_prim.is_primary = False
         storage.is_primary = True
 
-
     should_enable = True if form.pop("target_enabled", False) else False  # Attempt to pop target_enabled. If it's not there, then disable.
     changed = not (should_enable == storage.is_enabled)
 
