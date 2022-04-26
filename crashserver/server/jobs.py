@@ -11,25 +11,30 @@ from crashserver.server.models import Minidump, BuildMetadata, SymCache, Storage
 from crashserver.utility import processor
 
 
-def download_windows_symbol(module_id: str, build_id: str):
+def download_windows_symbol(module_id: str, build_id: str) -> (bool, bool):
+    """Attempts to download and convert symbols from Microsft Symbol Server.
+    Returns tuple:
+        - 1st tuple: True if succesful download, otherwise false
+        - 2nd tuple: True if already downloaded, otherwise false
+    """
     cached_sym = db.session.query(SymCache).filter_by(module_id=module_id, build_id=build_id).first()
 
     if cached_sym:
-        logger.debug("SymCache Hit for {}:{}".format(module_id, build_id))
-        return
+        logger.debug()
+        return (False, True)  # Not downloaded, already exists
 
     cached_sym = SymCache(module_id=module_id, build_id=build_id)
-    logger.info("SymCache Miss. Attempting to download {}:{}".format(module_id, build_id))
+    logger.debug("SymCache Miss. Attempting to download {}:{}".format(module_id, build_id))
 
-    url = "https://msdl.microsoft.com/download/symbols/" + cached_sym.url_path
-    res = requests.get(url)
+    res = requests.get("https://msdl.microsoft.com/download/symbols/" + cached_sym.url_path)
     if res.status_code != 200:
-        logger.warning("Symbol not available on Windows Symbol Server => {}:{}".format(module_id, build_id))
-        return
+        logger.debug("Symbol not available on Windows Symbol Server => {}:{}".format(module_id, build_id))
+        return (False, False)
 
     cached_sym.store_and_convert_symbol(res.content)
     db.session.add(cached_sym)
     db.session.commit()
+    return (True, False)
 
 
 def decode_minidump(crash_id):
@@ -46,7 +51,7 @@ def decode_minidump(crash_id):
     # TODO: Proper error handling for if executable fails
     minidump = db.session.query(Minidump).get(crash_id)
     if not minidump:
-        logger.error(f"Unable to decode minidump [{minidump}]. No database entry found.")
+        logger.error(f"Minidump [{crash_id}] - Unable to decode. No database entry found.")
         return
 
     # Request symbol and minidump from Storage
@@ -77,11 +82,7 @@ def decode_minidump(crash_id):
 
     # No symbols? Notify and return
     if not minidump.build.symbol:
-        logger.info(
-            "Symbol {} does not exist. Storing partial stacktrace for Minidump ID {}",
-            crash_data.main_module.debug_id,
-            crash_id,
-        )
+        logger.info(f"Minidump [{crash_id}] - Symbol [{crash_data.main_module.debug_file}:{crash_data.main_module.debug_id}] does not exist. Partial stacktrace stored.")
         minidump.stacktrace = json_stack
         minidump.symbolicated = False
         minidump.decode_task_complete = True
@@ -97,10 +98,17 @@ def decode_minidump(crash_id):
     # If windows, attempt to download all possible windows symbols before decoding
     # TODO(james): This is good as a prototype, but should be in a separate HTTP symbol supplier module/class
     if minidump.build.symbol.os == "windows":
-        logger.info("Attempting to download windows symbols for minidump {}", minidump.id)
+        logger.debug(f"Minidump [{crash_id}] - Attempting Windows Symbol Server download")
+        num_downloaded, num_existing = 0, 0
         for module in crash_data.modules_no_symbols:
-            download_windows_symbol(module.debug_file, module.debug_id)
-        logger.info("Symbol Download Complete for {}", minidump.id)
+            wasDownloaded, alreadyDownloaded = download_windows_symbol(module.debug_file, module.debug_id)
+
+            if wasDownloaded:
+                num_downloaded += 1
+            if alreadyDownloaded:
+                num_existing += 1
+
+        logger.info(f"Minidump [{crash_id}] - Windows Symbols Obtained - [{num_downloaded}] Downloaded - [{num_existing}] Preexisting")
 
     def process(binary):
         return subprocess.run([binary, current_dump, cache_dir], capture_output=True)
@@ -110,4 +118,4 @@ def decode_minidump(crash_id):
     minidump.symbolicated = True
     minidump.decode_task_complete = True
     db.session.commit()
-    logger.info("Minidump {} decoded", minidump.id)
+    logger.info(f"Minidump [{crash_id}] - Sucessfully decoded.", minidump.id)
