@@ -20,7 +20,6 @@ def download_windows_symbol(module_id: str, build_id: str) -> (bool, bool):
     cached_sym = db.session.query(SymCache).filter_by(module_id=module_id, build_id=build_id).first()
 
     if cached_sym:
-        logger.debug()
         return (False, True)  # Not downloaded, already exists
 
     cached_sym = SymCache(module_id=module_id, build_id=build_id)
