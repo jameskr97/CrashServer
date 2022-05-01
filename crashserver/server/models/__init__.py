@@ -14,6 +14,7 @@ __all__ = [
     "BuildMetadata",
     "Minidump",
     "Project",
+    "ProjectType",
     "Storage",
     "Symbol",
     "SymbolUploadV2",
