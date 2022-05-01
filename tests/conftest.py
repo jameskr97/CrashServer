@@ -8,7 +8,6 @@ from crashserver.server.models import User, Storage
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_session(client):
-
     # Create Database
     flask_migrate.upgrade()
 

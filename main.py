@@ -6,6 +6,7 @@ Logging Setup from: https://pawamoy.github.io/posts/unify-logging-for-a-gunicorn
 # fmt: off
 import flask_migrate
 from gevent import monkey
+
 monkey.patch_all()
 # fmt: on
 

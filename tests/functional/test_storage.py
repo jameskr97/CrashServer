@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 from minio import Minio
 
-
 from crashserver.server import db
 from crashserver.server.models import Storage
 
@@ -41,6 +40,7 @@ class StorageData:
             def __init__(self, filename, file_content):
                 self.path = Path(filename)
                 self.content = file_content
+
         self.file_all = SampleFile("all_platforms.txt", b"ThisIsTheSavedFileContent!\n")
         self.file_s3 = SampleFile("s3only.txt", b"ThisFileIsOnS3Only!\n")
         self.file_fs = SampleFile("fsonly.txt", b"ThisFileIsOnFilesystemOnly!\n")

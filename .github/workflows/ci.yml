@@ -12,7 +12,7 @@ jobs:
       - name: Run Black Formatter
         uses: psf/black@stable
         with:
-          options: "--check --verbose"
+          options: "--check --verbose --line-length 180"
 
   check-image-build:
     name: Build Container Image
