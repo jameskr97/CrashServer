@@ -32,7 +32,7 @@
 			{# MOBILE BUTTONS #}
 			<div id="mobile-buttons" class="row d-md-none">
 				<div class="col-12">
-					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><i class="fas fa-edit"></i></button>
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#project-rename-modal-{{ p.id }}"><i class="fas fa-edit"></i></button>
 					<button type="button" class="btn btn-warning"><i class="fas fa-eraser"></i></button>
 					<button type="button" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
 				</div>
@@ -41,7 +41,7 @@
 			{# DESKTOP FULLSCREEN BUTTONS #}
 			<div id="desktop-buttons" class="row">
 				<div class="col-12 d-none d-md-block">
-					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#project-rename-modal">
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#project-rename-modal-{{ p.id }}">
 						{{ _("Rename") }} <span class="d-none d-lg-inline">{{ _("Project") }}</span>
 					</button>
 					<button type="button" class="btn btn-warning">
@@ -56,8 +56,8 @@
 
 
 		{# BUTTON MODALS #}
-		{# LOGIN MODALS TODO: Is this generating too many modals for what is needed? #}
-		<div class="modal fade" id="project-rename-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		{# RENAME MODALS TODO: Is this generating too many modals for what is needed? #}
+		<div class="modal fade" id="project-rename-modal-{{ p.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
