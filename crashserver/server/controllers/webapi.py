@@ -119,8 +119,9 @@ def crash_per_day(project_id):
     if project_id == "all":
         project_id = None
 
+    tz = request.cookies.get("timezone", os.environ.get("TZ"))
     with db.engine.connect() as conn:
-        conn.execute(f"SET LOCAL timezone = '{os.environ.get('TZ')}';")
+        conn.execute(f"SET LOCAL timezone = '{tz}';")
         sql = text(
             f"""
         SELECT

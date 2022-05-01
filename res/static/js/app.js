@@ -81,6 +81,9 @@ class CrashServer {
         }
     }
 
+    static setTimeCookie(){
+        document.cookie = `timezone=${Intl.DateTimeFormat().resolvedOptions().timeZone}; path=/;`
+    }
 }
 
 class CrashGraph {
