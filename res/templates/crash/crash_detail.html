@@ -36,7 +36,7 @@
 	<link href="{{ url_for('static', filename='css/prism.css') }}" rel="stylesheet">
 	<h3>
 		{{ dump.project.project_name }}
-		{% if dump.symbol and dump.project.project_type|string == "ProjectType.VERSIONED" %}
+		{% if dump.symbol and dump.project.project_type|string == "VERSIONED" %}
 			 {{ dump.symbol.app_version }}
 		{% endif %}
 	</h3>
