@@ -10,9 +10,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Black Formatter
-        uses: rickstaa/action-black@v1
+        uses: psf/black@stable
         with:
-          black_args: ". --check"
+          options: "--check --verbose"
 
   check-image-build:
     name: Build Container Image
