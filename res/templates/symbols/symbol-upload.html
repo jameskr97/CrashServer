@@ -1,0 +1,140 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+	<h1 class="text-center">{{ _("Symbol Upload") }}</h1>
+	<hr>
+
+	<div class="centering-grid w-500">
+		<div class="centering-grid-item">
+			<form id="symbol-upload-form" method="POST" action="{{ url_for("views.upload_symbol") }}" enctype="multipart/form-data">
+				{{ form.csrf_token }}
+
+				{# Project selector #}
+				<div>
+					<label class="form-label" for="project-select">{{ _("Select Project") }}</label>
+					<select id="project-select" class="centering-grid-item form-select" autocomplete="off" name="project" required>
+						<option disabled selected>{{ _("Select Project") }}</option>
+						{% for p in projects %}
+							<option versioned="{{ 'true' if p.project_type|string == "VERSIONED" else 'false' }}"
+									value="{{ p.id }}">{{ p.project_name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<hr>
+
+				{# Version selector #}
+				<div class="mb-3 visually-hidden" id="symbol-upload-info">
+					<label class="form-label" for="version-selector">{{ _("Enter Symbol Version") }}</label>
+					<input id="version-selector" class="form-control" type="text" list="project-versions" name="version" />
+					<datalist id="project-versions">
+					</datalist>
+				</div>
+
+				{# File Upload #}
+				<div id="upload-selector" class="mb-3 visually-hidden">
+					{{ form.symbol.label(class="form-label") }}
+					<div id="file-upload-warning" class="alert alert-warning visually-hidden" role="alert">
+						{{ _("The selected file is missing the requierd \"MODULE\" line. You can still attempt to upload it, though it will likley be rejected.") }}
+					</div>
+					{{ form.symbol(class="form-control", id="symbol-upload") }}
+				</div>
+
+				{# File details #}
+				<div>
+					<ul id="symbol-info-block" class="list-group visually-hidden">
+						<li class="list-group-item">{{ _("File Size") }}: <span id="file-sym-size"></span></li>
+						<li class="list-group-item">{{ _("Operating System") }}: <span id="file-sym-os"></span></li>
+						<li class="list-group-item">{{ _("Build") }}: <span id="file-sym-build"></span></li>
+						<li class="list-group-item">{{ _("Module ID") }}: <span id="file-sym-module"></span></li>
+					</ul>
+				</div>
+
+				{# Submit Button #}
+				<div id="upload-sym-btn" class="mt-3 text-center visually-hidden">
+					<button type="submit" class="btn btn-outline">{{ _("Upload") }}</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script>
+		// Show or hide version-selector, Show file upload and submit button, Update version selector
+		document.getElementById("project-select").addEventListener("change", (e) => {
+            let project_id = e.target.selectedOptions[0].value
+			let versioned = JSON.parse(e.target.selectedOptions[0].getAttribute("versioned"));
+
+			// Show version select based on selected project
+			document.getElementById("version-selector").required = versioned
+			let sym_info_block = document.getElementById("symbol-upload-info")
+			if (versioned){
+                sym_info_block.classList.remove("visually-hidden")
+			} else {
+                sym_info_block.classList.add("visually-hidden")
+			}
+
+            // Show file upload and submit button
+			document.getElementById("upload-selector").classList.remove("visually-hidden")
+			document.getElementById("upload-sym-btn").classList.remove("visually-hidden")
+
+            if(!versioned) return
+			fetch("/webapi/project/versions/" + project_id)
+				.then(response => response.json())
+				.then(json => json["versions"])
+				.then(versions => {
+					document.getElementById("version-selector").value = ""
+
+					let version_list = document.getElementById("project-versions")
+					version_list.innerHTML = ""
+					versions.forEach((v) => {version_list.innerHTML += `<option>${v}</option>`})
+                })
+		})
+
+		// Read MODULE line from symbol file, if symbol file is valid.
+		document.getElementById("symbol-upload").addEventListener("change", (e) => {
+			let file = e.target.files[0]
+			let f_size = Util.formatBytes(file.size)
+
+			const present_symbol_info = (module, file_size) => {
+                document.getElementById("symbol-info-block").classList.remove("visually-hidden")
+                document.getElementById("file-sym-size").innerText = file_size
+                document.getElementById("file-sym-os").innerText = `${module["os"]} ${module["arch"]}`
+                document.getElementById("file-sym-build").innerText = module["build_id"]
+                document.getElementById("file-sym-module").innerText = module["module_id"]
+			}
+			const process_module_line = (module_line) => {
+                let parts = module_line.split(" ")
+				return {
+                    "os": parts[1],
+					"arch": parts[2],
+					"build_id": parts[3],
+					"module_id": parts[4]
+				}
+			}
+			const on_file_selected = () => {
+                // Get module line
+                let sym = reader.result.split('\n').slice(0, 20)
+				sym = sym.map((line) => line.trim())
+				sym = sym.map((line) => line.replace(/(\r\n|\n|\r)/gm,""))
+				let module_line = sym.filter(x => x.includes("MODULE"))
+
+				// Show warning if MODULE line not found
+				if(module_line.length === 0){
+					document.getElementById("file-upload-warning").classList.remove("visually-hidden")
+					return
+				}
+                else {
+                    document.getElementById("file-upload-warning").classList.add("visually-hidden")
+				}
+
+                // Process module line, and present
+				const module = process_module_line(module_line[0])
+				present_symbol_info(module, f_size)
+			}
+
+            let reader = new FileReader()
+			reader.readAsText(file)
+			reader.onload = on_file_selected
+		});
+	</script>
+
+{% endblock %}

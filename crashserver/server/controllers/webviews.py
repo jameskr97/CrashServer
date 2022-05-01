@@ -1,3 +1,4 @@
+import io
 import os
 import uuid
 
@@ -7,7 +8,7 @@ from flask_login import login_required, current_user
 
 from crashserver.config import settings as config
 from crashserver.server import db, helpers
-from crashserver.server.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount
+from crashserver.server.forms import CreateAppForm, UploadMinidumpForm, UpdateAccount, UploadSymbolForm
 from crashserver.server.models import Minidump, Project, ProjectType, User, Storage
 from crashserver.utility import misc
 
@@ -16,7 +17,6 @@ views = Blueprint("views", __name__)
 
 @views.route("/")
 def home():
-    # return redirect(url_for("views.crash"))
     apps = Project.query.all()
     return render_template("app/home.html", apps=apps)
 
@@ -109,15 +109,15 @@ def symbols():
     return render_template("symbols/symbols.html", projects=projects)
 
 
-@views.route("/upload", methods=["GET", "POST"])
-def upload():
+@views.route("/upload-minidump", methods=["GET", "POST"])
+def upload_minidump():
     form = UploadMinidumpForm()
 
     if request.method == "POST" and form.validate_on_submit():
         res = helpers.minidump_upload(db.session, form.project.data, {}, form.minidump.data.stream.read(), [])
         if res.status_code != 200:
             flash(res.json["error"], category="danger")
-            return redirect(url_for("views.upload"))
+            return redirect(url_for("views.upload_minidump"))
         else:
             return redirect(url_for("views.crash_detail", crash_id=res.json["id"]))
     else:
@@ -127,3 +127,32 @@ def upload():
     for p in projects:
         form.add_project_choice(str(p.id), p.project_name)
     return render_template("app/upload.html", form=form, projects=projects)
+
+
+@views.route("/upload-symbol", methods=["GET", "POST"])
+@login_required
+def upload_symbol():
+    form = UploadSymbolForm()
+
+    if request.method == "POST" and form.validate_on_submit():
+        project = Project.query.get(form.project.data)  # Get project
+
+        # Read first line of symbol file
+        symbol_file_bytes = form.symbol.data.stream.read()
+        with io.BytesIO(symbol_file_bytes) as f:
+            first_line_str = f.readline().decode("utf-8")
+
+        # Get relevant module info from first line of file
+        symbol_data = misc.SymbolData.from_module_line(first_line_str)
+        symbol_data.app_version = form.version.data if form.version.data else None
+
+        res = helpers.symbol_upload(db.session, project, symbol_file_bytes, symbol_data)
+        if res.status_code != 200:
+            flash(res.json["error"], category="danger")
+        else:
+            flash(_(f"Symbol {symbol_data.module_id}:{symbol_data.os}:{symbol_data.build_id} received."))
+    else:
+        misc.flash_form_errors(form)
+
+    projects = Project.query.with_entities(Project.id, Project.project_name, Project.project_type).all()
+    return render_template("symbols/symbol-upload.html", projects=projects, form=form)

@@ -16,12 +16,13 @@
 	<ul class="nav flex-column" id="nav_accordion">
 		{{ single_navbar_item(_("Crash Reports"), "fa-car-crash", url_for("views.crash")) }}
 		{{ single_navbar_item(_("Symbols"), "fa-shapes", url_for("views.symbols")) }}
-		{{ single_navbar_item(_("Upload"), "fa-upload", url_for("views.upload")) }}
+		{{ single_navbar_item(_("Upload Minidump"), "fa-upload", url_for("views.upload_minidump")) }}
 		<hr>
 		{% if current_user.is_anonymous %}
 			{{ single_navbar_item(_("Login"), "fa-sign-in-alt", url_for("auth.login")) }}
 		{% else %}
 			{{ single_navbar_item(_("Create App"), "fa-plus", url_for("views.project_create")) }}
+			{{ single_navbar_item(_("Upload Symbol"), "fa-file-upload", url_for("views.upload_symbol")) }}
 			{{ single_navbar_item(_("Settings"), "fa-cog", url_for("views.settings")) }}
 			{{ single_navbar_item(_("Logout"), "fa-sign-out-alt", url_for("auth.logout")) }}
 		{% endif %}

@@ -129,6 +129,9 @@ hr {
     grid-row-gap: 20px;
     grid-template-columns: 1fr 400px 1fr;
 }
+.centering-grid.w-500 {
+    grid-template-columns: 1fr 500px 1fr;
+}
 .centering-grid-item {
     grid-column: 2;
 }

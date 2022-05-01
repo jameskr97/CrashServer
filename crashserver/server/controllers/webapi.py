@@ -75,6 +75,21 @@ def get_symbols_count(project_id):
     return {"count": len(proj_symbols)}, 200
 
 
+@webapi.route("/webapi/project/versions/<project_id>")
+@login_required
+def get_project_versions(project_id):
+    if project_id is None:
+        return {"error": "project_id is required"}, 404
+
+    project = db.session.query(Project.id).filter_by(id=project_id).first()
+    if project is None:
+        return {"error": "project_id is invalid"}, 404
+
+    versions = db.session.query(Symbol.app_version).filter_by(project_id=project_id).distinct().all()
+    versions = [v[0] for v in versions]
+    return {"versions": versions}, 200
+
+
 @webapi.route("/webapi/project/rename/", methods=["POST"])
 @login_required
 def rename_project():

@@ -3,7 +3,7 @@
 {% block content %}
     <h1 class="text-center">{{ _("Upload") }} Minidump</h1>
     <hr>
-    <form class="" method="POST" action="{{ url_for("views.upload") }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ url_for("views.upload_minidump") }}" enctype="multipart/form-data">
         {{ form.csrf_token }}
 
         <!-- Drop down to select project -->

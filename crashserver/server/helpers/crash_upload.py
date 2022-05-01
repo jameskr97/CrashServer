@@ -48,8 +48,9 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
         session.add(build)
 
     if build.symbol:
+        session.rollback()
         logger.error("Symbol {} already uploaded. Subsequent upload rejected.", symbol_data.build_id)
-        return {"error": "Symbol file already uploaded"}, 203
+        return flask.make_response({"error": "Symbol file already uploaded"}, 203)
 
     build.symbol = Symbol(
         project_id=project.id,
@@ -85,7 +86,7 @@ def symbol_upload(session, project: Project, symbol_file: bytes, symbol_data: Sy
         "module_id": build.module_id,
         "date_created": build.symbol.date_created.isoformat(),
     }
-    return res, 200
+    return flask.make_response(res, 200)
 
 
 def minidump_upload(session, project_id: str, annotations: dict, minidump_file: bytes, attachments):

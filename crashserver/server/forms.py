@@ -4,6 +4,8 @@ from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, SelectField, ValidationError
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 
+from crashserver.server.models import Project, ProjectType
+
 
 class LoginForm(FlaskForm):
     email = StringField(lazy_gettext("Email Address"), validators=[DataRequired(), Email()])
@@ -41,12 +43,8 @@ class CreateAppForm(FlaskForm):
     )
 
 
-class UploadMinidumpForm(FlaskForm):
-    minidump = FileField(
-        lazy_gettext("Select Minidump file"),
-        validators=[FileRequired(), FileAllowed(["dmp"], lazy_gettext("Minidump Files Only"))],
-    )
-    project = SelectField(u"Projects", coerce=str, validate_choice=False)
+class ProjectForm(FlaskForm):
+    project = SelectField("Projects", coerce=str, validate_choice=False)
 
     def add_project_choice(self, value, title):
         data = (value, title)
@@ -54,3 +52,20 @@ class UploadMinidumpForm(FlaskForm):
             self.project.choices = [data]
         else:
             self.project.choices.append(data)
+
+
+class UploadMinidumpForm(ProjectForm):
+    minidump = FileField(lazy_gettext("Select Minidump file"), validators=[FileRequired(), FileAllowed(["dmp"], lazy_gettext("Minidump Files Only"))])
+
+
+class UploadSymbolForm(ProjectForm):
+    symbol = FileField(lazy_gettext("Select symbol file"), validators=[FileRequired(), FileAllowed(["sym"], lazy_gettext("Symbol Files Only"))])
+    version = SelectField("Version", validate_choice=False)
+
+    @staticmethod
+    def validate_version(form, field):
+        project = Project.query.get(form.project.data)
+        version = field.data.strip()
+
+        if project.project_type == ProjectType.VERSIONED and not version:
+            raise ValidationError("Versioned projects require a symbol version")
