@@ -140,4 +140,4 @@ if __name__ == "__main__":
         "logger_class": StubbedGunicornLogger,
         "worker_class": "gevent",
     }
-    StandaloneApplication(create_app(), options).run()
+    StandaloneApplication(app, options).run()

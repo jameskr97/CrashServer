@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Authorized users may now upload symbols via a web interface
 
+## [0.4.1] - 2022-05-09
+### Fixed
+- Change calling of `create_app()` with previously created app variable in main.py
+
 ## [0.4.0] - 2022-04-25
 ### Fixed
 - Migrations now include initial database create as a migration. (Date and time estimated based on first actual migration)
