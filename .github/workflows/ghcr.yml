@@ -1,5 +1,7 @@
 name: Github Container Upload
 on:
+  push:
+    branches: [develop]
   release:
     types: [published]
 
@@ -26,6 +28,7 @@ jobs:
             tags: |
               type=ref,event=tag
               type=semver,pattern={{major}}.{{minor}}.{{patch}}
+              type=ref,event=branch
 
         - name: Build and push
           id: build
