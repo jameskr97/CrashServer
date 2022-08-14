@@ -109,10 +109,9 @@ def decode_minidump(crash_id):
 
         logger.info(f"Minidump [{crash_id}] - Windows Symbols Obtained - [{num_downloaded}] Downloaded - [{num_existing}] Preexisting")
 
-    def process(binary):
-        return subprocess.run([binary, current_dump, cache_dir], capture_output=True)
-
-    json_stackwalk = process(stackwalker)
+    json_stackwalk = subprocess.run([stackwalker, current_dump, cache_dir], capture_output=True)
+    logger.info(f"OUTPUT PRIOR TO LOADS {json_stackwalk.stdout.decode('utf-8')}")
+    logger.info(f"OUTPUT AFTER TO LOADS {json.loads(json_stackwalk.stdout.decode('utf-8'))}")
     minidump.stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
     minidump.symbolicated = True
     minidump.decode_task_complete = True
