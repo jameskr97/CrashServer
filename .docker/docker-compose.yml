@@ -17,14 +17,12 @@ networks:
 services:
     redis:
         image: redis:6.2.5
-        container_name: redis
         restart: always
         networks: [crashnet]
         ports: ["6379:6379"]
 
     postgres:
         image: postgres
-        container_name: postgres
         restart: always
         networks: [crashnet]
         volumes: [db_data:/var/lib/postgresql/data]
@@ -35,7 +33,6 @@ services:
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
 
     minio:
-        container_name: minio
         image: minio/minio
         networks: [crashnet]
         restart: always
@@ -50,10 +47,9 @@ services:
         build:
             context: ..
             dockerfile: Dockerfile.dev
-        container_name: crashserver-app
         restart: always
         networks: [crashnet]
-        depends_on: [postgres, crashserver-worker]
+        depends_on: [postgres, crashserver-worker, redis]
         ports: ["8888:8888"]
         volumes:
             - ../:/app/
@@ -73,13 +69,12 @@ services:
             TZ: ${TZ:-UTC}
 
     crashserver-worker:
-        container_name: crashserver-worker
         build:
             context: ..
             dockerfile: Dockerfile.dev
         command: python3 /app/main-rq.py
         restart: always
-        depends_on: [redis]
+        depends_on: [postgres, redis]
         networks: [crashnet]
         volumes: ["./storage:/storage", "../:/app/"]
         environment:
@@ -87,6 +82,7 @@ services:
             CRASH_DB__user: ${POSTGRES_USER:-postgres}
             CRASH_DB__passwd: ${POSTGRES_PASSWORD:-password}
             CRASH_DB__host: ${CRASH_DB__HOST:-postgres}
+            LOGURU_LEVEL: INFO
 
 
 volumes:
