@@ -16,10 +16,12 @@ networks:
 
 services:
     redis:
-        image: redis:6.2.5
+        image: bitnami/redis:7.0
         restart: always
         networks: [crashnet]
         ports: ["6379:6379"]
+        environment:
+            REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
 
     postgres:
         image: postgres
@@ -66,6 +68,7 @@ services:
             CRASH_DB__user: ${POSTGRES_USER:-postgres}
             CRASH_DB__passwd: ${POSTGRES_PASSWORD:-password}
             CRASH_DB__host: ${CRASH_DB__HOST:-postgres}
+            CRASH_REDIS__passwd: ${REDIS_PASSWORD:-password}
             TZ: ${TZ:-UTC}
 
     crashserver-worker:
@@ -82,6 +85,7 @@ services:
             CRASH_DB__user: ${POSTGRES_USER:-postgres}
             CRASH_DB__passwd: ${POSTGRES_PASSWORD:-password}
             CRASH_DB__host: ${CRASH_DB__HOST:-postgres}
+            CRASH_REDIS__passwd: ${REDIS_PASSWORD:-password}
             LOGURU_LEVEL: INFO
 
 

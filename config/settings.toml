@@ -15,8 +15,9 @@ SECRET_KEY = "changeme"
     name    = "crashserver"
 
     [default.redis]
-    host = "redis"
-    port = 6379
+    passwd  = "password"
+    host    = "redis"
+    port    = 6379
 
     # Docker-based default storage directories
     [default.storage]

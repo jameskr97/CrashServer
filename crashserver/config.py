@@ -23,4 +23,4 @@ def get_postgres_url():
 
 
 def get_redis_url():
-    return f"redis://{settings.redis.host}:{settings.redis.port}"
+    return f"redis://:{settings.redis.passwd}@{settings.redis.host}:{settings.redis.port}"

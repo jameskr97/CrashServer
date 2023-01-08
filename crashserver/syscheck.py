@@ -50,11 +50,11 @@ def valid_redis_settings():
     Attempt to connect to redis host with the credentials from application settings.
     :return: True if successful, otherwise false.
     """
-    cfg = config.settings.redis
-    r = Redis(host=cfg.host, port=cfg.port)
+    r = Redis.from_url(config.get_redis_url())
     try:
         return r.ping()
     except Exception:
+        logger.error(f"Unable to connect to redis instance at redis://:***@{config.settings.redis.host}:{config.settings.redis.port}")
         return False
 
 
