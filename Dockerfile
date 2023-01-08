@@ -7,7 +7,7 @@ FROM python:3.10.1-slim-bullseye as builder
 
 # Install poetry for building
 WORKDIR /build
-ENV POETRY_VERSION=1.0.0
+ENV POETRY_VERSION=1.3.1
 
 COPY poetry.lock pyproject.toml ./
 RUN pip install "poetry==$POETRY_VERSION" && python -m venv /venv && poetry export -f requirements.txt | /venv/bin/pip install -r /dev/stdin
