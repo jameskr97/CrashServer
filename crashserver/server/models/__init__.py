@@ -6,7 +6,6 @@ from .project import Project, ProjectType
 from .storage import Storage
 from .symbol import Symbol
 from .symbol_upload import SymbolUploadV2
-from .symcache import SymCache
 from .user import User
 
 __all__ = [
@@ -19,6 +18,5 @@ __all__ = [
     "Symbol",
     "SymbolUploadV2",
     "User",
-    "SymCache",
     "Attachment",
 ]

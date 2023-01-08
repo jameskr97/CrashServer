@@ -1,39 +1,69 @@
 import json
 import subprocess
 from pathlib import Path
+import os
 
 import requests
 from loguru import logger
 
-from crashserver import config
 from crashserver.server.core.extensions import db
-from crashserver.server.models import Minidump, BuildMetadata, SymCache, Storage
+from crashserver.server.models import Minidump, BuildMetadata, Storage
 from crashserver.utility import processor
 
 
+class LocalSymCache:
+    def __init__(self, module_id: str, build_id: str):
+        self.module_id = module_id
+        self.build_id = build_id
+
+    @property
+    def url_path(self) -> str:
+        return "{0}/{1}/{0}".format(self.module_id, self.build_id)
+
+    def does_sym_exist(self) -> bool:
+        symbol = Path("/tmp/crash_decode/cache", self.url_path)
+        return symbol.exists()
+
+    def store_and_convert_symbol(self, file_content: bytes):
+        dump_syms = str(Path("res/bin/linux/dump_syms").absolute())
+
+        # Store PDB
+        pdb_location = Path("/tmp/crash_decode/downloads", self.url_path)
+        pdb_location.parent.mkdir(exist_ok=True, parents=True)
+        with open(pdb_location, "wb") as f:
+            f.write(file_content)
+
+        # Convert pdb to sym and store to file
+        filename = self.module_id.split(".")[0] + ".sym"
+        symfile = Path("/tmp/crash_decode/cache", self.module_id, self.build_id, filename)
+        symfile.parent.mkdir(parents=True, exist_ok=True)
+        with open(symfile, "wb") as f:
+            # Write symbol data
+            subprocess.run([dump_syms, pdb_location], stdout=f)
+
+        # Delete original pdb
+        os.remove(pdb_location.absolute())
+
+
 def download_windows_symbol(module_id: str, build_id: str) -> (bool, bool):
-    """Attempts to download and convert symbols from Microsft Symbol Server.
+    """Attempts to download and convert symbols from Microsoft Symbol Server.
     Returns tuple:
-        - 1st tuple: True if succesful download, otherwise false
+        - 1st tuple: True if successful download, otherwise false
         - 2nd tuple: True if already downloaded, otherwise false
     """
-    cached_sym = db.session.query(SymCache).filter_by(module_id=module_id, build_id=build_id).first()
+    cached_sym = LocalSymCache(module_id, build_id)
 
-    if cached_sym:
-        return (False, True)  # Not downloaded, already exists
+    if cached_sym.does_sym_exist():
+        return False, True  # Not downloaded, already exists
 
-    cached_sym = SymCache(module_id=module_id, build_id=build_id)
-    logger.debug("SymCache Miss. Attempting to download {}:{}".format(module_id, build_id))
-
+    logger.debug("LocalSymCache Miss. Attempting to download {}:{}".format(module_id, build_id))
     res = requests.get("https://msdl.microsoft.com/download/symbols/" + cached_sym.url_path)
     if res.status_code != 200:
         logger.debug("Symbol not available on Windows Symbol Server => {}:{}".format(module_id, build_id))
-        return (False, False)
+        return False, False
 
     cached_sym.store_and_convert_symbol(res.content)
-    db.session.add(cached_sym)
-    db.session.commit()
-    return (True, False)
+    return True, False
 
 
 def decode_minidump(crash_id):
@@ -110,8 +140,6 @@ def decode_minidump(crash_id):
         logger.info(f"Minidump [{crash_id}] - Windows Symbols Obtained - [{num_downloaded}] Downloaded - [{num_existing}] Preexisting")
 
     json_stackwalk = subprocess.run([stackwalker, current_dump, cache_dir], capture_output=True)
-    logger.info(f"OUTPUT PRIOR TO LOADS {json_stackwalk.stdout.decode('utf-8')}")
-    logger.info(f"OUTPUT AFTER TO LOADS {json.loads(json_stackwalk.stdout.decode('utf-8'))}")
     minidump.stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
     minidump.symbolicated = True
     minidump.decode_task_complete = True
