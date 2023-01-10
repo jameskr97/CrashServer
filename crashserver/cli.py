@@ -106,6 +106,15 @@ def register_util(app):
         """Misc crashserver interface functions"""
         pass
 
+    @util.command(help="Decode unsymbolicated")
+    def decode_unsym():
+        from crashserver.server.models import Minidump
+
+        with Session(create_engine(get_postgres_url())) as session:
+            res = session.query(Minidump).filter_by(symbolicated=False).all()
+            [x.decode_task() for x in res]
+        print(f"{len(res)} minidumps sent to worker for decode.")
+
     @util.command(help="Force minidump to decode")
     @click.argument("dump_id", required=True)
     def force_decode(dump_id):
