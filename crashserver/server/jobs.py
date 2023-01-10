@@ -160,6 +160,7 @@ def decode_minidump(crash_id):
         with open(f_without_sym, "w+") as fwithout:
             fwithout.write(machine.stdout.decode("utf-8"))
 
+        minidump.stacktrace = json_stack
         minidump.symbolicated = False
         minidump.decode_task_complete = True
         db.session.commit()
