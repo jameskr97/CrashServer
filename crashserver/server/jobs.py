@@ -140,7 +140,32 @@ def decode_minidump(crash_id):
         logger.info(f"Minidump [{crash_id}] - Windows Symbols Obtained - [{num_downloaded}] Downloaded - [{num_existing}] Preexisting")
 
     json_stackwalk = subprocess.run([stackwalker, current_dump, cache_dir], capture_output=True)
-    minidump.stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
+
+    try:
+        minidump.stacktrace = json.loads(json_stackwalk.stdout.decode("utf-8"))
+    except json.decoder.JSONDecodeError as err:
+        f_without_sym = f"/storage/decode_failed/{str(minidump.id)}.without_symbols.json"
+        f_with_sym = f"/storage/decode_failed/{str(minidump.id)}.with_symbols.json"
+
+        logger.error("[{}] Failed to decode. Logging metadata...", str(crash_id))
+        logger.error("[{}] Minidump file: {}", str(crash_id), minidump.filename)
+        logger.error("[{}] Upload IP: {}", str(crash_id), str(minidump.upload_ip))
+        logger.error("[{}] Related Symbol: {}", str(crash_id), str(minidump.symbol.id))
+        logger.error("[{}] without symbol json logged to: {}", str(crash_id), str(f_without_sym))
+        logger.error("[{}] with symbol json logged to: {}", str(crash_id), str(f_with_sym))
+
+        with open(f_with_sym, "w+") as fwith:
+            fwith.write(json_stackwalk.stdout.decode("utf-8"))
+
+        with open(f_without_sym, "w+") as fwithout:
+            fwithout.write(machine.stdout.decode("utf-8"))
+
+        minidump.symbolicated = False
+        minidump.decode_task_complete = True
+        db.session.commit()
+        logger.error(f"Minidump [{crash_id}] - Failed to decode.", minidump.id)
+        return
+
     minidump.symbolicated = True
     minidump.decode_task_complete = True
     db.session.commit()
